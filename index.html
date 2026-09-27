@@ -1,0 +1,1918 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>TS 后端架构：从 0 基础到高内聚低耦合</title>
+  <meta name="description" content="从最基础的 HTTP 接口开始，逐步理解 TypeScript 后端的分层、模块化、依赖注入、依赖倒置，以及高内聚、低耦合的工程化架构。">
+  <meta name="theme-color" content="#020617">
+
+  <!-- 字体 -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+
+  <!-- Tailwind CSS (CDN) -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['system-ui', '-apple-system', 'Segoe UI', 'Roboto', 'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei', 'sans-serif'],
+            mono: ['"JetBrains Mono"', 'ui-monospace', 'SFMono-Regular', 'Menlo', 'Consolas', 'monospace'],
+          },
+        },
+      },
+    };
+  </script>
+
+  <!-- highlight.js 主题 (CDN) -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github-dark.min.css">
+
+  <style type="text/tailwindcss">
+    html { scroll-behavior: smooth; }
+    ::selection { background: #c7d2fe; color: #1e1b4b; }
+
+    @layer components {
+      /* ---------- 版式 ---------- */
+      .doc-p { @apply my-3 text-[15px] leading-7 text-slate-600; }
+      .eyebrow { @apply text-[11px] font-semibold uppercase tracking-widest text-indigo-500; }
+      .sec-num { @apply mt-0.5 flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-indigo-600/10 font-mono text-sm font-bold text-indigo-600; }
+      .sec-title { @apply text-xl font-bold tracking-tight text-slate-900 sm:text-2xl; }
+      .doc-section { @apply scroll-mt-8; }
+      .doc-section + .doc-section { @apply mt-16 border-t border-slate-200/70 pt-12; }
+      .doc-h3 { @apply mb-4 mt-10 flex items-center gap-2 text-lg font-bold text-slate-900; }
+      .doc-h3::before { content: ""; @apply inline-block h-4 w-1 rounded-full bg-indigo-500; }
+      .doc-body :not(pre) > code { @apply rounded-md border border-slate-200/70 bg-slate-100 px-1.5 py-0.5 font-mono text-[0.85em] font-medium text-indigo-700; }
+
+      /* ---------- 流程图 ---------- */
+      .flow { @apply my-5 flex flex-col items-center; }
+      .flow-node { @apply w-full max-w-xs rounded-xl border border-slate-200 bg-white px-4 py-2.5 text-center text-sm font-semibold text-slate-700 shadow-sm; }
+      .flow-node-accent { @apply border-indigo-300 bg-indigo-50 text-indigo-700; }
+      .flow-arrow { @apply select-none py-1 text-lg leading-none text-slate-300; }
+      .flow-sm .flow-node { @apply px-3 py-1.5 text-[13px]; }
+      .flow-row { @apply my-4 flex flex-wrap items-center justify-center gap-x-2 gap-y-2; }
+      .fr-node { @apply rounded-lg border border-slate-200 bg-white px-3 py-1.5 font-mono text-xs font-semibold text-slate-700 shadow-sm; }
+      .fr-arrow { @apply text-slate-300; }
+
+      /* ---------- 代码卡片 ---------- */
+      .code-card { @apply my-4 overflow-hidden rounded-xl border border-slate-800 bg-slate-900 shadow-md; }
+      .code-head { @apply flex items-center justify-between gap-3 border-b border-slate-800 bg-slate-950/60 px-4 py-2; }
+      .code-lang { @apply font-mono text-[11px] font-medium uppercase tracking-wider text-slate-500; }
+      .code-flag { @apply rounded-md px-2 py-0.5 text-[11px] font-semibold; }
+      .code-flag.bad { @apply bg-rose-500/15 text-rose-300; }
+      .code-flag.good { @apply bg-emerald-500/15 text-emerald-300; }
+      .code-copy { @apply shrink-0 rounded-md border border-slate-700 px-2 py-0.5 text-[11px] text-slate-400 transition hover:border-slate-500 hover:text-slate-200; }
+      .code-copy.copied { @apply border-emerald-500/40 text-emerald-300; }
+      .code-body { @apply overflow-x-auto p-4 text-[13px] leading-6; }
+      .code-body code.hljs { background: transparent; padding: 0; }
+
+      /* ---------- 示意图 / 目录树 ---------- */
+      .diagram-card { @apply my-4 overflow-hidden rounded-xl border border-slate-200 bg-slate-50 shadow-sm; }
+      .diagram-head { @apply border-b border-slate-200 bg-white/70 px-4 py-2 font-mono text-[11px] font-medium uppercase tracking-wider text-slate-400; }
+      .diagram-card pre { @apply overflow-x-auto p-5 font-mono text-[13px] leading-6 text-slate-600; }
+      .tree-pre { @apply overflow-x-auto font-mono text-[13px] leading-6 text-slate-700; }
+
+      /* ---------- 提示块 ---------- */
+      .callout { @apply my-4 flex gap-3 rounded-xl border p-4 text-sm leading-6 text-slate-700; }
+      .callout-key { @apply border-indigo-100 bg-indigo-50/80; }
+      .callout-warn { @apply border-amber-200 bg-amber-50 text-amber-900; }
+      .callout-icon { @apply shrink-0 select-none leading-6; }
+
+      /* ---------- 徽章 / 标签 ---------- */
+      .chip { @apply inline-flex items-center rounded-lg border border-slate-200 bg-white px-2.5 py-1 font-mono text-xs font-medium text-slate-600 shadow-sm; }
+      .method-badge { @apply inline-block rounded-md px-2 py-0.5 font-mono text-xs font-bold text-white; }
+      .status-badge { @apply inline-block rounded-md px-2 py-0.5 font-mono text-xs font-semibold; }
+      .st-ok { @apply bg-emerald-100 text-emerald-700; }
+      .st-warn { @apply bg-amber-100 text-amber-700; }
+      .st-err { @apply bg-rose-100 text-rose-700; }
+      .check-item { @apply flex items-start gap-2 text-sm leading-6 text-slate-600; }
+      .check-dot { @apply mt-1 flex h-4 w-4 shrink-0 items-center justify-center rounded-full bg-emerald-100 text-[10px] font-bold text-emerald-600; }
+      .cross-item { @apply flex items-start gap-2 text-sm leading-6 text-slate-600; }
+      .cross-dot { @apply mt-1 flex h-4 w-4 shrink-0 items-center justify-center rounded-full bg-rose-100 text-[10px] font-bold text-rose-500; }
+      .tier-tag { @apply rounded-md px-2 py-0.5 text-xs font-semibold; }
+      .tag-rose { @apply bg-rose-100 text-rose-600; }
+      .tag-amber { @apply bg-amber-100 text-amber-700; }
+      .tag-emerald { @apply bg-emerald-100 text-emerald-700; }
+      .tag-indigo { @apply bg-indigo-100 text-indigo-700; }
+
+      /* ---------- 卡片 ---------- */
+      .layer-card { @apply rounded-2xl border border-slate-200 bg-white p-5 text-center shadow-sm; }
+      .layer-name { @apply font-mono text-sm font-bold text-slate-900; }
+      .layer-role { @apply mt-1.5 text-xs font-semibold uppercase tracking-wider text-indigo-500; }
+      .level-badge { @apply inline-block rounded-md border border-indigo-100 bg-indigo-50 px-2 py-1 text-xs font-bold text-indigo-600; }
+      .prio-badge { @apply inline-flex h-6 w-8 items-center justify-center rounded-md text-[11px] font-bold text-white; }
+      .cmp-bad { @apply rounded-2xl border border-rose-200 bg-rose-50/60 p-5; }
+      .cmp-good { @apply rounded-2xl border border-emerald-200 bg-emerald-50/60 p-5; }
+      .cmp-title { @apply mb-3 flex items-center gap-2 text-sm font-bold; }
+
+      /* ---------- 金句横幅 ---------- */
+      .big-quote { @apply my-6 rounded-2xl bg-gradient-to-r from-indigo-600 to-violet-600 p-6 text-center shadow-lg sm:p-8; }
+      .banner-tag { @apply text-xs font-semibold uppercase tracking-widest text-indigo-200; }
+      .banner-text { @apply mt-2 text-lg font-bold leading-relaxed text-white sm:text-xl; }
+
+      /* ---------- Hero ---------- */
+      .hero-chip { @apply rounded-lg border border-white/10 bg-white/5 px-2.5 py-1 font-mono text-xs text-slate-300; }
+
+      /* ---------- 目录 ---------- */
+      .toc-group { @apply mb-1 mt-5 px-3 text-[11px] font-semibold uppercase tracking-wider text-slate-400 first:mt-0; }
+      .toc-link { @apply block border-l-2 border-transparent py-1 pl-3 text-[13px] leading-5 text-slate-500 transition hover:border-slate-300 hover:text-slate-900; }
+      .toc-active { @apply border-indigo-500 font-medium text-indigo-600; }
+
+      /* ---------- 返回顶部 ---------- */
+      #back-top { @apply pointer-events-none fixed bottom-6 right-6 z-40 flex h-10 w-10 items-center justify-center rounded-full bg-slate-900 text-white opacity-0 shadow-lg transition; }
+      #back-top.show { @apply pointer-events-auto opacity-100; }
+      #back-top:hover { @apply bg-indigo-600; }
+    }
+  </style>
+</head>
+
+<body class="bg-slate-50 font-sans text-slate-800 antialiased">
+
+  <!-- 阅读进度条 -->
+  <div class="fixed inset-x-0 top-0 z-50 h-0.5 bg-transparent">
+    <div id="progress" class="h-full w-0 bg-gradient-to-r from-indigo-500 to-violet-500"></div>
+  </div>
+
+  <!-- ======================= Hero ======================= -->
+  <header class="relative overflow-hidden bg-slate-950">
+    <div class="pointer-events-none absolute inset-0" aria-hidden="true">
+      <div class="absolute -top-32 left-1/4 h-80 w-[36rem] -translate-x-1/2 rounded-full bg-indigo-600/30 blur-3xl"></div>
+      <div class="absolute -bottom-24 right-1/4 h-72 w-96 rounded-full bg-violet-600/20 blur-3xl"></div>
+      <div class="absolute inset-0 bg-[radial-gradient(ellipse_at_top,rgba(99,102,241,0.15),transparent_60%)]"></div>
+    </div>
+    <div class="relative mx-auto max-w-6xl px-4 pb-14 pt-16 sm:px-6 sm:pb-16 sm:pt-20 lg:px-8">
+      <span class="inline-flex items-center gap-1.5 rounded-full border border-indigo-400/30 bg-indigo-500/10 px-3 py-1 text-xs font-medium text-indigo-300">📘 后端学习路线图</span>
+      <h1 class="mt-5 text-3xl font-black leading-tight tracking-tight text-white sm:text-5xl">TS 后端架构</h1>
+      <p class="mt-2 bg-gradient-to-r from-indigo-300 via-violet-300 to-fuchsia-300 bg-clip-text text-xl font-bold text-transparent sm:text-3xl">从 0 基础到高内聚低耦合</p>
+      <p class="mt-5 max-w-2xl text-sm leading-7 text-slate-300 sm:text-base sm:leading-8">目标：从最基础的 HTTP 接口开始，逐步理解 TypeScript 后端的分层、模块化、依赖注入、依赖倒置，以及高内聚、低耦合的工程化架构。</p>
+      <div class="mt-6 flex flex-wrap gap-2">
+        <span class="hero-chip">TypeScript</span>
+        <span class="hero-chip">Node.js</span>
+        <span class="hero-chip">NestJS</span>
+        <span class="hero-chip">依赖注入</span>
+        <span class="hero-chip">高内聚低耦合</span>
+      </div>
+      <dl class="mt-10 grid max-w-md grid-cols-3 gap-6 border-t border-white/10 pt-6">
+        <div>
+          <dt class="text-xs text-slate-400">学习阶段</dt>
+          <dd class="mt-1 text-2xl font-bold text-white">10</dd>
+        </div>
+        <div>
+          <dt class="text-xs text-slate-400">演进层级</dt>
+          <dd class="mt-1 text-2xl font-bold text-white">8</dd>
+        </div>
+        <div>
+          <dt class="text-xs text-slate-400">实战项目</dt>
+          <dd class="mt-1 text-2xl font-bold text-white">5</dd>
+        </div>
+      </dl>
+    </div>
+  </header>
+
+  <!-- 移动端目录 -->
+  <div class="mx-auto max-w-6xl px-4 sm:px-6 lg:hidden">
+    <details class="my-6 rounded-2xl border border-slate-200 bg-white p-4 shadow-sm">
+      <summary class="cursor-pointer select-none text-sm font-semibold text-slate-700">📑 目录导航</summary>
+      <div class="mt-3 grid grid-cols-2 gap-x-6 text-sm">
+        <a class="py-1 text-slate-600 hover:text-indigo-600" href="#goals">01 学习目标</a>
+        <a class="py-1 text-slate-600 hover:text-indigo-600" href="#stage1">02 理解后端</a>
+        <a class="py-1 text-slate-600 hover:text-indigo-600" href="#stage2">03 HTTP API 基础</a>
+        <a class="py-1 text-slate-600 hover:text-indigo-600" href="#stage3">04 Node.js + TS</a>
+        <a class="py-1 text-slate-600 hover:text-indigo-600" href="#stage4">05 最简单的 API</a>
+        <a class="py-1 text-slate-600 hover:text-indigo-600" href="#controller">06 Controller</a>
+        <a class="py-1 text-slate-600 hover:text-indigo-600" href="#service">07 Service</a>
+        <a class="py-1 text-slate-600 hover:text-indigo-600" href="#repository">08 Repository</a>
+        <a class="py-1 text-slate-600 hover:text-indigo-600" href="#why-layers">09 为什么要分层</a>
+        <a class="py-1 text-slate-600 hover:text-indigo-600" href="#dto">10 DTO</a>
+        <a class="py-1 text-slate-600 hover:text-indigo-600" href="#dto-vs-entity">11 DTO ≠ Entity ≠ Model</a>
+        <a class="py-1 text-slate-600 hover:text-indigo-600" href="#validation">12 参数校验</a>
+        <a class="py-1 text-slate-600 hover:text-indigo-600" href="#error-handling">13 错误处理</a>
+        <a class="py-1 text-slate-600 hover:text-indigo-600" href="#unified-response">14 统一响应</a>
+        <a class="py-1 text-slate-600 hover:text-indigo-600" href="#modular">15 模块化</a>
+        <a class="py-1 text-slate-600 hover:text-indigo-600" href="#cohesion">16 什么叫高内聚</a>
+        <a class="py-1 text-slate-600 hover:text-indigo-600" href="#coupling">17 什么叫低耦合</a>
+        <a class="py-1 text-slate-600 hover:text-indigo-600" href="#abstraction">18 依赖抽象</a>
+        <a class="py-1 text-slate-600 hover:text-indigo-600" href="#di">19 依赖注入 DI</a>
+        <a class="py-1 text-slate-600 hover:text-indigo-600" href="#dip">20 依赖倒置</a>
+        <a class="py-1 text-slate-600 hover:text-indigo-600" href="#use-case">21 Use Case</a>
+        <a class="py-1 text-slate-600 hover:text-indigo-600" href="#evolution">22 架构演进</a>
+        <a class="py-1 text-slate-600 hover:text-indigo-600" href="#evolution-path">23 演进路线</a>
+        <a class="py-1 text-slate-600 hover:text-indigo-600" href="#practice">24 项目实战路线</a>
+        <a class="py-1 text-slate-600 hover:text-indigo-600" href="#core-insight">25 核心认知</a>
+        <a class="py-1 text-slate-600 hover:text-indigo-600" href="#learning-map">26 学习地图</a>
+        <a class="py-1 text-slate-600 hover:text-indigo-600" href="#priority">27 学习优先级</a>
+        <a class="py-1 text-slate-600 hover:text-indigo-600" href="#final-goal">28 最终目标</a>
+      </div>
+    </details>
+  </div>
+
+  <!-- ======================= 正文 ======================= -->
+  <div class="mx-auto max-w-6xl px-4 sm:px-6 lg:px-8">
+    <div class="lg:grid lg:grid-cols-[230px_minmax(0,1fr)] lg:gap-10">
+
+      <!-- 桌面端目录 -->
+      <aside class="hidden lg:block">
+        <nav id="toc" aria-label="目录" class="sticky top-8 max-h-[calc(100vh-4rem)] overflow-y-auto py-12 pr-2 text-sm">
+          <p class="mb-2 px-3 text-xs font-bold uppercase tracking-widest text-slate-400">目录</p>
+
+          <p class="toc-group">开始</p>
+          <a class="toc-link" href="#goals">学习目标</a>
+
+          <p class="toc-group">基础篇</p>
+          <a class="toc-link" href="#stage1">第一阶段：理解后端</a>
+          <a class="toc-link" href="#stage2">第二阶段：HTTP API 基础</a>
+          <a class="toc-link" href="#stage3">第三阶段：Node.js + TS</a>
+
+          <p class="toc-group">分层篇</p>
+          <a class="toc-link" href="#stage4">最简单的 API</a>
+          <a class="toc-link" href="#controller">Controller</a>
+          <a class="toc-link" href="#service">Service</a>
+          <a class="toc-link" href="#repository">Repository</a>
+          <a class="toc-link" href="#why-layers">为什么要分层？</a>
+
+          <p class="toc-group">数据与校验</p>
+          <a class="toc-link" href="#dto">第五阶段：DTO</a>
+          <a class="toc-link" href="#dto-vs-entity">DTO ≠ Entity ≠ Model</a>
+          <a class="toc-link" href="#validation">参数校验</a>
+
+          <p class="toc-group">错误与响应</p>
+          <a class="toc-link" href="#error-handling">第六阶段：错误处理</a>
+          <a class="toc-link" href="#unified-response">统一响应</a>
+
+          <p class="toc-group">模块与耦合</p>
+          <a class="toc-link" href="#modular">第七阶段：模块化</a>
+          <a class="toc-link" href="#cohesion">什么叫高内聚？</a>
+          <a class="toc-link" href="#coupling">什么叫低耦合？</a>
+          <a class="toc-link" href="#abstraction">依赖抽象</a>
+
+          <p class="toc-group">依赖管理</p>
+          <a class="toc-link" href="#di">第八阶段：依赖注入 DI</a>
+          <a class="toc-link" href="#dip">依赖倒置</a>
+
+          <p class="toc-group">进阶架构</p>
+          <a class="toc-link" href="#use-case">第九阶段：Use Case</a>
+          <a class="toc-link" href="#evolution">第十阶段：架构演进</a>
+          <a class="toc-link" href="#evolution-path">推荐的架构演进路线</a>
+
+          <p class="toc-group">实战与总结</p>
+          <a class="toc-link" href="#practice">项目实战路线</a>
+          <a class="toc-link" href="#core-insight">后端架构核心认知</a>
+          <a class="toc-link" href="#learning-map">最终学习地图</a>
+          <a class="toc-link" href="#priority">学习时的优先级</a>
+          <a class="toc-link" href="#final-goal">最终目标</a>
+        </nav>
+      </aside>
+
+      <main class="doc-body min-w-0 pb-20 pt-2">
+
+        <!-- 01 学习目标 -->
+        <section id="goals" class="doc-section">
+          <header class="mb-5 flex items-start gap-3">
+            <span class="sec-num">01</span>
+            <div>
+              <p class="eyebrow">开始</p>
+              <h2 class="sec-title">学习目标</h2>
+            </div>
+          </header>
+          <p class="doc-p">学完以后，应该能够独立设计类似：</p>
+          <div class="flow">
+            <div class="flow-node">React / Vue</div>
+            <div class="flow-arrow">↓</div>
+            <div class="flow-node">HTTP API</div>
+            <div class="flow-arrow">↓</div>
+            <div class="flow-node">Controller</div>
+            <div class="flow-arrow">↓</div>
+            <div class="flow-node">Service / Use Case</div>
+            <div class="flow-arrow">↓</div>
+            <div class="flow-node">Repository</div>
+            <div class="flow-arrow">↓</div>
+            <div class="flow-node flow-node-accent">Database</div>
+          </div>
+          <p class="doc-p mt-6 font-semibold text-slate-800">并理解：</p>
+          <ul class="my-4 grid gap-x-8 gap-y-2.5 sm:grid-cols-2">
+            <li class="check-item"><span class="check-dot">✓</span>为什么要分 Controller / Service / Repository</li>
+            <li class="check-item"><span class="check-dot">✓</span>什么代码应该放在哪里</li>
+            <li class="check-item"><span class="check-dot">✓</span>什么叫高内聚</li>
+            <li class="check-item"><span class="check-dot">✓</span>什么叫低耦合</li>
+            <li class="check-item"><span class="check-dot">✓</span>为什么 Controller 不应该直接操作数据库</li>
+            <li class="check-item"><span class="check-dot">✓</span>为什么 Service 不应该强依赖具体 ORM</li>
+            <li class="check-item"><span class="check-dot">✓</span>DTO、Entity、Model 分别是什么</li>
+            <li class="check-item"><span class="check-dot">✓</span>如何处理参数校验和异常</li>
+            <li class="check-item"><span class="check-dot">✓</span>如何使用依赖注入</li>
+            <li class="check-item"><span class="check-dot">✓</span>如何通过接口降低模块耦合</li>
+            <li class="check-item"><span class="check-dot">✓</span>如何从简单 CRUD 演进到可维护的后端架构</li>
+          </ul>
+        </section>
+
+        <!-- 02 第一阶段：理解后端 -->
+        <section id="stage1" class="doc-section">
+          <header class="mb-5 flex items-start gap-3">
+            <span class="sec-num">02</span>
+            <div>
+              <p class="eyebrow">基础篇</p>
+              <h2 class="sec-title">第一阶段：理解后端</h2>
+            </div>
+          </header>
+          <p class="doc-p">不要一开始就学框架，先理解后端的基本工作方式。</p>
+          <div class="flow">
+            <div class="flow-node">客户端</div>
+            <div class="flow-arrow">↓</div>
+            <div class="flow-node">HTTP Request</div>
+            <div class="flow-arrow">↓</div>
+            <div class="flow-node">后端服务器</div>
+            <div class="flow-arrow">↓</div>
+            <div class="flow-node">业务处理</div>
+            <div class="flow-arrow">↓</div>
+            <div class="flow-node">数据库</div>
+            <div class="flow-arrow">↓</div>
+            <div class="flow-node flow-node-accent">HTTP Response</div>
+          </div>
+          <p class="doc-p">例如：</p>
+          <figure class="code-card">
+            <figcaption class="code-head">
+              <span class="code-lang">HTTP</span>
+              <button class="code-copy" type="button">复制</button>
+            </figcaption>
+            <pre class="code-body"><code class="language-http">POST /users
+Content-Type: application/json
+
+{
+  "name": "Alkaid",
+  "email": "test@example.com"
+}</code></pre>
+          </figure>
+          <p class="doc-p">后端完成业务处理后返回：</p>
+          <figure class="code-card">
+            <figcaption class="code-head">
+              <span class="code-lang">JSON</span>
+              <button class="code-copy" type="button">复制</button>
+            </figcaption>
+            <pre class="code-body"><code class="language-json">{
+  "id": "123",
+  "name": "Alkaid",
+  "email": "test@example.com"
+}</code></pre>
+          </figure>
+        </section>
+
+        <!-- 03 第二阶段：HTTP API 基础 -->
+        <section id="stage2" class="doc-section">
+          <header class="mb-5 flex items-start gap-3">
+            <span class="sec-num">03</span>
+            <div>
+              <p class="eyebrow">基础篇</p>
+              <h2 class="sec-title">第二阶段：HTTP API 基础</h2>
+            </div>
+          </header>
+
+          <h3 class="doc-h3">HTTP 方法</h3>
+          <div class="my-4 overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm">
+            <table class="w-full text-sm">
+              <thead class="bg-slate-50 text-left text-xs uppercase tracking-wider text-slate-500">
+                <tr>
+                  <th class="px-4 py-2.5 font-semibold">方法</th>
+                  <th class="px-4 py-2.5 font-semibold">用途</th>
+                </tr>
+              </thead>
+              <tbody class="divide-y divide-slate-100">
+                <tr><td class="px-4 py-2.5"><span class="method-badge bg-emerald-500">GET</span></td><td class="px-4 py-2.5 text-slate-600">查询</td></tr>
+                <tr><td class="px-4 py-2.5"><span class="method-badge bg-blue-500">POST</span></td><td class="px-4 py-2.5 text-slate-600">创建</td></tr>
+                <tr><td class="px-4 py-2.5"><span class="method-badge bg-amber-500">PUT</span></td><td class="px-4 py-2.5 text-slate-600">整体更新</td></tr>
+                <tr><td class="px-4 py-2.5"><span class="method-badge bg-violet-500">PATCH</span></td><td class="px-4 py-2.5 text-slate-600">部分更新</td></tr>
+                <tr><td class="px-4 py-2.5"><span class="method-badge bg-rose-500">DELETE</span></td><td class="px-4 py-2.5 text-slate-600">删除</td></tr>
+              </tbody>
+            </table>
+          </div>
+          <p class="doc-p">例如：</p>
+          <figure class="code-card">
+            <figcaption class="code-head">
+              <span class="code-lang">HTTP</span>
+              <button class="code-copy" type="button">复制</button>
+            </figcaption>
+            <pre class="code-body"><code class="language-http">GET /users
+GET /users/123
+
+POST /users
+
+PATCH /users/123
+
+DELETE /users/123</code></pre>
+          </figure>
+
+          <h3 class="doc-h3">Request</h3>
+          <p class="doc-p">HTTP 请求主要可以理解为：</p>
+          <div class="my-4 flex flex-wrap items-center gap-2 rounded-xl border border-slate-200 bg-white p-4 shadow-sm">
+            <span class="font-mono text-sm font-bold text-slate-900">Request</span>
+            <span class="text-slate-300">=</span>
+            <span class="chip">Params</span>
+            <span class="chip">Query</span>
+            <span class="chip">Body</span>
+            <span class="chip">Headers</span>
+            <span class="chip">Cookies</span>
+          </div>
+          <p class="doc-p">例如：</p>
+          <figure class="code-card">
+            <figcaption class="code-head">
+              <span class="code-lang">HTTP</span>
+              <button class="code-copy" type="button">复制</button>
+            </figcaption>
+            <pre class="code-body"><code class="language-http">GET /users/123?page=1
+Authorization: Bearer xxx</code></pre>
+          </figure>
+          <p class="doc-p">对应：</p>
+          <figure class="code-card">
+            <figcaption class="code-head">
+              <span class="code-lang">TypeScript</span>
+              <button class="code-copy" type="button">复制</button>
+            </figcaption>
+            <pre class="code-body"><code class="language-ts">params.id
+query.page
+headers.authorization</code></pre>
+          </figure>
+          <p class="doc-p">POST Body：</p>
+          <figure class="code-card">
+            <figcaption class="code-head">
+              <span class="code-lang">JSON</span>
+              <button class="code-copy" type="button">复制</button>
+            </figcaption>
+            <pre class="code-body"><code class="language-json">{
+  "name": "Alkaid",
+  "age": 20
+}</code></pre>
+          </figure>
+          <p class="doc-p">对应：</p>
+          <figure class="code-card">
+            <figcaption class="code-head">
+              <span class="code-lang">TypeScript</span>
+              <button class="code-copy" type="button">复制</button>
+            </figcaption>
+            <pre class="code-body"><code class="language-ts">body.name
+body.age</code></pre>
+          </figure>
+
+          <h3 class="doc-h3">Response</h3>
+          <p class="doc-p">常见状态码：</p>
+          <div class="my-4 overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm">
+            <table class="w-full text-sm">
+              <thead class="bg-slate-50 text-left text-xs uppercase tracking-wider text-slate-500">
+                <tr>
+                  <th class="px-4 py-2.5 font-semibold">状态码</th>
+                  <th class="px-4 py-2.5 font-semibold">含义</th>
+                </tr>
+              </thead>
+              <tbody class="divide-y divide-slate-100">
+                <tr><td class="px-4 py-2"><span class="status-badge st-ok">200</span></td><td class="px-4 py-2 text-slate-600">OK</td></tr>
+                <tr><td class="px-4 py-2"><span class="status-badge st-ok">201</span></td><td class="px-4 py-2 text-slate-600">Created</td></tr>
+                <tr><td class="px-4 py-2"><span class="status-badge st-ok">204</span></td><td class="px-4 py-2 text-slate-600">No Content</td></tr>
+                <tr><td class="px-4 py-2"><span class="status-badge st-warn">400</span></td><td class="px-4 py-2 text-slate-600">Bad Request</td></tr>
+                <tr><td class="px-4 py-2"><span class="status-badge st-warn">401</span></td><td class="px-4 py-2 text-slate-600">Unauthorized</td></tr>
+                <tr><td class="px-4 py-2"><span class="status-badge st-warn">403</span></td><td class="px-4 py-2 text-slate-600">Forbidden</td></tr>
+                <tr><td class="px-4 py-2"><span class="status-badge st-warn">404</span></td><td class="px-4 py-2 text-slate-600">Not Found</td></tr>
+                <tr><td class="px-4 py-2"><span class="status-badge st-warn">409</span></td><td class="px-4 py-2 text-slate-600">Conflict</td></tr>
+                <tr><td class="px-4 py-2"><span class="status-badge st-err">500</span></td><td class="px-4 py-2 text-slate-600">Internal Server Error</td></tr>
+              </tbody>
+            </table>
+          </div>
+          <div class="callout callout-key">
+            <span class="callout-icon">⭐</span>
+            <div>需要建立一个重要认知：<strong class="font-semibold text-slate-900">HTTP 状态码属于协议层，业务错误属于业务层。</strong></div>
+          </div>
+          <p class="doc-p">例如：</p>
+          <div class="my-4 grid gap-3 sm:grid-cols-2">
+            <div class="flex items-center justify-between gap-3 rounded-xl border border-slate-200 bg-white px-4 py-3 shadow-sm">
+              <span class="text-sm text-slate-600">用户不存在</span>
+              <span class="text-slate-300">→</span>
+              <span class="status-badge st-warn">404 Not Found</span>
+            </div>
+            <div class="flex items-center justify-between gap-3 rounded-xl border border-slate-200 bg-white px-4 py-3 shadow-sm">
+              <span class="text-sm text-slate-600">邮箱已经注册</span>
+              <span class="text-slate-300">→</span>
+              <span class="status-badge st-warn">409 Conflict</span>
+            </div>
+          </div>
+        </section>
+
+        <!-- 04 第三阶段：Node.js + TypeScript -->
+        <section id="stage3" class="doc-section">
+          <header class="mb-5 flex items-start gap-3">
+            <span class="sec-num">04</span>
+            <div>
+              <p class="eyebrow">基础篇</p>
+              <h2 class="sec-title">第三阶段：Node.js + TypeScript</h2>
+            </div>
+          </header>
+          <p class="doc-p">开始使用 TypeScript 编写后端。推荐学习路线：</p>
+          <div class="flow">
+            <div class="flow-node">Node.js</div>
+            <div class="flow-arrow">＋</div>
+            <div class="flow-node">TypeScript</div>
+            <div class="flow-arrow">＋</div>
+            <div class="flow-node flow-node-accent">NestJS</div>
+          </div>
+          <p class="doc-p">NestJS 很适合作为架构学习载体，因为它天然包含：</p>
+          <div class="my-4 flex flex-wrap gap-2">
+            <span class="chip">Module</span>
+            <span class="chip">Controller</span>
+            <span class="chip">Service</span>
+            <span class="chip">Dependency Injection</span>
+            <span class="chip">Middleware</span>
+            <span class="chip">Guard</span>
+            <span class="chip">Interceptor</span>
+            <span class="chip">Pipe</span>
+          </div>
+          <p class="doc-p">这些概念与工程化后端高度相关。</p>
+        </section>
+
+        <!-- 05 第四阶段：最简单的 API -->
+        <section id="stage4" class="doc-section">
+          <header class="mb-5 flex items-start gap-3">
+            <span class="sec-num">05</span>
+            <div>
+              <p class="eyebrow">分层篇</p>
+              <h2 class="sec-title">第四阶段：Controller / Service / Repository</h2>
+            </div>
+          </header>
+          <h3 class="doc-h3">最简单的 API</h3>
+          <p class="doc-p">刚开始甚至可以直接：</p>
+          <figure class="code-card">
+            <figcaption class="code-head">
+              <span class="code-lang">TypeScript</span>
+              <button class="code-copy" type="button">复制</button>
+            </figcaption>
+            <pre class="code-body"><code class="language-ts">app.get("/users", async () => {
+  return [
+    {
+      id: 1,
+      name: "Alkaid",
+    },
+  ];
+});</code></pre>
+          </figure>
+          <p class="doc-p">这时候没有明显架构。</p>
+          <p class="doc-p">没关系。</p>
+          <div class="callout callout-key">
+            <span class="callout-icon">💡</span>
+            <div><strong class="font-semibold text-slate-900">架构应该随着复杂度演进，而不是一开始堆满概念。</strong></div>
+          </div>
+        </section>
+
+        <!-- 06 Controller -->
+        <section id="controller" class="doc-section">
+          <header class="mb-5 flex items-start gap-3">
+            <span class="sec-num">06</span>
+            <div>
+              <p class="eyebrow">分层篇</p>
+              <h2 class="sec-title">Controller</h2>
+            </div>
+          </header>
+          <div class="callout callout-key">
+            <span class="callout-icon">🎯</span>
+            <div>Controller 的职责：<strong class="font-semibold text-slate-900">负责 HTTP 层。</strong></div>
+          </div>
+          <p class="doc-p">例如：</p>
+          <figure class="code-card">
+            <figcaption class="code-head">
+              <span class="code-lang">TypeScript</span>
+              <button class="code-copy" type="button">复制</button>
+            </figcaption>
+            <pre class="code-body"><code class="language-ts">class UserController {
+  async getUser(req, res) {
+    const user = await this.userService.getUser(req.params.id);
+
+    return res.json(user);
+  }
+}</code></pre>
+          </figure>
+          <p class="doc-p">Controller 主要负责：</p>
+          <div class="flow flow-sm">
+            <div class="flow-node">HTTP Request</div>
+            <div class="flow-arrow">↓</div>
+            <div class="flow-node">获取参数</div>
+            <div class="flow-arrow">↓</div>
+            <div class="flow-node">调用业务</div>
+            <div class="flow-arrow">↓</div>
+            <div class="flow-node flow-node-accent">HTTP Response</div>
+          </div>
+          <p class="doc-p">Controller 不应该承担复杂业务逻辑。不推荐：</p>
+          <figure class="code-card">
+            <figcaption class="code-head">
+              <span class="flex items-center gap-2">
+                <span class="code-flag bad">不推荐</span>
+                <span class="code-lang">TypeScript</span>
+              </span>
+              <button class="code-copy" type="button">复制</button>
+            </figcaption>
+            <pre class="code-body"><code class="language-ts">async getUser(req, res) {
+  const user = await db.user.findUnique({
+    where: {
+      id: req.params.id,
+    },
+  });
+
+  if (!user) {
+    throw new Error("用户不存在");
+  }
+
+  if (user.status === "banned") {
+    throw new Error("用户被封禁");
+  }
+
+  // 一堆业务逻辑……
+}</code></pre>
+          </figure>
+          <p class="doc-p font-semibold text-slate-800">问题：</p>
+          <ul class="my-3 space-y-2">
+            <li class="cross-item"><span class="cross-dot">✗</span>Controller 太胖</li>
+            <li class="cross-item"><span class="cross-dot">✗</span>HTTP 与业务耦合</li>
+            <li class="cross-item"><span class="cross-dot">✗</span>数据库与 Controller 耦合</li>
+            <li class="cross-item"><span class="cross-dot">✗</span>难以测试</li>
+            <li class="cross-item"><span class="cross-dot">✗</span>难以复用业务逻辑</li>
+          </ul>
+        </section>
+
+        <!-- 07 Service -->
+        <section id="service" class="doc-section">
+          <header class="mb-5 flex items-start gap-3">
+            <span class="sec-num">07</span>
+            <div>
+              <p class="eyebrow">分层篇</p>
+              <h2 class="sec-title">Service</h2>
+            </div>
+          </header>
+          <div class="callout callout-key">
+            <span class="callout-icon">🎯</span>
+            <div>Service 的职责：<strong class="font-semibold text-slate-900">负责业务逻辑。</strong></div>
+          </div>
+          <p class="doc-p">例如：</p>
+          <figure class="code-card">
+            <figcaption class="code-head">
+              <span class="code-lang">TypeScript</span>
+              <button class="code-copy" type="button">复制</button>
+            </figcaption>
+            <pre class="code-body"><code class="language-ts">class UserService {
+  async getUser(id: string) {
+    const user = await this.userRepository.findById(id);
+
+    if (!user) {
+      throw new UserNotFoundError();
+    }
+
+    return user;
+  }
+}</code></pre>
+          </figure>
+          <div class="my-4 grid gap-4 sm:grid-cols-2">
+            <div class="rounded-xl border border-emerald-200 bg-emerald-50/60 p-4">
+              <p class="text-sm font-bold text-emerald-700">Service 应该关注</p>
+              <p class="mt-2 text-sm leading-6 text-slate-600">业务应该怎么运行</p>
+            </div>
+            <div class="rounded-xl border border-slate-200 bg-slate-50 p-4">
+              <p class="text-sm font-bold text-slate-500">而不是</p>
+              <ul class="mt-2 space-y-1 text-sm leading-6 text-slate-600">
+                <li class="flex gap-2"><span class="text-slate-300">·</span>HTTP 怎么处理</li>
+                <li class="flex gap-2"><span class="text-slate-300">·</span>NestJS Controller 怎么写</li>
+                <li class="flex gap-2"><span class="text-slate-300">·</span>req / res 怎么操作</li>
+              </ul>
+            </div>
+          </div>
+        </section>
+
+        <!-- 08 Repository -->
+        <section id="repository" class="doc-section">
+          <header class="mb-5 flex items-start gap-3">
+            <span class="sec-num">08</span>
+            <div>
+              <p class="eyebrow">分层篇</p>
+              <h2 class="sec-title">Repository</h2>
+            </div>
+          </header>
+          <div class="callout callout-key">
+            <span class="callout-icon">🎯</span>
+            <div>Repository 的职责：<strong class="font-semibold text-slate-900">负责数据访问。</strong></div>
+          </div>
+          <p class="doc-p">例如：</p>
+          <figure class="code-card">
+            <figcaption class="code-head">
+              <span class="code-lang">TypeScript</span>
+              <button class="code-copy" type="button">复制</button>
+            </figcaption>
+            <pre class="code-body"><code class="language-ts">class UserRepository {
+  async findById(id: string) {
+    return prisma.user.findUnique({
+      where: {
+        id,
+      },
+    });
+  }
+}</code></pre>
+          </figure>
+          <p class="doc-p">Repository 负责：</p>
+          <div class="my-4 flex flex-wrap gap-2">
+            <span class="chip">数据库查询</span>
+            <span class="chip">数据库新增</span>
+            <span class="chip">数据库修改</span>
+            <span class="chip">数据库删除</span>
+          </div>
+          <p class="doc-p">于是形成：</p>
+          <div class="flow flow-sm">
+            <div class="flow-node">Controller</div>
+            <div class="flow-arrow">↓</div>
+            <div class="flow-node">Service</div>
+            <div class="flow-arrow">↓</div>
+            <div class="flow-node">Repository</div>
+            <div class="flow-arrow">↓</div>
+            <div class="flow-node flow-node-accent">Database</div>
+          </div>
+        </section>
+
+        <!-- 09 为什么要分层 -->
+        <section id="why-layers" class="doc-section">
+          <header class="mb-5 flex items-start gap-3">
+            <span class="sec-num">09</span>
+            <div>
+              <p class="eyebrow">分层篇</p>
+              <h2 class="sec-title">为什么要分层？</h2>
+            </div>
+          </header>
+          <p class="doc-p">因为每一层都有明确职责：</p>
+          <div class="my-4 grid gap-4 sm:grid-cols-3">
+            <div class="layer-card">
+              <p class="layer-name">Controller</p>
+              <p class="layer-role">HTTP</p>
+            </div>
+            <div class="layer-card">
+              <p class="layer-name">Service</p>
+              <p class="layer-role">Business</p>
+            </div>
+            <div class="layer-card">
+              <p class="layer-name">Repository</p>
+              <p class="layer-role">Data Access</p>
+            </div>
+          </div>
+          <p class="doc-p">这体现的是：</p>
+          <div class="callout callout-key">
+            <span class="callout-icon">💡</span>
+            <div><strong class="font-semibold text-slate-900">单一职责原则（Single Responsibility Principle）</strong></div>
+          </div>
+          <p class="doc-p">一个模块应该主要负责一个明确的变化原因。</p>
+        </section>
+
+        <!-- 10 第五阶段：DTO -->
+        <section id="dto" class="doc-section">
+          <header class="mb-5 flex items-start gap-3">
+            <span class="sec-num">10</span>
+            <div>
+              <p class="eyebrow">数据与校验</p>
+              <h2 class="sec-title">第五阶段：DTO</h2>
+            </div>
+          </header>
+          <div class="callout callout-key">
+            <span class="callout-icon">📦</span>
+            <div>DTO：<strong class="font-semibold text-slate-900">Data Transfer Object</strong></div>
+          </div>
+          <p class="doc-p">用于描述 API 的输入或输出数据。例如：</p>
+          <figure class="code-card">
+            <figcaption class="code-head">
+              <span class="code-lang">TypeScript</span>
+              <button class="code-copy" type="button">复制</button>
+            </figcaption>
+            <pre class="code-body"><code class="language-ts">class CreateUserDto {
+  name: string;
+  email: string;
+  password: string;
+}</code></pre>
+          </figure>
+          <p class="doc-p">表示：</p>
+          <div class="callout callout-key">
+            <span class="callout-icon">💡</span>
+            <div>创建用户这个 API <strong class="font-semibold text-slate-900">允许客户端传入什么</strong>。</div>
+          </div>
+          <p class="doc-p">例如：</p>
+          <figure class="code-card">
+            <figcaption class="code-head">
+              <span class="code-lang">JSON</span>
+              <button class="code-copy" type="button">复制</button>
+            </figcaption>
+            <pre class="code-body"><code class="language-json">{
+  "name": "Alkaid",
+  "email": "test@example.com",
+  "password": "123456"
+}</code></pre>
+          </figure>
+        </section>
+
+        <!-- 11 DTO ≠ Entity ≠ Database Model -->
+        <section id="dto-vs-entity" class="doc-section">
+          <header class="mb-5 flex items-start gap-3">
+            <span class="sec-num">11</span>
+            <div>
+              <p class="eyebrow">数据与校验</p>
+              <h2 class="sec-title">DTO ≠ Entity ≠ Database Model</h2>
+            </div>
+          </header>
+          <p class="doc-p">这是后端学习中的重要概念。</p>
+          <div class="my-4 grid gap-4 lg:grid-cols-3">
+            <div class="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
+              <p class="font-mono text-sm font-bold text-indigo-600">DTO</p>
+              <p class="mt-2 text-sm leading-6 text-slate-600">描述：<strong class="font-semibold text-slate-800">API 输入 / 输出</strong></p>
+              <div class="mt-3 flex flex-wrap gap-1.5">
+                <span class="chip">CreateUserDto</span>
+                <span class="chip">UpdateUserDto</span>
+                <span class="chip">LoginDto</span>
+              </div>
+            </div>
+            <div class="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
+              <p class="font-mono text-sm font-bold text-indigo-600">Entity</p>
+              <p class="mt-2 text-sm leading-6 text-slate-600">描述：<strong class="font-semibold text-slate-800">业务领域中的对象</strong></p>
+              <div class="mt-3 flex flex-wrap gap-1.5">
+                <span class="chip">User</span>
+                <span class="chip">Order</span>
+                <span class="chip">Product</span>
+                <span class="chip">Payment</span>
+              </div>
+            </div>
+            <div class="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
+              <p class="font-mono text-sm font-bold text-indigo-600">Database Model</p>
+              <p class="mt-2 text-sm leading-6 text-slate-600">描述：<strong class="font-semibold text-slate-800">数据库中的数据结构</strong>，例如 Prisma：</p>
+              <pre class="tree-pre mt-3 rounded-lg bg-slate-50 p-3 text-xs">model User {
+  id       String
+  email    String
+  password String
+}</pre>
+            </div>
+          </div>
+          <div class="callout callout-warn">
+            <span class="callout-icon">⚠️</span>
+            <div>三者不应该无脑混为一谈。</div>
+          </div>
+        </section>
+
+        <!-- 12 参数校验 -->
+        <section id="validation" class="doc-section">
+          <header class="mb-5 flex items-start gap-3">
+            <span class="sec-num">12</span>
+            <div>
+              <p class="eyebrow">数据与校验</p>
+              <h2 class="sec-title">参数校验</h2>
+            </div>
+          </header>
+          <p class="doc-p">API 输入不能完全信任客户端。例如一个 <code>email</code> 字段，需要验证：</p>
+          <ul class="my-4 grid gap-x-8 gap-y-2.5 sm:grid-cols-2">
+            <li class="check-item"><span class="check-dot">✓</span>是否存在</li>
+            <li class="check-item"><span class="check-dot">✓</span>是否是字符串</li>
+            <li class="check-item"><span class="check-dot">✓</span>是否符合邮箱格式</li>
+            <li class="check-item"><span class="check-dot">✓</span>长度是否合理</li>
+          </ul>
+          <p class="doc-p">常见方案：</p>
+          <div class="my-4 flex flex-wrap gap-2">
+            <span class="chip">Zod</span>
+            <span class="chip">class-validator</span>
+            <span class="chip">Valibot</span>
+          </div>
+          <p class="doc-p">现代 TypeScript 项目可以考虑 Zod：</p>
+          <figure class="code-card">
+            <figcaption class="code-head">
+              <span class="code-lang">TypeScript</span>
+              <button class="code-copy" type="button">复制</button>
+            </figcaption>
+            <pre class="code-body"><code class="language-ts">const CreateUserSchema = z.object({
+  name: z.string().min(1),
+  email: z.email(),
+  password: z.string().min(6),
+});</code></pre>
+          </figure>
+          <div class="callout callout-key">
+            <span class="callout-icon">💡</span>
+            <div>核心思想：<strong class="font-semibold text-slate-900">API 边界必须进行输入验证。</strong></div>
+          </div>
+        </section>
+
+        <!-- 13 第六阶段：错误处理 -->
+        <section id="error-handling" class="doc-section">
+          <header class="mb-5 flex items-start gap-3">
+            <span class="sec-num">13</span>
+            <div>
+              <p class="eyebrow">错误与响应</p>
+              <h2 class="sec-title">第六阶段：错误处理</h2>
+            </div>
+          </header>
+          <p class="doc-p">不要在项目中到处 <code>throw new Error("xxx")</code>，可以逐渐形成明确的错误类型。例如：</p>
+          <figure class="code-card">
+            <figcaption class="code-head">
+              <span class="code-lang">TypeScript</span>
+              <button class="code-copy" type="button">复制</button>
+            </figcaption>
+            <pre class="code-body"><code class="language-ts">class UserNotFoundError extends Error {}</code></pre>
+          </figure>
+          <p class="doc-p">业务层：</p>
+          <figure class="code-card">
+            <figcaption class="code-head">
+              <span class="code-lang">TypeScript</span>
+              <button class="code-copy" type="button">复制</button>
+            </figcaption>
+            <pre class="code-body"><code class="language-ts">if (!user) {
+  throw new UserNotFoundError();
+}</code></pre>
+          </figure>
+          <p class="doc-p">然后通过统一异常处理：</p>
+          <div class="flow flow-sm">
+            <div class="flow-node">Service</div>
+            <div class="flow-arrow">↓</div>
+            <div class="flow-node">throw Error</div>
+            <div class="flow-arrow">↓</div>
+            <div class="flow-node">Global Exception Handler</div>
+            <div class="flow-arrow">↓</div>
+            <div class="flow-node flow-node-accent">HTTP Response</div>
+          </div>
+          <p class="doc-p">而不是每个 Controller 都自己：</p>
+          <figure class="code-card">
+            <figcaption class="code-head">
+              <span class="flex items-center gap-2">
+                <span class="code-flag bad">不推荐</span>
+                <span class="code-lang">TypeScript</span>
+              </span>
+              <button class="code-copy" type="button">复制</button>
+            </figcaption>
+            <pre class="code-body"><code class="language-ts">try {
+  ...
+} catch (error) {
+  return res.status(500).json(...)
+}</code></pre>
+          </figure>
+        </section>
+
+        <!-- 14 统一响应 -->
+        <section id="unified-response" class="doc-section">
+          <header class="mb-5 flex items-start gap-3">
+            <span class="sec-num">14</span>
+            <div>
+              <p class="eyebrow">错误与响应</p>
+              <h2 class="sec-title">统一响应</h2>
+            </div>
+          </header>
+          <p class="doc-p">可以设计统一的 API 响应结构：</p>
+          <div class="my-4 grid gap-4 sm:grid-cols-2">
+            <figure class="code-card my-0">
+              <figcaption class="code-head">
+                <span class="flex items-center gap-2">
+                  <span class="code-flag good">成功</span>
+                  <span class="code-lang">JSON</span>
+                </span>
+                <button class="code-copy" type="button">复制</button>
+              </figcaption>
+              <pre class="code-body"><code class="language-json">{
+  "success": true,
+  "data": {}
+}</code></pre>
+            </figure>
+            <figure class="code-card my-0">
+              <figcaption class="code-head">
+                <span class="flex items-center gap-2">
+                  <span class="code-flag bad">失败</span>
+                  <span class="code-lang">JSON</span>
+                </span>
+                <button class="code-copy" type="button">复制</button>
+              </figcaption>
+              <pre class="code-body"><code class="language-json">{
+  "success": false,
+  "error": {
+    "code": "USER_NOT_FOUND",
+    "message": "User not found"
+  }
+}</code></pre>
+            </figure>
+          </div>
+          <p class="doc-p">但不要为了统一而统一。</p>
+          <div class="callout callout-key">
+            <span class="callout-icon">💡</span>
+            <div>API 设计应该优先保证<strong class="font-semibold text-slate-900">清晰、稳定、易用</strong>。</div>
+          </div>
+        </section>
+
+        <!-- 15 第七阶段：模块化 -->
+        <section id="modular" class="doc-section">
+          <header class="mb-5 flex items-start gap-3">
+            <span class="sec-num">15</span>
+            <div>
+              <p class="eyebrow">模块与耦合</p>
+              <h2 class="sec-title">第七阶段：模块化</h2>
+            </div>
+          </header>
+          <p class="doc-p">当项目开始变大：</p>
+          <div class="my-4 grid gap-4 sm:grid-cols-2">
+            <div class="cmp-bad">
+              <p class="cmp-title text-rose-600">❌ 不推荐</p>
+              <pre class="tree-pre">controllers/
+services/
+repositories/</pre>
+              <p class="mt-3 text-xs leading-5 text-rose-500">里面塞几十个甚至上百个文件。</p>
+            </div>
+            <div class="cmp-good">
+              <p class="cmp-title text-emerald-600">✅ 更推荐：按业务领域组织</p>
+              <pre class="tree-pre">users/
+├── user.controller.ts
+├── user.service.ts
+├── user.repository.ts
+├── user.dto.ts
+└── user.entity.ts
+
+auth/
+├── auth.controller.ts
+├── auth.service.ts
+└── auth.dto.ts</pre>
+            </div>
+          </div>
+          <div class="callout callout-key">
+            <span class="callout-icon">💡</span>
+            <div>这是一种<strong class="font-semibold text-slate-900">按业务领域组织代码（Feature / Domain-oriented Organization）</strong>的方式。</div>
+          </div>
+        </section>
+
+        <!-- 16 什么叫高内聚 -->
+        <section id="cohesion" class="doc-section">
+          <header class="mb-5 flex items-start gap-3">
+            <span class="sec-num">16</span>
+            <div>
+              <p class="eyebrow">模块与耦合</p>
+              <h2 class="sec-title">什么叫高内聚？</h2>
+            </div>
+          </header>
+          <div class="callout callout-key">
+            <span class="callout-icon">🧲</span>
+            <div>高内聚：<strong class="font-semibold text-slate-900">一个模块内部的代码应该尽可能围绕同一个业务职责。</strong></div>
+          </div>
+          <p class="doc-p">例如：</p>
+          <figure class="diagram-card">
+            <figcaption class="diagram-head">users/</figcaption>
+            <pre>users/
+├── user.controller.ts
+├── user.service.ts
+├── user.repository.ts
+├── user.dto.ts
+└── user.entity.ts</pre>
+          </figure>
+          <p class="doc-p">这些代码都围绕 <code>User</code>，因此具有较高的内聚性。</p>
+        </section>
+
+        <!-- 17 什么叫低耦合 -->
+        <section id="coupling" class="doc-section">
+          <header class="mb-5 flex items-start gap-3">
+            <span class="sec-num">17</span>
+            <div>
+              <p class="eyebrow">模块与耦合</p>
+              <h2 class="sec-title">什么叫低耦合？</h2>
+            </div>
+          </header>
+          <div class="callout callout-key">
+            <span class="callout-icon">🔗</span>
+            <div>耦合描述：<strong class="font-semibold text-slate-900">一个模块对另一个模块的依赖程度。</strong></div>
+          </div>
+          <p class="doc-p">例如：</p>
+          <figure class="code-card">
+            <figcaption class="code-head">
+              <span class="code-lang">TypeScript</span>
+              <button class="code-copy" type="button">复制</button>
+            </figcaption>
+            <pre class="code-body"><code class="language-ts">class UserService {
+  constructor(
+    private prisma: PrismaClient,
+  ) {}
+}</code></pre>
+          </figure>
+          <div class="flow flow-sm">
+            <div class="flow-node">UserService</div>
+            <div class="flow-arrow">↓</div>
+            <div class="flow-node">Prisma</div>
+          </div>
+          <p class="doc-p">Service 强依赖 Prisma。如果以后：</p>
+          <div class="flow flow-sm">
+            <div class="flow-node">Prisma</div>
+            <div class="flow-arrow">↓</div>
+            <div class="flow-node">Drizzle</div>
+          </div>
+          <p class="doc-p">可能需要修改大量业务代码。</p>
+        </section>
+
+        <!-- 18 依赖抽象 -->
+        <section id="abstraction" class="doc-section">
+          <header class="mb-5 flex items-start gap-3">
+            <span class="sec-num">18</span>
+            <div>
+              <p class="eyebrow">模块与耦合</p>
+              <h2 class="sec-title">依赖抽象</h2>
+            </div>
+          </header>
+          <p class="doc-p">更好的方式：</p>
+          <div class="flow flow-sm">
+            <div class="flow-node">UserService</div>
+            <div class="flow-arrow">↓</div>
+            <div class="flow-node">UserRepository</div>
+            <div class="flow-arrow">↓</div>
+            <div class="flow-node flow-node-accent">PrismaUserRepository</div>
+          </div>
+          <p class="doc-p">Service 只依赖抽象：</p>
+          <figure class="code-card">
+            <figcaption class="code-head">
+              <span class="code-lang">TypeScript</span>
+              <button class="code-copy" type="button">复制</button>
+            </figcaption>
+            <pre class="code-body"><code class="language-ts">interface UserRepository {
+  findById(id: string): Promise&lt;User | null&gt;;
+}</code></pre>
+          </figure>
+          <p class="doc-p">具体实现：</p>
+          <figure class="code-card">
+            <figcaption class="code-head">
+              <span class="code-lang">TypeScript</span>
+              <button class="code-copy" type="button">复制</button>
+            </figcaption>
+            <pre class="code-body"><code class="language-ts">class PrismaUserRepository implements UserRepository {
+  async findById(id: string) {
+    return this.prisma.user.findUnique({
+      where: { id },
+    });
+  }
+}</code></pre>
+          </figure>
+          <div class="my-4 grid gap-4 sm:grid-cols-2">
+            <div class="rounded-xl border border-rose-200 bg-rose-50/60 p-4">
+              <p class="text-sm font-bold text-rose-600">Service 不需要知道</p>
+              <div class="mt-3 flex flex-wrap gap-1.5">
+                <span class="chip">Prisma</span>
+                <span class="chip">PostgreSQL</span>
+                <span class="chip">MySQL</span>
+                <span class="chip">MongoDB</span>
+              </div>
+            </div>
+            <div class="rounded-xl border border-emerald-200 bg-emerald-50/60 p-4">
+              <p class="text-sm font-bold text-emerald-700">它只知道</p>
+              <div class="mt-3 flex flex-wrap gap-1.5">
+                <span class="chip">UserRepository</span>
+              </div>
+            </div>
+          </div>
+          <p class="doc-p">这就是降低耦合的核心手段之一。</p>
+        </section>
+
+        <!-- 19 第八阶段：依赖注入 DI -->
+        <section id="di" class="doc-section">
+          <header class="mb-5 flex items-start gap-3">
+            <span class="sec-num">19</span>
+            <div>
+              <p class="eyebrow">依赖管理</p>
+              <h2 class="sec-title">第八阶段：依赖注入 DI</h2>
+            </div>
+          </header>
+          <div class="callout callout-key">
+            <span class="callout-icon">💉</span>
+            <div>Dependency Injection：<strong class="font-semibold text-slate-900">不让一个类自己创建依赖，而由外部把依赖传入。</strong></div>
+          </div>
+          <p class="doc-p">例如：</p>
+          <figure class="code-card">
+            <figcaption class="code-head">
+              <span class="code-lang">TypeScript</span>
+              <button class="code-copy" type="button">复制</button>
+            </figcaption>
+            <pre class="code-body"><code class="language-ts">class UserService {
+  constructor(
+    private readonly userRepository: UserRepository,
+  ) {}
+}</code></pre>
+          </figure>
+          <p class="doc-p">外部：</p>
+          <figure class="code-card">
+            <figcaption class="code-head">
+              <span class="code-lang">TypeScript</span>
+              <button class="code-copy" type="button">复制</button>
+            </figcaption>
+            <pre class="code-body"><code class="language-ts">const service = new UserService(
+  new PrismaUserRepository(),
+);</code></pre>
+          </figure>
+          <p class="doc-p">Service 不负责：</p>
+          <figure class="code-card">
+            <figcaption class="code-head">
+              <span class="code-lang">TypeScript</span>
+              <button class="code-copy" type="button">复制</button>
+            </figcaption>
+            <pre class="code-body"><code class="language-ts">new PrismaUserRepository()</code></pre>
+          </figure>
+          <p class="doc-p">而是由外部提供。</p>
+          <div class="callout callout-key">
+            <span class="callout-icon">💡</span>
+            <div>这就是 <strong class="font-semibold text-slate-900">Dependency Injection</strong>。</div>
+          </div>
+          <p class="doc-p">NestJS 会大量使用这种思想。</p>
+        </section>
+
+        <!-- 20 依赖倒置 -->
+        <section id="dip" class="doc-section">
+          <header class="mb-5 flex items-start gap-3">
+            <span class="sec-num">20</span>
+            <div>
+              <p class="eyebrow">依赖管理</p>
+              <h2 class="sec-title">依赖倒置</h2>
+            </div>
+          </header>
+          <div class="my-4 grid gap-4 sm:grid-cols-2">
+            <div class="cmp-bad">
+              <p class="cmp-title text-rose-600">传统依赖</p>
+              <div class="flex flex-col items-center">
+                <div class="fr-node w-40 text-center">Business</div>
+                <div class="flow-arrow">↓</div>
+                <div class="fr-node w-40 border-rose-200 bg-white text-center text-rose-600">Prisma</div>
+              </div>
+            </div>
+            <div class="cmp-good">
+              <p class="cmp-title text-emerald-600">更合理</p>
+              <div class="flex flex-col items-center">
+                <div class="fr-node w-40 text-center">Business</div>
+                <div class="flow-arrow">↓</div>
+                <div class="fr-node w-40 border-emerald-300 bg-emerald-50 text-center text-emerald-700">Interface</div>
+                <div class="flow-arrow">↑</div>
+                <div class="fr-node w-40 text-center">Prisma</div>
+              </div>
+            </div>
+          </div>
+          <p class="doc-p">业务依赖抽象，而不是具体实现。例如：</p>
+          <figure class="code-card">
+            <figcaption class="code-head">
+              <span class="code-lang">TypeScript</span>
+              <button class="code-copy" type="button">复制</button>
+            </figcaption>
+            <pre class="code-body"><code class="language-ts">interface UserRepository {
+  findById(id: string): Promise&lt;User | null&gt;;
+}</code></pre>
+          </figure>
+          <p class="doc-p">业务：</p>
+          <figure class="code-card">
+            <figcaption class="code-head">
+              <span class="code-lang">TypeScript</span>
+              <button class="code-copy" type="button">复制</button>
+            </figcaption>
+            <pre class="code-body"><code class="language-ts">class UserService {
+  constructor(
+    private readonly userRepository: UserRepository,
+  ) {}
+}</code></pre>
+          </figure>
+          <p class="doc-p">基础设施：</p>
+          <figure class="code-card">
+            <figcaption class="code-head">
+              <span class="code-lang">TypeScript</span>
+              <button class="code-copy" type="button">复制</button>
+            </figcaption>
+            <pre class="code-body"><code class="language-ts">class PrismaUserRepository
+  implements UserRepository {
+}</code></pre>
+          </figure>
+          <p class="doc-p">这样：</p>
+          <div class="flow flow-sm">
+            <div class="flow-node">业务层</div>
+            <div class="flow-arrow">↓</div>
+            <div class="flow-node flow-node-accent">抽象</div>
+            <div class="flow-arrow">↑</div>
+            <div class="flow-node">基础设施</div>
+          </div>
+          <div class="callout callout-key">
+            <span class="callout-icon">💡</span>
+            <div>这就是 <strong class="font-semibold text-slate-900">Dependency Inversion Principle</strong>。</div>
+          </div>
+        </section>
+
+        <!-- 21 第九阶段：Use Case -->
+        <section id="use-case" class="doc-section">
+          <header class="mb-5 flex items-start gap-3">
+            <span class="sec-num">21</span>
+            <div>
+              <p class="eyebrow">进阶架构</p>
+              <h2 class="sec-title">第九阶段：Use Case</h2>
+            </div>
+          </header>
+          <p class="doc-p">当业务越来越复杂，可以从简单 Service 进一步演进到 Use Case。一个 Use Case 表示：</p>
+          <div class="callout callout-key">
+            <span class="callout-icon">🎬</span>
+            <div><strong class="font-semibold text-slate-900">一个完整的业务动作。</strong></div>
+          </div>
+          <p class="doc-p">例如：</p>
+          <div class="my-4 flex flex-wrap gap-2">
+            <span class="chip">RegisterUserUseCase</span>
+            <span class="chip">LoginUserUseCase</span>
+            <span class="chip">CreateOrderUseCase</span>
+            <span class="chip">PayOrderUseCase</span>
+            <span class="chip">CancelOrderUseCase</span>
+          </div>
+          <p class="doc-p">例如注册：</p>
+          <figure class="code-card">
+            <figcaption class="code-head">
+              <span class="code-lang">TypeScript</span>
+              <button class="code-copy" type="button">复制</button>
+            </figcaption>
+            <pre class="code-body"><code class="language-ts">class RegisterUserUseCase {
+  constructor(
+    private readonly userRepository: UserRepository,
+    private readonly passwordHasher: PasswordHasher,
+  ) {}
+
+  async execute(input: RegisterUserInput) {
+    const exists =
+      await this.userRepository.findByEmail(input.email);
+
+    if (exists) {
+      throw new EmailAlreadyExistsError();
+    }
+
+    const password =
+      await this.passwordHasher.hash(input.password);
+
+    return this.userRepository.create({
+      email: input.email,
+      password,
+    });
+  }
+}</code></pre>
+          </figure>
+          <p class="doc-p">Use Case 不应该直接依赖：</p>
+          <div class="my-3 flex flex-wrap gap-2">
+            <span class="chip">Prisma</span>
+            <span class="chip">PostgreSQL</span>
+            <span class="chip">bcrypt</span>
+            <span class="chip">Redis</span>
+            <span class="chip">NestJS</span>
+            <span class="chip">HTTP</span>
+          </div>
+          <p class="doc-p">而应该依赖抽象。</p>
+        </section>
+
+        <!-- 22 第十阶段：架构演进 -->
+        <section id="evolution" class="doc-section">
+          <header class="mb-5 flex items-start gap-3">
+            <span class="sec-num">22</span>
+            <div>
+              <p class="eyebrow">进阶架构</p>
+              <h2 class="sec-title">第十阶段：架构演进</h2>
+            </div>
+          </header>
+          <p class="doc-p">成熟项目可以进一步组织成：</p>
+          <figure class="diagram-card">
+            <figcaption class="diagram-head">目录结构</figcaption>
+            <pre>src/
+│
+├── modules/
+│   │
+│   ├── users/
+│   │   ├── domain/
+│   │   │   ├── entities/
+│   │   │   ├── value-objects/
+│   │   │   └── repositories/
+│   │   │
+│   │   ├── application/
+│   │   │   ├── use-cases/
+│   │   │   └── dto/
+│   │   │
+│   │   ├── infrastructure/
+│   │   │   └── repositories/
+│   │   │
+│   │   └── presentation/
+│   │       └── controllers/
+│   │
+│   └── auth/
+│
+├── shared/
+│   ├── errors/
+│   ├── utils/
+│   └── types/
+│
+├── config/
+│
+└── main.ts</pre>
+          </figure>
+          <p class="doc-p">这是 Clean Architecture / DDD 等思想可以演进到的方向之一。但是：</p>
+          <div class="callout callout-warn">
+            <span class="callout-icon">⚠️</span>
+            <div>不要在刚学后端时直接套这个目录结构。</div>
+          </div>
+          <p class="doc-p">架构应该根据复杂度演进。</p>
+        </section>
+
+        <!-- 23 推荐的架构演进路线 -->
+        <section id="evolution-path" class="doc-section">
+          <header class="mb-5 flex items-start gap-3">
+            <span class="sec-num">23</span>
+            <div>
+              <p class="eyebrow">进阶架构</p>
+              <h2 class="sec-title">推荐的架构演进路线</h2>
+            </div>
+          </header>
+          <ol class="relative ml-3 space-y-7 border-l-2 border-indigo-100 pl-8">
+            <li class="relative">
+              <span class="absolute -left-[39px] flex h-6 w-6 items-center justify-center rounded-full bg-indigo-600 font-mono text-[11px] font-bold text-white shadow-sm">1</span>
+              <p class="text-[11px] font-semibold uppercase tracking-wider text-slate-400">Level 1</p>
+              <p class="font-mono text-sm font-semibold text-slate-800">单文件 API</p>
+            </li>
+            <li class="relative">
+              <span class="absolute -left-[39px] flex h-6 w-6 items-center justify-center rounded-full bg-indigo-600 font-mono text-[11px] font-bold text-white shadow-sm">2</span>
+              <p class="text-[11px] font-semibold uppercase tracking-wider text-slate-400">Level 2</p>
+              <p class="font-mono text-sm font-semibold text-slate-800">Controller + Service</p>
+            </li>
+            <li class="relative">
+              <span class="absolute -left-[39px] flex h-6 w-6 items-center justify-center rounded-full bg-indigo-600 font-mono text-[11px] font-bold text-white shadow-sm">3</span>
+              <p class="text-[11px] font-semibold uppercase tracking-wider text-slate-400">Level 3</p>
+              <p class="font-mono text-sm font-semibold text-slate-800">Controller + Service + Repository</p>
+            </li>
+            <li class="relative">
+              <span class="absolute -left-[39px] flex h-6 w-6 items-center justify-center rounded-full bg-indigo-600 font-mono text-[11px] font-bold text-white shadow-sm">4</span>
+              <p class="text-[11px] font-semibold uppercase tracking-wider text-slate-400">Level 4</p>
+              <p class="font-mono text-sm font-semibold text-slate-800">Module + DTO + Validation + Error</p>
+            </li>
+            <li class="relative">
+              <span class="absolute -left-[39px] flex h-6 w-6 items-center justify-center rounded-full bg-indigo-600 font-mono text-[11px] font-bold text-white shadow-sm">5</span>
+              <p class="text-[11px] font-semibold uppercase tracking-wider text-slate-400">Level 5</p>
+              <p class="font-mono text-sm font-semibold text-slate-800">Dependency Injection</p>
+            </li>
+            <li class="relative">
+              <span class="absolute -left-[39px] flex h-6 w-6 items-center justify-center rounded-full bg-indigo-600 font-mono text-[11px] font-bold text-white shadow-sm">6</span>
+              <p class="text-[11px] font-semibold uppercase tracking-wider text-slate-400">Level 6</p>
+              <p class="font-mono text-sm font-semibold text-slate-800">Interface + Dependency Inversion</p>
+            </li>
+            <li class="relative">
+              <span class="absolute -left-[39px] flex h-6 w-6 items-center justify-center rounded-full bg-indigo-600 font-mono text-[11px] font-bold text-white shadow-sm">7</span>
+              <p class="text-[11px] font-semibold uppercase tracking-wider text-slate-400">Level 7</p>
+              <p class="font-mono text-sm font-semibold text-slate-800">Use Case + Domain</p>
+            </li>
+            <li class="relative">
+              <span class="absolute -left-[39px] flex h-6 w-6 items-center justify-center rounded-full bg-violet-600 font-mono text-[11px] font-bold text-white shadow-sm">8</span>
+              <p class="text-[11px] font-semibold uppercase tracking-wider text-slate-400">Level 8</p>
+              <p class="font-mono text-sm font-semibold text-slate-800">Clean Architecture / DDD</p>
+            </li>
+          </ol>
+          <div class="callout callout-key mt-6">
+            <span class="callout-icon">💡</span>
+            <div>核心原则：<strong class="font-semibold text-slate-900">不要为了“高级架构”而架构。</strong></div>
+          </div>
+        </section>
+
+        <!-- 24 项目实战路线 -->
+        <section id="practice" class="doc-section">
+          <header class="mb-5 flex items-start gap-3">
+            <span class="sec-num">24</span>
+            <div>
+              <p class="eyebrow">实战与总结</p>
+              <h2 class="sec-title">项目实战路线</h2>
+            </div>
+          </header>
+          <div class="my-4 space-y-4">
+            <div class="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm sm:p-6">
+              <div class="flex flex-wrap items-center gap-3">
+                <span class="level-badge">Level 1</span>
+                <h3 class="text-base font-bold text-slate-900">Todo API</h3>
+              </div>
+              <p class="mt-3 text-xs font-semibold text-slate-400">学习</p>
+              <div class="mt-2 flex flex-wrap gap-1.5">
+                <span class="chip">HTTP</span>
+                <span class="chip">REST</span>
+                <span class="chip">CRUD</span>
+                <span class="chip">Request</span>
+                <span class="chip">Response</span>
+                <span class="chip">Status Code</span>
+              </div>
+            </div>
+
+            <div class="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm sm:p-6">
+              <div class="flex flex-wrap items-center gap-3">
+                <span class="level-badge">Level 2</span>
+                <h3 class="text-base font-bold text-slate-900">User API</h3>
+              </div>
+              <p class="mt-3 text-xs font-semibold text-slate-400">加入</p>
+              <div class="mt-2 flex flex-wrap gap-1.5">
+                <span class="chip">PostgreSQL</span>
+                <span class="chip">ORM</span>
+                <span class="chip">DTO</span>
+                <span class="chip">Validation</span>
+                <span class="chip">Error Handling</span>
+              </div>
+            </div>
+
+            <div class="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm sm:p-6">
+              <div class="flex flex-wrap items-center gap-3">
+                <span class="level-badge">Level 3</span>
+                <h3 class="text-base font-bold text-slate-900">Blog API</h3>
+              </div>
+              <p class="mt-3 text-xs font-semibold text-slate-400">加入</p>
+              <div class="mt-2 flex flex-wrap gap-1.5">
+                <span class="chip">User</span>
+                <span class="chip">Post</span>
+                <span class="chip">Comment</span>
+                <span class="chip">Auth</span>
+                <span class="chip">JWT</span>
+                <span class="chip">Permission</span>
+                <span class="chip">Module</span>
+                <span class="chip">Service</span>
+                <span class="chip">Repository</span>
+              </div>
+            </div>
+
+            <div class="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm sm:p-6">
+              <div class="flex flex-wrap items-center gap-3">
+                <span class="level-badge">Level 4</span>
+                <h3 class="text-base font-bold text-slate-900">电商 API</h3>
+              </div>
+              <p class="mt-3 text-xs font-semibold text-slate-400">加入</p>
+              <div class="mt-2 flex flex-wrap gap-1.5">
+                <span class="chip">User</span>
+                <span class="chip">Product</span>
+                <span class="chip">Cart</span>
+                <span class="chip">Order</span>
+                <span class="chip">Payment</span>
+                <span class="chip">Inventory</span>
+              </div>
+              <p class="mt-4 text-xs font-semibold text-slate-400">进一步学习</p>
+              <div class="mt-2 flex flex-wrap gap-1.5">
+                <span class="chip">Transaction</span>
+                <span class="chip">Use Case</span>
+                <span class="chip">Repository Interface</span>
+                <span class="chip">Dependency Injection</span>
+                <span class="chip">Domain</span>
+              </div>
+            </div>
+
+            <div class="rounded-2xl border border-indigo-200 bg-white p-5 shadow-sm sm:p-6">
+              <div class="flex flex-wrap items-center gap-3">
+                <span class="level-badge">Level 5</span>
+                <h3 class="text-base font-bold text-slate-900">完整全栈项目</h3>
+              </div>
+              <p class="mt-3 text-xs font-semibold text-slate-400">最终</p>
+              <div class="mt-2 flex flex-wrap items-center gap-x-2 gap-y-2 rounded-xl border border-slate-100 bg-slate-50 px-4 py-3">
+                <span class="fr-node">React</span><span class="fr-arrow">→</span>
+                <span class="fr-node">API</span><span class="fr-arrow">→</span>
+                <span class="fr-node">NestJS</span><span class="fr-arrow">→</span>
+                <span class="fr-node">Application</span><span class="fr-arrow">→</span>
+                <span class="fr-node">Domain</span><span class="fr-arrow">→</span>
+                <span class="fr-node">Repository</span><span class="fr-arrow">→</span>
+                <span class="fr-node border-indigo-300 bg-indigo-50 text-indigo-700">PostgreSQL</span>
+              </div>
+              <p class="mt-4 text-xs font-semibold text-slate-400">进一步加入</p>
+              <div class="mt-2 flex flex-wrap gap-1.5">
+                <span class="chip">Redis</span>
+                <span class="chip">Queue</span>
+                <span class="chip">Object Storage</span>
+                <span class="chip">Email</span>
+                <span class="chip">WebSocket</span>
+                <span class="chip">Logging</span>
+                <span class="chip">Monitoring</span>
+                <span class="chip">Testing</span>
+                <span class="chip">Docker</span>
+                <span class="chip">CI/CD</span>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- 25 后端架构核心认知 -->
+        <section id="core-insight" class="doc-section">
+          <header class="mb-5 flex items-start gap-3">
+            <span class="sec-num">25</span>
+            <div>
+              <p class="eyebrow">实战与总结</p>
+              <h2 class="sec-title">后端架构核心认知</h2>
+            </div>
+          </header>
+          <p class="doc-p">整个架构可以浓缩成一句话：</p>
+          <div class="big-quote">
+            <p class="banner-tag">Core Insight</p>
+            <p class="banner-text">让变化频繁的东西依赖变化稳定的东西，<br class="hidden sm:block">让每个模块只负责自己真正应该负责的事情。</p>
+          </div>
+          <p class="doc-p">例如：</p>
+          <div class="my-4 max-w-md space-y-2">
+            <div class="flex items-center justify-between rounded-lg border border-slate-200 bg-white px-4 py-2.5 shadow-sm">
+              <span class="font-mono text-sm font-semibold text-slate-800">HTTP</span>
+              <span class="tier-tag tag-rose">变化快</span>
+            </div>
+            <div class="flex items-center justify-between rounded-lg border border-slate-200 bg-white px-4 py-2.5 shadow-sm">
+              <span class="font-mono text-sm font-semibold text-slate-800">NestJS</span>
+              <span class="tier-tag tag-amber">可能更换</span>
+            </div>
+            <div class="flex items-center justify-between rounded-lg border border-slate-200 bg-white px-4 py-2.5 shadow-sm">
+              <span class="font-mono text-sm font-semibold text-slate-800">Prisma</span>
+              <span class="tier-tag tag-amber">可能更换</span>
+            </div>
+            <div class="flex items-center justify-between rounded-lg border border-slate-200 bg-white px-4 py-2.5 shadow-sm">
+              <span class="font-mono text-sm font-semibold text-slate-800">PostgreSQL</span>
+              <span class="tier-tag tag-emerald">相对稳定</span>
+            </div>
+            <div class="flex items-center justify-between rounded-lg border border-indigo-200 bg-indigo-50 px-4 py-2.5 shadow-sm">
+              <span class="font-mono text-sm font-bold text-indigo-700">业务规则</span>
+              <span class="tier-tag tag-indigo">核心</span>
+            </div>
+          </div>
+          <p class="doc-p">不要让 <code>业务逻辑</code> 被 <code>HTTP</code>、<code>ORM</code>、<code>Framework</code>、<code>Database</code> 绑死。</p>
+          <p class="doc-p">这就是架构设计的核心之一。</p>
+        </section>
+
+        <!-- 26 最终学习地图 -->
+        <section id="learning-map" class="doc-section">
+          <header class="mb-5 flex items-start gap-3">
+            <span class="sec-num">26</span>
+            <div>
+              <p class="eyebrow">实战与总结</p>
+              <h2 class="sec-title">最终学习地图</h2>
+            </div>
+          </header>
+          <figure class="diagram-card">
+            <figcaption class="diagram-head">Learning Map</figcaption>
+            <pre>                    TS 后端
+                       │
+             ┌─────────┴─────────┐
+             ↓                   ↓
+          Web 基础             TypeScript
+             │                   │
+       HTTP / REST          类型 / 泛型 / 类型体操
+             │                   │
+             └─────────┬─────────┘
+                       ↓
+                    Node.js
+                       ↓
+                    NestJS
+                       ↓
+              ┌────────┴────────┐
+              ↓                 ↓
+          Controller          Module
+              ↓
+           Service
+              ↓
+         Repository
+              ↓
+           Database
+              │
+              ↓
+      ┌─────────────────┐
+      │ DTO / Validation │
+      │ Error Handling   │
+      │ Authentication   │
+      └─────────────────┘
+              ↓
+        Dependency Injection
+              ↓
+           Interface
+              ↓
+       Dependency Inversion
+              ↓
+        高内聚 + 低耦合
+              ↓
+           Use Case
+              ↓
+            Domain
+              ↓
+       Clean Architecture
+              ↓
+      Transaction / Queue
+      Cache / Event / Test
+              ↓
+          工程化后端</pre>
+          </figure>
+        </section>
+
+        <!-- 27 学习时的优先级 -->
+        <section id="priority" class="doc-section">
+          <header class="mb-5 flex items-start gap-3">
+            <span class="sec-num">27</span>
+            <div>
+              <p class="eyebrow">实战与总结</p>
+              <h2 class="sec-title">学习时的优先级</h2>
+            </div>
+          </header>
+          <p class="doc-p">建议按以下优先级：</p>
+          <div class="my-4 grid gap-4 sm:grid-cols-2">
+            <div class="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
+              <div class="flex items-center gap-2.5">
+                <span class="prio-badge bg-indigo-600">P1</span>
+                <h3 class="text-sm font-bold text-slate-900">第一优先级：必须掌握</h3>
+              </div>
+              <div class="mt-3 flex flex-wrap gap-1.5">
+                <span class="chip">HTTP</span>
+                <span class="chip">REST API</span>
+                <span class="chip">TypeScript</span>
+                <span class="chip">Node.js</span>
+                <span class="chip">NestJS</span>
+                <span class="chip">Controller</span>
+                <span class="chip">Service</span>
+                <span class="chip">Repository</span>
+                <span class="chip">Module</span>
+                <span class="chip">DTO</span>
+                <span class="chip">Validation</span>
+                <span class="chip">Error Handling</span>
+                <span class="chip">Database</span>
+                <span class="chip">SQL</span>
+                <span class="chip">ORM</span>
+              </div>
+            </div>
+            <div class="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
+              <div class="flex items-center gap-2.5">
+                <span class="prio-badge bg-violet-600">P2</span>
+                <h3 class="text-sm font-bold text-slate-900">第二优先级：架构能力</h3>
+              </div>
+              <div class="mt-3 flex flex-wrap gap-1.5">
+                <span class="chip">Dependency Injection</span>
+                <span class="chip">Interface</span>
+                <span class="chip">Dependency Inversion</span>
+                <span class="chip">Use Case</span>
+                <span class="chip">Domain</span>
+                <span class="chip">高内聚</span>
+                <span class="chip">低耦合</span>
+                <span class="chip">SOLID</span>
+              </div>
+            </div>
+            <div class="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
+              <div class="flex items-center gap-2.5">
+                <span class="prio-badge bg-sky-600">P3</span>
+                <h3 class="text-sm font-bold text-slate-900">第三优先级：工程化</h3>
+              </div>
+              <div class="mt-3 flex flex-wrap gap-1.5">
+                <span class="chip">Authentication</span>
+                <span class="chip">Authorization</span>
+                <span class="chip">Transaction</span>
+                <span class="chip">Cache</span>
+                <span class="chip">Queue</span>
+                <span class="chip">Logging</span>
+                <span class="chip">Testing</span>
+                <span class="chip">Docker</span>
+                <span class="chip">CI/CD</span>
+                <span class="chip">Monitoring</span>
+              </div>
+            </div>
+            <div class="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
+              <div class="flex items-center gap-2.5">
+                <span class="prio-badge bg-slate-600">P4</span>
+                <h3 class="text-sm font-bold text-slate-900">第四优先级：进阶架构</h3>
+              </div>
+              <div class="mt-3 flex flex-wrap gap-1.5">
+                <span class="chip">DDD</span>
+                <span class="chip">Clean Architecture</span>
+                <span class="chip">Hexagonal Architecture</span>
+                <span class="chip">Event-Driven Architecture</span>
+                <span class="chip">Microservices</span>
+                <span class="chip">CQRS</span>
+                <span class="chip">Event Sourcing</span>
+              </div>
+            </div>
+          </div>
+          <div class="callout callout-warn">
+            <span class="callout-icon">⚠️</span>
+            <div>不要反过来学。</div>
+          </div>
+        </section>
+
+        <!-- 28 最终目标 -->
+        <section id="final-goal" class="doc-section">
+          <header class="mb-5 flex items-start gap-3">
+            <span class="sec-num">28</span>
+            <div>
+              <p class="eyebrow">实战与总结</p>
+              <h2 class="sec-title">最终目标</h2>
+            </div>
+          </header>
+          <div class="my-4 grid gap-4 sm:grid-cols-2">
+            <div class="rounded-2xl border border-rose-200 bg-rose-50/60 p-5">
+              <p class="cmp-title text-rose-600">❌ 不要把目标定成</p>
+              <p class="text-sm leading-6 text-slate-600">“我会 NestJS 了。”</p>
+            </div>
+            <div class="rounded-2xl border border-emerald-200 bg-emerald-50/60 p-5">
+              <p class="cmp-title text-emerald-600">✅ 而应该达到</p>
+              <p class="text-sm leading-6 text-slate-600">“我能根据业务复杂度设计合理的 TS 后端架构，并且知道什么时候应该增加抽象、什么时候应该保持简单。”</p>
+            </div>
+          </div>
+          <p class="doc-p mt-6 font-semibold text-slate-800">最终能够做到：</p>
+          <div class="flow flow-sm">
+            <div class="flow-node">能写 API</div>
+            <div class="flow-arrow">↓</div>
+            <div class="flow-node">能写 CRUD</div>
+            <div class="flow-arrow">↓</div>
+            <div class="flow-node">能拆 Controller / Service / Repository</div>
+            <div class="flow-arrow">↓</div>
+            <div class="flow-node">能做模块化</div>
+            <div class="flow-arrow">↓</div>
+            <div class="flow-node">能使用 DI</div>
+            <div class="flow-arrow">↓</div>
+            <div class="flow-node">理解接口与依赖倒置</div>
+            <div class="flow-arrow">↓</div>
+            <div class="flow-node">理解高内聚低耦合</div>
+            <div class="flow-arrow">↓</div>
+            <div class="flow-node">能设计 Use Case</div>
+            <div class="flow-arrow">↓</div>
+            <div class="flow-node">能进行架构演进</div>
+            <div class="flow-arrow">↓</div>
+            <div class="flow-node flow-node-accent">能写可维护的生产级后端</div>
+          </div>
+          <div class="big-quote mt-10">
+            <p class="banner-tag">核心原则</p>
+            <p class="banner-text">先解决问题，再引入抽象；<br class="hidden sm:block">先保证职责清晰，再追求架构完整。</p>
+          </div>
+        </section>
+
+      </main>
+    </div>
+  </div>
+
+  <!-- ======================= Footer ======================= -->
+  <footer class="border-t border-slate-200 bg-white">
+    <div class="mx-auto max-w-6xl px-4 py-8 text-center text-xs text-slate-400 sm:px-6 lg:px-8">
+      <p class="font-medium text-slate-500">TS 后端架构：从 0 基础到高内聚低耦合</p>
+      <p class="mt-1">先解决问题，再引入抽象 · 样式由 Tailwind CSS 构建 · 代码高亮由 highlight.js 提供</p>
+    </div>
+  </footer>
+
+  <!-- 返回顶部 -->
+  <button id="back-top" type="button" aria-label="返回顶部">
+    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+      <path stroke-linecap="round" stroke-linejoin="round" d="M5 15l7-7 7 7" />
+    </svg>
+  </button>
+
+  <!-- highlight.js (CDN) -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/http.min.js"></script>
+  <script>
+    hljs.highlightAll();
+
+    // 代码复制
+    function copyText(text) {
+      if (navigator.clipboard && window.isSecureContext) {
+        return navigator.clipboard.writeText(text);
+      }
+      return new Promise(function (resolve, reject) {
+        var ta = document.createElement('textarea');
+        ta.value = text;
+        ta.style.position = 'fixed';
+        ta.style.opacity = '0';
+        document.body.appendChild(ta);
+        ta.select();
+        try {
+          document.execCommand('copy') ? resolve() : reject(new Error('copy failed'));
+        } catch (e) {
+          reject(e);
+        } finally {
+          ta.remove();
+        }
+      });
+    }
+
+    document.querySelectorAll('.code-card').forEach(function (card) {
+      var btn = card.querySelector('.code-copy');
+      if (!btn) return;
+      btn.addEventListener('click', function () {
+        var code = card.querySelector('code');
+        if (!code) return;
+        copyText(code.innerText).then(function () {
+          btn.textContent = '已复制 ✓';
+          btn.classList.add('copied');
+          setTimeout(function () {
+            btn.textContent = '复制';
+            btn.classList.remove('copied');
+          }, 1600);
+        }).catch(function () {});
+      });
+    });
+
+    // 阅读进度 + 目录高亮 + 返回顶部
+    var progress = document.getElementById('progress');
+    var backTop = document.getElementById('back-top');
+    var tocLinks = Array.prototype.slice.call(document.querySelectorAll('#toc a[href^="#"]'));
+    var targets = tocLinks
+      .map(function (a) {
+        return { a: a, el: document.getElementById(a.getAttribute('href').slice(1)) };
+      })
+      .filter(function (t) { return t.el; })
+      .sort(function (x, y) { return x.el.offsetTop - y.el.offsetTop; });
+
+    var ticking = false;
+    function onScroll() {
+      if (ticking) return;
+      ticking = true;
+      requestAnimationFrame(function () {
+        ticking = false;
+        var doc = document.documentElement;
+        var max = doc.scrollHeight - doc.clientHeight;
+        progress.style.width = (max > 0 ? (doc.scrollTop / max) * 100 : 0) + '%';
+        backTop.classList.toggle('show', doc.scrollTop > 480);
+
+        var y = window.scrollY + 150;
+        var current = null;
+        for (var i = 0; i < targets.length; i++) {
+          if (targets[i].el.offsetTop <= y) current = targets[i];
+        }
+        tocLinks.forEach(function (a) { a.classList.remove('toc-active'); });
+        if (current) current.a.classList.add('toc-active');
+      });
+    }
+    window.addEventListener('scroll', onScroll, { passive: true });
+    window.addEventListener('resize', onScroll);
+    onScroll();
+
+    backTop.addEventListener('click', function () {
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    });
+  </script>
+</body>
+</html>
