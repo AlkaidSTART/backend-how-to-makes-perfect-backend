@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>TS 后端架构：从 0 基础到高内聚低耦合</title>
   <meta name="description" content="从最基础的 HTTP 接口开始，逐步理解 TypeScript 后端的分层、模块化、依赖注入、依赖倒置，以及高内聚、低耦合的工程化架构。">
-  <meta name="theme-color" content="#020617">
+  <meta name="theme-color" content="#ffffff">
 
   <!-- 字体 -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -27,145 +27,161 @@
     };
   </script>
 
-  <!-- highlight.js 主题 (CDN) -->
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github-dark.min.css">
+  <!-- Lucide 图标库 (CDN) -->
+  <script src="https://unpkg.com/lucide@0.469.0/dist/umd/lucide.min.js"></script>
 
   <style type="text/tailwindcss">
     html { scroll-behavior: smooth; }
-    ::selection { background: #c7d2fe; color: #1e1b4b; }
+    ::selection { background: #171717; color: #ffffff; }
+
+    /* highlight.js 灰阶配色（无彩色） */
+    .hljs { color: #e5e5e5; background: transparent; }
+    .hljs-comment, .hljs-quote { color: #8a8a8a; font-style: italic; }
+    .hljs-keyword, .hljs-selector-tag, .hljs-literal, .hljs-doctag, .hljs-name { color: #ffffff; font-weight: 600; }
+    .hljs-title, .hljs-section, .hljs-selector-id, .hljs-selector-class { color: #ffffff; font-weight: 600; }
+    .hljs-string, .hljs-regexp, .hljs-addition, .hljs-template-string { color: #a8a8a8; }
+    .hljs-number, .hljs-symbol, .hljs-bullet, .hljs-meta, .hljs-link { color: #d4d4d4; }
+    .hljs-attr, .hljs-attribute, .hljs-variable, .hljs-template-variable, .hljs-type, .hljs-built_in, .hljs-class { color: #f0f0f0; }
+    .hljs-params { color: #e5e5e5; }
+    .hljs-deletion { color: #a3a3a3; }
+    .hljs-emphasis { font-style: italic; }
+    .hljs-strong { font-weight: 700; }
 
     @layer components {
       /* ---------- 版式 ---------- */
-      .doc-p { @apply my-3 text-[15px] leading-7 text-slate-600; }
-      .eyebrow { @apply text-[11px] font-semibold uppercase tracking-widest text-indigo-500; }
-      .sec-num { @apply mt-0.5 flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-indigo-600/10 font-mono text-sm font-bold text-indigo-600; }
-      .sec-title { @apply text-xl font-bold tracking-tight text-slate-900 sm:text-2xl; }
+      .doc-p { @apply my-3 text-[15px] leading-7 text-neutral-600; }
+      .eyebrow { @apply text-[11px] font-semibold uppercase tracking-widest text-neutral-400; }
+      .sec-num { @apply mt-0.5 flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-neutral-900 font-mono text-sm font-bold text-white; }
+      .sec-title { @apply text-xl font-bold tracking-tight text-neutral-900 sm:text-2xl; }
       .doc-section { @apply scroll-mt-8; }
-      .doc-section + .doc-section { @apply mt-16 border-t border-slate-200/70 pt-12; }
-      .doc-h3 { @apply mb-4 mt-10 flex items-center gap-2 text-lg font-bold text-slate-900; }
-      .doc-h3::before { content: ""; @apply inline-block h-4 w-1 rounded-full bg-indigo-500; }
-      .doc-body :not(pre) > code { @apply rounded-md border border-slate-200/70 bg-slate-100 px-1.5 py-0.5 font-mono text-[0.85em] font-medium text-indigo-700; }
+      .doc-section + .doc-section { @apply mt-16 border-t border-neutral-200 pt-12; }
+      .doc-h3 { @apply mb-4 mt-10 flex items-center gap-2 text-lg font-bold text-neutral-900; }
+      .doc-h3::before { content: ""; @apply inline-block h-4 w-1 rounded-full bg-neutral-900; }
+      .doc-body :not(pre) > code { @apply rounded-md border border-neutral-200 bg-neutral-100 px-1.5 py-0.5 font-mono text-[0.85em] font-medium text-neutral-900; }
 
       /* ---------- 流程图 ---------- */
       .flow { @apply my-5 flex flex-col items-center; }
-      .flow-node { @apply w-full max-w-xs rounded-xl border border-slate-200 bg-white px-4 py-2.5 text-center text-sm font-semibold text-slate-700 shadow-sm; }
-      .flow-node-accent { @apply border-indigo-300 bg-indigo-50 text-indigo-700; }
-      .flow-arrow { @apply select-none py-1 text-lg leading-none text-slate-300; }
+      .flow-node { @apply w-full max-w-xs rounded-xl border border-neutral-200 bg-white px-4 py-2.5 text-center text-sm font-semibold text-neutral-700 shadow-sm; }
+      .flow-node-accent { @apply border-neutral-900 bg-neutral-900 text-white; }
+      .flow-arrow { @apply select-none py-1 text-lg leading-none text-neutral-300; }
       .flow-sm .flow-node { @apply px-3 py-1.5 text-[13px]; }
       .flow-row { @apply my-4 flex flex-wrap items-center justify-center gap-x-2 gap-y-2; }
-      .fr-node { @apply rounded-lg border border-slate-200 bg-white px-3 py-1.5 font-mono text-xs font-semibold text-slate-700 shadow-sm; }
-      .fr-arrow { @apply text-slate-300; }
+      .fr-node { @apply rounded-lg border border-neutral-200 bg-white px-3 py-1.5 font-mono text-xs font-semibold text-neutral-700 shadow-sm; }
+      .fr-arrow { @apply text-neutral-300; }
 
       /* ---------- 代码卡片 ---------- */
-      .code-card { @apply my-4 overflow-hidden rounded-xl border border-slate-800 bg-slate-900 shadow-md; }
-      .code-head { @apply flex items-center justify-between gap-3 border-b border-slate-800 bg-slate-950/60 px-4 py-2; }
-      .code-lang { @apply font-mono text-[11px] font-medium uppercase tracking-wider text-slate-500; }
+      .code-card { @apply my-4 overflow-hidden rounded-xl border border-neutral-800 bg-neutral-900 shadow-md; }
+      .code-head { @apply flex items-center justify-between gap-3 border-b border-neutral-800 bg-neutral-950/60 px-4 py-2; }
+      .code-lang { @apply font-mono text-[11px] font-medium uppercase tracking-wider text-neutral-500; }
       .code-flag { @apply rounded-md px-2 py-0.5 text-[11px] font-semibold; }
-      .code-flag.bad { @apply bg-rose-500/15 text-rose-300; }
-      .code-flag.good { @apply bg-emerald-500/15 text-emerald-300; }
-      .code-copy { @apply shrink-0 rounded-md border border-slate-700 px-2 py-0.5 text-[11px] text-slate-400 transition hover:border-slate-500 hover:text-slate-200; }
-      .code-copy.copied { @apply border-emerald-500/40 text-emerald-300; }
+      .code-flag.bad { @apply border border-neutral-600 text-neutral-400; }
+      .code-flag.good { @apply bg-white text-neutral-900; }
+      .code-copy { @apply shrink-0 rounded-md border border-neutral-700 px-2 py-0.5 text-[11px] text-neutral-400 transition hover:border-neutral-400 hover:text-neutral-100; }
+      .code-copy.copied { @apply border-neutral-400 text-white; }
       .code-body { @apply overflow-x-auto p-4 text-[13px] leading-6; }
       .code-body code.hljs { background: transparent; padding: 0; }
 
       /* ---------- 示意图 / 目录树 ---------- */
-      .diagram-card { @apply my-4 overflow-hidden rounded-xl border border-slate-200 bg-slate-50 shadow-sm; }
-      .diagram-head { @apply border-b border-slate-200 bg-white/70 px-4 py-2 font-mono text-[11px] font-medium uppercase tracking-wider text-slate-400; }
-      .diagram-card pre { @apply overflow-x-auto p-5 font-mono text-[13px] leading-6 text-slate-600; }
-      .tree-pre { @apply overflow-x-auto font-mono text-[13px] leading-6 text-slate-700; }
+      .diagram-card { @apply my-4 overflow-hidden rounded-xl border border-neutral-200 bg-neutral-50 shadow-sm; }
+      .diagram-head { @apply border-b border-neutral-200 bg-white/70 px-4 py-2 font-mono text-[11px] font-medium uppercase tracking-wider text-neutral-400; }
+      .diagram-card pre { @apply overflow-x-auto p-5 font-mono text-[13px] leading-6 text-neutral-600; }
+      .tree-pre { @apply overflow-x-auto font-mono text-[13px] leading-6 text-neutral-700; }
 
       /* ---------- 提示块 ---------- */
-      .callout { @apply my-4 flex gap-3 rounded-xl border p-4 text-sm leading-6 text-slate-700; }
-      .callout-key { @apply border-indigo-100 bg-indigo-50/80; }
-      .callout-warn { @apply border-amber-200 bg-amber-50 text-amber-900; }
-      .callout-icon { @apply shrink-0 select-none leading-6; }
+      .callout { @apply my-4 flex gap-3 rounded-xl border p-4 text-sm leading-6 text-neutral-700; }
+      .callout-key { @apply border-neutral-200 bg-neutral-50; }
+      .callout-warn { @apply border-neutral-900 bg-white font-medium text-neutral-900; }
+      .callout-icon { @apply shrink-0 select-none font-bold leading-6; }
+
+      /* ---------- Lucide 图标 ---------- */
+      .callout-icon { @apply mt-[3px] flex h-[18px] w-[18px] items-center justify-center; }
+      .callout-icon svg { @apply h-[18px] w-[18px]; }
+      .check-dot svg, .cross-dot svg { @apply h-2.5 w-2.5; }
+      .flow-arrow svg { @apply h-[18px] w-[18px]; }
+      .fr-arrow svg { @apply h-3.5 w-3.5; }
+      .code-copy svg { @apply h-3 w-3; }
 
       /* ---------- 徽章 / 标签 ---------- */
-      .chip { @apply inline-flex items-center rounded-lg border border-slate-200 bg-white px-2.5 py-1 font-mono text-xs font-medium text-slate-600 shadow-sm; }
-      .method-badge { @apply inline-block rounded-md px-2 py-0.5 font-mono text-xs font-bold text-white; }
+      .chip { @apply inline-flex items-center rounded-lg border border-neutral-200 bg-white px-2.5 py-1 font-mono text-xs font-medium text-neutral-600 shadow-sm; }
+      .method-badge { @apply inline-block rounded-md bg-neutral-900 px-2 py-0.5 font-mono text-xs font-bold text-white; }
       .status-badge { @apply inline-block rounded-md px-2 py-0.5 font-mono text-xs font-semibold; }
-      .st-ok { @apply bg-emerald-100 text-emerald-700; }
-      .st-warn { @apply bg-amber-100 text-amber-700; }
-      .st-err { @apply bg-rose-100 text-rose-700; }
-      .check-item { @apply flex items-start gap-2 text-sm leading-6 text-slate-600; }
-      .check-dot { @apply mt-1 flex h-4 w-4 shrink-0 items-center justify-center rounded-full bg-emerald-100 text-[10px] font-bold text-emerald-600; }
-      .cross-item { @apply flex items-start gap-2 text-sm leading-6 text-slate-600; }
-      .cross-dot { @apply mt-1 flex h-4 w-4 shrink-0 items-center justify-center rounded-full bg-rose-100 text-[10px] font-bold text-rose-500; }
+      .st-ok { @apply bg-neutral-900 text-white; }
+      .st-warn { @apply bg-neutral-200 text-neutral-700; }
+      .st-err { @apply border border-neutral-900 bg-white font-bold text-neutral-900; }
+      .check-item { @apply flex items-start gap-2 text-sm leading-6 text-neutral-600; }
+      .check-dot { @apply mt-1 flex h-4 w-4 shrink-0 items-center justify-center rounded-full bg-neutral-900 text-[10px] font-bold text-white; }
+      .cross-item { @apply flex items-start gap-2 text-sm leading-6 text-neutral-600; }
+      .cross-dot { @apply mt-1 flex h-4 w-4 shrink-0 items-center justify-center rounded-full bg-neutral-200 text-[10px] font-bold text-neutral-500; }
       .tier-tag { @apply rounded-md px-2 py-0.5 text-xs font-semibold; }
-      .tag-rose { @apply bg-rose-100 text-rose-600; }
-      .tag-amber { @apply bg-amber-100 text-amber-700; }
-      .tag-emerald { @apply bg-emerald-100 text-emerald-700; }
-      .tag-indigo { @apply bg-indigo-100 text-indigo-700; }
+      .tag-low { @apply border border-neutral-300 bg-white text-neutral-500; }
+      .tag-mid { @apply bg-neutral-100 text-neutral-600; }
+      .tag-high { @apply bg-neutral-800 text-white; }
+      .tag-core { @apply bg-neutral-900 text-white; }
 
       /* ---------- 卡片 ---------- */
-      .layer-card { @apply rounded-2xl border border-slate-200 bg-white p-5 text-center shadow-sm; }
-      .layer-name { @apply font-mono text-sm font-bold text-slate-900; }
-      .layer-role { @apply mt-1.5 text-xs font-semibold uppercase tracking-wider text-indigo-500; }
-      .level-badge { @apply inline-block rounded-md border border-indigo-100 bg-indigo-50 px-2 py-1 text-xs font-bold text-indigo-600; }
+      .layer-card { @apply rounded-2xl border border-neutral-200 bg-white p-5 text-center shadow-sm; }
+      .layer-name { @apply font-mono text-sm font-bold text-neutral-900; }
+      .layer-role { @apply mt-1.5 text-xs font-semibold uppercase tracking-wider text-neutral-400; }
+      .level-badge { @apply inline-block rounded-md bg-neutral-900 px-2 py-1 text-xs font-bold text-white; }
       .prio-badge { @apply inline-flex h-6 w-8 items-center justify-center rounded-md text-[11px] font-bold text-white; }
-      .cmp-bad { @apply rounded-2xl border border-rose-200 bg-rose-50/60 p-5; }
-      .cmp-good { @apply rounded-2xl border border-emerald-200 bg-emerald-50/60 p-5; }
+      .cmp-bad { @apply rounded-2xl border border-neutral-200 bg-neutral-50 p-5; }
+      .cmp-good { @apply rounded-2xl border border-neutral-900 bg-white p-5 shadow-sm; }
       .cmp-title { @apply mb-3 flex items-center gap-2 text-sm font-bold; }
 
       /* ---------- 金句横幅 ---------- */
-      .big-quote { @apply my-6 rounded-2xl bg-gradient-to-r from-indigo-600 to-violet-600 p-6 text-center shadow-lg sm:p-8; }
-      .banner-tag { @apply text-xs font-semibold uppercase tracking-widest text-indigo-200; }
+      .big-quote { @apply my-6 rounded-2xl bg-neutral-950 p-6 text-center shadow-lg sm:p-8; }
+      .banner-tag { @apply text-xs font-semibold uppercase tracking-widest text-neutral-500; }
       .banner-text { @apply mt-2 text-lg font-bold leading-relaxed text-white sm:text-xl; }
 
       /* ---------- Hero ---------- */
-      .hero-chip { @apply rounded-lg border border-white/10 bg-white/5 px-2.5 py-1 font-mono text-xs text-slate-300; }
+      .hero-chip { @apply rounded-lg border border-neutral-200 bg-white px-2.5 py-1 font-mono text-xs text-neutral-600; }
 
       /* ---------- 目录 ---------- */
-      .toc-group { @apply mb-1 mt-5 px-3 text-[11px] font-semibold uppercase tracking-wider text-slate-400 first:mt-0; }
-      .toc-link { @apply block border-l-2 border-transparent py-1 pl-3 text-[13px] leading-5 text-slate-500 transition hover:border-slate-300 hover:text-slate-900; }
-      .toc-active { @apply border-indigo-500 font-medium text-indigo-600; }
+      .toc-group { @apply mb-1 mt-5 px-3 text-[11px] font-semibold uppercase tracking-wider text-neutral-400 first:mt-0; }
+      .toc-link { @apply block border-l-2 border-transparent py-1 pl-3 text-[13px] leading-5 text-neutral-500 transition hover:border-neutral-300 hover:text-neutral-900; }
+      .toc-active { @apply border-neutral-900 font-semibold text-neutral-900; }
 
       /* ---------- 返回顶部 ---------- */
-      #back-top { @apply pointer-events-none fixed bottom-6 right-6 z-40 flex h-10 w-10 items-center justify-center rounded-full bg-slate-900 text-white opacity-0 shadow-lg transition; }
+      #back-top { @apply pointer-events-none fixed bottom-6 right-6 z-40 flex h-10 w-10 items-center justify-center rounded-full bg-neutral-900 text-white opacity-0 shadow-lg transition; }
       #back-top.show { @apply pointer-events-auto opacity-100; }
-      #back-top:hover { @apply bg-indigo-600; }
+      #back-top:hover { @apply bg-neutral-700; }
     }
   </style>
 </head>
 
-<body class="bg-slate-50 font-sans text-slate-800 antialiased">
+<body class="bg-white font-sans text-neutral-800 antialiased">
 
   <!-- 阅读进度条 -->
   <div class="fixed inset-x-0 top-0 z-50 h-0.5 bg-transparent">
-    <div id="progress" class="h-full w-0 bg-gradient-to-r from-indigo-500 to-violet-500"></div>
+    <div id="progress" class="h-full w-0 bg-neutral-900"></div>
   </div>
 
   <!-- ======================= Hero ======================= -->
-  <header class="relative overflow-hidden bg-slate-950">
-    <div class="pointer-events-none absolute inset-0" aria-hidden="true">
-      <div class="absolute -top-32 left-1/4 h-80 w-[36rem] -translate-x-1/2 rounded-full bg-indigo-600/30 blur-3xl"></div>
-      <div class="absolute -bottom-24 right-1/4 h-72 w-96 rounded-full bg-violet-600/20 blur-3xl"></div>
-      <div class="absolute inset-0 bg-[radial-gradient(ellipse_at_top,rgba(99,102,241,0.15),transparent_60%)]"></div>
-    </div>
-    <div class="relative mx-auto max-w-6xl px-4 pb-14 pt-16 sm:px-6 sm:pb-16 sm:pt-20 lg:px-8">
-      <span class="inline-flex items-center gap-1.5 rounded-full border border-indigo-400/30 bg-indigo-500/10 px-3 py-1 text-xs font-medium text-indigo-300">📘 后端学习路线图</span>
-      <h1 class="mt-5 text-3xl font-black leading-tight tracking-tight text-white sm:text-5xl">TS 后端架构</h1>
-      <p class="mt-2 bg-gradient-to-r from-indigo-300 via-violet-300 to-fuchsia-300 bg-clip-text text-xl font-bold text-transparent sm:text-3xl">从 0 基础到高内聚低耦合</p>
-      <p class="mt-5 max-w-2xl text-sm leading-7 text-slate-300 sm:text-base sm:leading-8">目标：从最基础的 HTTP 接口开始，逐步理解 TypeScript 后端的分层、模块化、依赖注入、依赖倒置，以及高内聚、低耦合的工程化架构。</p>
-      <div class="mt-6 flex flex-wrap gap-2">
+  <header class="border-b border-neutral-200 bg-white">
+    <div class="mx-auto max-w-6xl px-4 pb-14 pt-16 sm:px-6 sm:pb-16 sm:pt-24 lg:px-8">
+      <span class="inline-flex items-center gap-1.5 rounded-full bg-neutral-900 px-3 py-1 text-xs font-medium text-white"><i data-lucide="route" class="h-3.5 w-3.5"></i>后端学习路线图</span>
+      <h1 class="mt-6 text-4xl font-black leading-tight tracking-tight text-neutral-900 sm:text-6xl">TS 后端架构</h1>
+      <p class="mt-3 text-xl font-bold tracking-tight text-neutral-400 sm:text-3xl">从 0 基础到高内聚低耦合</p>
+      <p class="mt-6 max-w-2xl text-sm leading-7 text-neutral-600 sm:text-base sm:leading-8">目标：从最基础的 HTTP 接口开始，逐步理解 TypeScript 后端的分层、模块化、依赖注入、依赖倒置，以及高内聚、低耦合的工程化架构。</p>
+      <div class="mt-7 flex flex-wrap gap-2">
         <span class="hero-chip">TypeScript</span>
         <span class="hero-chip">Node.js</span>
         <span class="hero-chip">NestJS</span>
         <span class="hero-chip">依赖注入</span>
         <span class="hero-chip">高内聚低耦合</span>
       </div>
-      <dl class="mt-10 grid max-w-md grid-cols-3 gap-6 border-t border-white/10 pt-6">
+      <dl class="mt-12 grid max-w-md grid-cols-3 gap-6 border-t border-neutral-200 pt-8">
         <div>
-          <dt class="text-xs text-slate-400">学习阶段</dt>
-          <dd class="mt-1 text-2xl font-bold text-white">10</dd>
+          <dt class="text-xs uppercase tracking-wider text-neutral-400">学习阶段</dt>
+          <dd class="mt-1 text-3xl font-black text-neutral-900">10</dd>
         </div>
         <div>
-          <dt class="text-xs text-slate-400">演进层级</dt>
-          <dd class="mt-1 text-2xl font-bold text-white">8</dd>
+          <dt class="text-xs uppercase tracking-wider text-neutral-400">演进层级</dt>
+          <dd class="mt-1 text-3xl font-black text-neutral-900">8</dd>
         </div>
         <div>
-          <dt class="text-xs text-slate-400">实战项目</dt>
-          <dd class="mt-1 text-2xl font-bold text-white">5</dd>
+          <dt class="text-xs uppercase tracking-wider text-neutral-400">实战项目</dt>
+          <dd class="mt-1 text-3xl font-black text-neutral-900">5</dd>
         </div>
       </dl>
     </div>
@@ -173,37 +189,37 @@
 
   <!-- 移动端目录 -->
   <div class="mx-auto max-w-6xl px-4 sm:px-6 lg:hidden">
-    <details class="my-6 rounded-2xl border border-slate-200 bg-white p-4 shadow-sm">
-      <summary class="cursor-pointer select-none text-sm font-semibold text-slate-700">📑 目录导航</summary>
+    <details class="my-6 rounded-2xl border border-neutral-200 bg-white p-4 shadow-sm">
+      <summary class="cursor-pointer select-none text-sm font-semibold text-neutral-700"><i data-lucide="list-tree" class="mr-1.5 inline-block h-4 w-4 align-[-3px]"></i>目录导航</summary>
       <div class="mt-3 grid grid-cols-2 gap-x-6 text-sm">
-        <a class="py-1 text-slate-600 hover:text-indigo-600" href="#goals">01 学习目标</a>
-        <a class="py-1 text-slate-600 hover:text-indigo-600" href="#stage1">02 理解后端</a>
-        <a class="py-1 text-slate-600 hover:text-indigo-600" href="#stage2">03 HTTP API 基础</a>
-        <a class="py-1 text-slate-600 hover:text-indigo-600" href="#stage3">04 Node.js + TS</a>
-        <a class="py-1 text-slate-600 hover:text-indigo-600" href="#stage4">05 最简单的 API</a>
-        <a class="py-1 text-slate-600 hover:text-indigo-600" href="#controller">06 Controller</a>
-        <a class="py-1 text-slate-600 hover:text-indigo-600" href="#service">07 Service</a>
-        <a class="py-1 text-slate-600 hover:text-indigo-600" href="#repository">08 Repository</a>
-        <a class="py-1 text-slate-600 hover:text-indigo-600" href="#why-layers">09 为什么要分层</a>
-        <a class="py-1 text-slate-600 hover:text-indigo-600" href="#dto">10 DTO</a>
-        <a class="py-1 text-slate-600 hover:text-indigo-600" href="#dto-vs-entity">11 DTO ≠ Entity ≠ Model</a>
-        <a class="py-1 text-slate-600 hover:text-indigo-600" href="#validation">12 参数校验</a>
-        <a class="py-1 text-slate-600 hover:text-indigo-600" href="#error-handling">13 错误处理</a>
-        <a class="py-1 text-slate-600 hover:text-indigo-600" href="#unified-response">14 统一响应</a>
-        <a class="py-1 text-slate-600 hover:text-indigo-600" href="#modular">15 模块化</a>
-        <a class="py-1 text-slate-600 hover:text-indigo-600" href="#cohesion">16 什么叫高内聚</a>
-        <a class="py-1 text-slate-600 hover:text-indigo-600" href="#coupling">17 什么叫低耦合</a>
-        <a class="py-1 text-slate-600 hover:text-indigo-600" href="#abstraction">18 依赖抽象</a>
-        <a class="py-1 text-slate-600 hover:text-indigo-600" href="#di">19 依赖注入 DI</a>
-        <a class="py-1 text-slate-600 hover:text-indigo-600" href="#dip">20 依赖倒置</a>
-        <a class="py-1 text-slate-600 hover:text-indigo-600" href="#use-case">21 Use Case</a>
-        <a class="py-1 text-slate-600 hover:text-indigo-600" href="#evolution">22 架构演进</a>
-        <a class="py-1 text-slate-600 hover:text-indigo-600" href="#evolution-path">23 演进路线</a>
-        <a class="py-1 text-slate-600 hover:text-indigo-600" href="#practice">24 项目实战路线</a>
-        <a class="py-1 text-slate-600 hover:text-indigo-600" href="#core-insight">25 核心认知</a>
-        <a class="py-1 text-slate-600 hover:text-indigo-600" href="#learning-map">26 学习地图</a>
-        <a class="py-1 text-slate-600 hover:text-indigo-600" href="#priority">27 学习优先级</a>
-        <a class="py-1 text-slate-600 hover:text-indigo-600" href="#final-goal">28 最终目标</a>
+        <a class="py-1 text-neutral-600 hover:text-neutral-900" href="#goals">01 学习目标</a>
+        <a class="py-1 text-neutral-600 hover:text-neutral-900" href="#stage1">02 理解后端</a>
+        <a class="py-1 text-neutral-600 hover:text-neutral-900" href="#stage2">03 HTTP API 基础</a>
+        <a class="py-1 text-neutral-600 hover:text-neutral-900" href="#stage3">04 Node.js + TS</a>
+        <a class="py-1 text-neutral-600 hover:text-neutral-900" href="#stage4">05 最简单的 API</a>
+        <a class="py-1 text-neutral-600 hover:text-neutral-900" href="#controller">06 Controller</a>
+        <a class="py-1 text-neutral-600 hover:text-neutral-900" href="#service">07 Service</a>
+        <a class="py-1 text-neutral-600 hover:text-neutral-900" href="#repository">08 Repository</a>
+        <a class="py-1 text-neutral-600 hover:text-neutral-900" href="#why-layers">09 为什么要分层</a>
+        <a class="py-1 text-neutral-600 hover:text-neutral-900" href="#dto">10 DTO</a>
+        <a class="py-1 text-neutral-600 hover:text-neutral-900" href="#dto-vs-entity">11 DTO ≠ Entity ≠ Model</a>
+        <a class="py-1 text-neutral-600 hover:text-neutral-900" href="#validation">12 参数校验</a>
+        <a class="py-1 text-neutral-600 hover:text-neutral-900" href="#error-handling">13 错误处理</a>
+        <a class="py-1 text-neutral-600 hover:text-neutral-900" href="#unified-response">14 统一响应</a>
+        <a class="py-1 text-neutral-600 hover:text-neutral-900" href="#modular">15 模块化</a>
+        <a class="py-1 text-neutral-600 hover:text-neutral-900" href="#cohesion">16 什么叫高内聚</a>
+        <a class="py-1 text-neutral-600 hover:text-neutral-900" href="#coupling">17 什么叫低耦合</a>
+        <a class="py-1 text-neutral-600 hover:text-neutral-900" href="#abstraction">18 依赖抽象</a>
+        <a class="py-1 text-neutral-600 hover:text-neutral-900" href="#di">19 依赖注入 DI</a>
+        <a class="py-1 text-neutral-600 hover:text-neutral-900" href="#dip">20 依赖倒置</a>
+        <a class="py-1 text-neutral-600 hover:text-neutral-900" href="#use-case">21 Use Case</a>
+        <a class="py-1 text-neutral-600 hover:text-neutral-900" href="#evolution">22 架构演进</a>
+        <a class="py-1 text-neutral-600 hover:text-neutral-900" href="#evolution-path">23 演进路线</a>
+        <a class="py-1 text-neutral-600 hover:text-neutral-900" href="#practice">24 项目实战路线</a>
+        <a class="py-1 text-neutral-600 hover:text-neutral-900" href="#core-insight">25 核心认知</a>
+        <a class="py-1 text-neutral-600 hover:text-neutral-900" href="#learning-map">26 学习地图</a>
+        <a class="py-1 text-neutral-600 hover:text-neutral-900" href="#priority">27 学习优先级</a>
+        <a class="py-1 text-neutral-600 hover:text-neutral-900" href="#final-goal">28 最终目标</a>
       </div>
     </details>
   </div>
@@ -215,7 +231,7 @@
       <!-- 桌面端目录 -->
       <aside class="hidden lg:block">
         <nav id="toc" aria-label="目录" class="sticky top-8 max-h-[calc(100vh-4rem)] overflow-y-auto py-12 pr-2 text-sm">
-          <p class="mb-2 px-3 text-xs font-bold uppercase tracking-widest text-slate-400">目录</p>
+          <p class="mb-2 px-3 text-xs font-bold uppercase tracking-widest text-neutral-400">目录</p>
 
           <p class="toc-group">开始</p>
           <a class="toc-link" href="#goals">学习目标</a>
@@ -279,30 +295,30 @@
           <p class="doc-p">学完以后，应该能够独立设计类似：</p>
           <div class="flow">
             <div class="flow-node">React / Vue</div>
-            <div class="flow-arrow">↓</div>
+            <div class="flow-arrow"><i data-lucide="arrow-down"></i></div>
             <div class="flow-node">HTTP API</div>
-            <div class="flow-arrow">↓</div>
+            <div class="flow-arrow"><i data-lucide="arrow-down"></i></div>
             <div class="flow-node">Controller</div>
-            <div class="flow-arrow">↓</div>
+            <div class="flow-arrow"><i data-lucide="arrow-down"></i></div>
             <div class="flow-node">Service / Use Case</div>
-            <div class="flow-arrow">↓</div>
+            <div class="flow-arrow"><i data-lucide="arrow-down"></i></div>
             <div class="flow-node">Repository</div>
-            <div class="flow-arrow">↓</div>
+            <div class="flow-arrow"><i data-lucide="arrow-down"></i></div>
             <div class="flow-node flow-node-accent">Database</div>
           </div>
-          <p class="doc-p mt-6 font-semibold text-slate-800">并理解：</p>
+          <p class="doc-p mt-6 font-semibold text-neutral-800">并理解：</p>
           <ul class="my-4 grid gap-x-8 gap-y-2.5 sm:grid-cols-2">
-            <li class="check-item"><span class="check-dot">✓</span>为什么要分 Controller / Service / Repository</li>
-            <li class="check-item"><span class="check-dot">✓</span>什么代码应该放在哪里</li>
-            <li class="check-item"><span class="check-dot">✓</span>什么叫高内聚</li>
-            <li class="check-item"><span class="check-dot">✓</span>什么叫低耦合</li>
-            <li class="check-item"><span class="check-dot">✓</span>为什么 Controller 不应该直接操作数据库</li>
-            <li class="check-item"><span class="check-dot">✓</span>为什么 Service 不应该强依赖具体 ORM</li>
-            <li class="check-item"><span class="check-dot">✓</span>DTO、Entity、Model 分别是什么</li>
-            <li class="check-item"><span class="check-dot">✓</span>如何处理参数校验和异常</li>
-            <li class="check-item"><span class="check-dot">✓</span>如何使用依赖注入</li>
-            <li class="check-item"><span class="check-dot">✓</span>如何通过接口降低模块耦合</li>
-            <li class="check-item"><span class="check-dot">✓</span>如何从简单 CRUD 演进到可维护的后端架构</li>
+            <li class="check-item"><span class="check-dot"><i data-lucide="check"></i></span>为什么要分 Controller / Service / Repository</li>
+            <li class="check-item"><span class="check-dot"><i data-lucide="check"></i></span>什么代码应该放在哪里</li>
+            <li class="check-item"><span class="check-dot"><i data-lucide="check"></i></span>什么叫高内聚</li>
+            <li class="check-item"><span class="check-dot"><i data-lucide="check"></i></span>什么叫低耦合</li>
+            <li class="check-item"><span class="check-dot"><i data-lucide="check"></i></span>为什么 Controller 不应该直接操作数据库</li>
+            <li class="check-item"><span class="check-dot"><i data-lucide="check"></i></span>为什么 Service 不应该强依赖具体 ORM</li>
+            <li class="check-item"><span class="check-dot"><i data-lucide="check"></i></span>DTO、Entity、Model 分别是什么</li>
+            <li class="check-item"><span class="check-dot"><i data-lucide="check"></i></span>如何处理参数校验和异常</li>
+            <li class="check-item"><span class="check-dot"><i data-lucide="check"></i></span>如何使用依赖注入</li>
+            <li class="check-item"><span class="check-dot"><i data-lucide="check"></i></span>如何通过接口降低模块耦合</li>
+            <li class="check-item"><span class="check-dot"><i data-lucide="check"></i></span>如何从简单 CRUD 演进到可维护的后端架构</li>
           </ul>
         </section>
 
@@ -318,15 +334,15 @@
           <p class="doc-p">不要一开始就学框架，先理解后端的基本工作方式。</p>
           <div class="flow">
             <div class="flow-node">客户端</div>
-            <div class="flow-arrow">↓</div>
+            <div class="flow-arrow"><i data-lucide="arrow-down"></i></div>
             <div class="flow-node">HTTP Request</div>
-            <div class="flow-arrow">↓</div>
+            <div class="flow-arrow"><i data-lucide="arrow-down"></i></div>
             <div class="flow-node">后端服务器</div>
-            <div class="flow-arrow">↓</div>
+            <div class="flow-arrow"><i data-lucide="arrow-down"></i></div>
             <div class="flow-node">业务处理</div>
-            <div class="flow-arrow">↓</div>
+            <div class="flow-arrow"><i data-lucide="arrow-down"></i></div>
             <div class="flow-node">数据库</div>
-            <div class="flow-arrow">↓</div>
+            <div class="flow-arrow"><i data-lucide="arrow-down"></i></div>
             <div class="flow-node flow-node-accent">HTTP Response</div>
           </div>
           <p class="doc-p">例如：</p>
@@ -368,20 +384,20 @@ Content-Type: application/json
           </header>
 
           <h3 class="doc-h3">HTTP 方法</h3>
-          <div class="my-4 overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm">
+          <div class="my-4 overflow-hidden rounded-xl border border-neutral-200 bg-white shadow-sm">
             <table class="w-full text-sm">
-              <thead class="bg-slate-50 text-left text-xs uppercase tracking-wider text-slate-500">
+              <thead class="bg-neutral-50 text-left text-xs uppercase tracking-wider text-neutral-400">
                 <tr>
                   <th class="px-4 py-2.5 font-semibold">方法</th>
                   <th class="px-4 py-2.5 font-semibold">用途</th>
                 </tr>
               </thead>
-              <tbody class="divide-y divide-slate-100">
-                <tr><td class="px-4 py-2.5"><span class="method-badge bg-emerald-500">GET</span></td><td class="px-4 py-2.5 text-slate-600">查询</td></tr>
-                <tr><td class="px-4 py-2.5"><span class="method-badge bg-blue-500">POST</span></td><td class="px-4 py-2.5 text-slate-600">创建</td></tr>
-                <tr><td class="px-4 py-2.5"><span class="method-badge bg-amber-500">PUT</span></td><td class="px-4 py-2.5 text-slate-600">整体更新</td></tr>
-                <tr><td class="px-4 py-2.5"><span class="method-badge bg-violet-500">PATCH</span></td><td class="px-4 py-2.5 text-slate-600">部分更新</td></tr>
-                <tr><td class="px-4 py-2.5"><span class="method-badge bg-rose-500">DELETE</span></td><td class="px-4 py-2.5 text-slate-600">删除</td></tr>
+              <tbody class="divide-y divide-neutral-100">
+                <tr><td class="px-4 py-2.5"><span class="method-badge">GET</span></td><td class="px-4 py-2.5 text-neutral-600">查询</td></tr>
+                <tr><td class="px-4 py-2.5"><span class="method-badge">POST</span></td><td class="px-4 py-2.5 text-neutral-600">创建</td></tr>
+                <tr><td class="px-4 py-2.5"><span class="method-badge">PUT</span></td><td class="px-4 py-2.5 text-neutral-600">整体更新</td></tr>
+                <tr><td class="px-4 py-2.5"><span class="method-badge">PATCH</span></td><td class="px-4 py-2.5 text-neutral-600">部分更新</td></tr>
+                <tr><td class="px-4 py-2.5"><span class="method-badge">DELETE</span></td><td class="px-4 py-2.5 text-neutral-600">删除</td></tr>
               </tbody>
             </table>
           </div>
@@ -403,9 +419,9 @@ DELETE /users/123</code></pre>
 
           <h3 class="doc-h3">Request</h3>
           <p class="doc-p">HTTP 请求主要可以理解为：</p>
-          <div class="my-4 flex flex-wrap items-center gap-2 rounded-xl border border-slate-200 bg-white p-4 shadow-sm">
-            <span class="font-mono text-sm font-bold text-slate-900">Request</span>
-            <span class="text-slate-300">=</span>
+          <div class="my-4 flex flex-wrap items-center gap-2 rounded-xl border border-neutral-200 bg-white p-4 shadow-sm">
+            <span class="font-mono text-sm font-bold text-neutral-900">Request</span>
+            <span class="text-neutral-300">=</span>
             <span class="chip">Params</span>
             <span class="chip">Query</span>
             <span class="chip">Body</span>
@@ -454,41 +470,41 @@ body.age</code></pre>
 
           <h3 class="doc-h3">Response</h3>
           <p class="doc-p">常见状态码：</p>
-          <div class="my-4 overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm">
+          <div class="my-4 overflow-hidden rounded-xl border border-neutral-200 bg-white shadow-sm">
             <table class="w-full text-sm">
-              <thead class="bg-slate-50 text-left text-xs uppercase tracking-wider text-slate-500">
+              <thead class="bg-neutral-50 text-left text-xs uppercase tracking-wider text-neutral-400">
                 <tr>
                   <th class="px-4 py-2.5 font-semibold">状态码</th>
                   <th class="px-4 py-2.5 font-semibold">含义</th>
                 </tr>
               </thead>
-              <tbody class="divide-y divide-slate-100">
-                <tr><td class="px-4 py-2"><span class="status-badge st-ok">200</span></td><td class="px-4 py-2 text-slate-600">OK</td></tr>
-                <tr><td class="px-4 py-2"><span class="status-badge st-ok">201</span></td><td class="px-4 py-2 text-slate-600">Created</td></tr>
-                <tr><td class="px-4 py-2"><span class="status-badge st-ok">204</span></td><td class="px-4 py-2 text-slate-600">No Content</td></tr>
-                <tr><td class="px-4 py-2"><span class="status-badge st-warn">400</span></td><td class="px-4 py-2 text-slate-600">Bad Request</td></tr>
-                <tr><td class="px-4 py-2"><span class="status-badge st-warn">401</span></td><td class="px-4 py-2 text-slate-600">Unauthorized</td></tr>
-                <tr><td class="px-4 py-2"><span class="status-badge st-warn">403</span></td><td class="px-4 py-2 text-slate-600">Forbidden</td></tr>
-                <tr><td class="px-4 py-2"><span class="status-badge st-warn">404</span></td><td class="px-4 py-2 text-slate-600">Not Found</td></tr>
-                <tr><td class="px-4 py-2"><span class="status-badge st-warn">409</span></td><td class="px-4 py-2 text-slate-600">Conflict</td></tr>
-                <tr><td class="px-4 py-2"><span class="status-badge st-err">500</span></td><td class="px-4 py-2 text-slate-600">Internal Server Error</td></tr>
+              <tbody class="divide-y divide-neutral-100">
+                <tr><td class="px-4 py-2"><span class="status-badge st-ok">200</span></td><td class="px-4 py-2 text-neutral-600">OK</td></tr>
+                <tr><td class="px-4 py-2"><span class="status-badge st-ok">201</span></td><td class="px-4 py-2 text-neutral-600">Created</td></tr>
+                <tr><td class="px-4 py-2"><span class="status-badge st-ok">204</span></td><td class="px-4 py-2 text-neutral-600">No Content</td></tr>
+                <tr><td class="px-4 py-2"><span class="status-badge st-warn">400</span></td><td class="px-4 py-2 text-neutral-600">Bad Request</td></tr>
+                <tr><td class="px-4 py-2"><span class="status-badge st-warn">401</span></td><td class="px-4 py-2 text-neutral-600">Unauthorized</td></tr>
+                <tr><td class="px-4 py-2"><span class="status-badge st-warn">403</span></td><td class="px-4 py-2 text-neutral-600">Forbidden</td></tr>
+                <tr><td class="px-4 py-2"><span class="status-badge st-warn">404</span></td><td class="px-4 py-2 text-neutral-600">Not Found</td></tr>
+                <tr><td class="px-4 py-2"><span class="status-badge st-warn">409</span></td><td class="px-4 py-2 text-neutral-600">Conflict</td></tr>
+                <tr><td class="px-4 py-2"><span class="status-badge st-err">500</span></td><td class="px-4 py-2 text-neutral-600">Internal Server Error</td></tr>
               </tbody>
             </table>
           </div>
           <div class="callout callout-key">
-            <span class="callout-icon">⭐</span>
-            <div>需要建立一个重要认知：<strong class="font-semibold text-slate-900">HTTP 状态码属于协议层，业务错误属于业务层。</strong></div>
+            <span class="callout-icon"><i data-lucide="info"></i></span>
+            <div>需要建立一个重要认知：<strong class="font-semibold text-neutral-900">HTTP 状态码属于协议层，业务错误属于业务层。</strong></div>
           </div>
           <p class="doc-p">例如：</p>
           <div class="my-4 grid gap-3 sm:grid-cols-2">
-            <div class="flex items-center justify-between gap-3 rounded-xl border border-slate-200 bg-white px-4 py-3 shadow-sm">
-              <span class="text-sm text-slate-600">用户不存在</span>
-              <span class="text-slate-300">→</span>
+            <div class="flex items-center justify-between gap-3 rounded-xl border border-neutral-200 bg-white px-4 py-3 shadow-sm">
+              <span class="text-sm text-neutral-600">用户不存在</span>
+              <span class="text-neutral-300"><i data-lucide="arrow-right" class="h-4 w-4"></i></span>
               <span class="status-badge st-warn">404 Not Found</span>
             </div>
-            <div class="flex items-center justify-between gap-3 rounded-xl border border-slate-200 bg-white px-4 py-3 shadow-sm">
-              <span class="text-sm text-slate-600">邮箱已经注册</span>
-              <span class="text-slate-300">→</span>
+            <div class="flex items-center justify-between gap-3 rounded-xl border border-neutral-200 bg-white px-4 py-3 shadow-sm">
+              <span class="text-sm text-neutral-600">邮箱已经注册</span>
+              <span class="text-neutral-300"><i data-lucide="arrow-right" class="h-4 w-4"></i></span>
               <span class="status-badge st-warn">409 Conflict</span>
             </div>
           </div>
@@ -553,8 +569,8 @@ body.age</code></pre>
           <p class="doc-p">这时候没有明显架构。</p>
           <p class="doc-p">没关系。</p>
           <div class="callout callout-key">
-            <span class="callout-icon">💡</span>
-            <div><strong class="font-semibold text-slate-900">架构应该随着复杂度演进，而不是一开始堆满概念。</strong></div>
+            <span class="callout-icon"><i data-lucide="lightbulb"></i></span>
+            <div><strong class="font-semibold text-neutral-900">架构应该随着复杂度演进，而不是一开始堆满概念。</strong></div>
           </div>
         </section>
 
@@ -568,8 +584,8 @@ body.age</code></pre>
             </div>
           </header>
           <div class="callout callout-key">
-            <span class="callout-icon">🎯</span>
-            <div>Controller 的职责：<strong class="font-semibold text-slate-900">负责 HTTP 层。</strong></div>
+            <span class="callout-icon"><i data-lucide="target"></i></span>
+            <div>Controller 的职责：<strong class="font-semibold text-neutral-900">负责 HTTP 层。</strong></div>
           </div>
           <p class="doc-p">例如：</p>
           <figure class="code-card">
@@ -588,11 +604,11 @@ body.age</code></pre>
           <p class="doc-p">Controller 主要负责：</p>
           <div class="flow flow-sm">
             <div class="flow-node">HTTP Request</div>
-            <div class="flow-arrow">↓</div>
+            <div class="flow-arrow"><i data-lucide="arrow-down"></i></div>
             <div class="flow-node">获取参数</div>
-            <div class="flow-arrow">↓</div>
+            <div class="flow-arrow"><i data-lucide="arrow-down"></i></div>
             <div class="flow-node">调用业务</div>
-            <div class="flow-arrow">↓</div>
+            <div class="flow-arrow"><i data-lucide="arrow-down"></i></div>
             <div class="flow-node flow-node-accent">HTTP Response</div>
           </div>
           <p class="doc-p">Controller 不应该承担复杂业务逻辑。不推荐：</p>
@@ -622,13 +638,13 @@ body.age</code></pre>
   // 一堆业务逻辑……
 }</code></pre>
           </figure>
-          <p class="doc-p font-semibold text-slate-800">问题：</p>
+          <p class="doc-p font-semibold text-neutral-800">问题：</p>
           <ul class="my-3 space-y-2">
-            <li class="cross-item"><span class="cross-dot">✗</span>Controller 太胖</li>
-            <li class="cross-item"><span class="cross-dot">✗</span>HTTP 与业务耦合</li>
-            <li class="cross-item"><span class="cross-dot">✗</span>数据库与 Controller 耦合</li>
-            <li class="cross-item"><span class="cross-dot">✗</span>难以测试</li>
-            <li class="cross-item"><span class="cross-dot">✗</span>难以复用业务逻辑</li>
+            <li class="cross-item"><span class="cross-dot"><i data-lucide="x"></i></span>Controller 太胖</li>
+            <li class="cross-item"><span class="cross-dot"><i data-lucide="x"></i></span>HTTP 与业务耦合</li>
+            <li class="cross-item"><span class="cross-dot"><i data-lucide="x"></i></span>数据库与 Controller 耦合</li>
+            <li class="cross-item"><span class="cross-dot"><i data-lucide="x"></i></span>难以测试</li>
+            <li class="cross-item"><span class="cross-dot"><i data-lucide="x"></i></span>难以复用业务逻辑</li>
           </ul>
         </section>
 
@@ -642,8 +658,8 @@ body.age</code></pre>
             </div>
           </header>
           <div class="callout callout-key">
-            <span class="callout-icon">🎯</span>
-            <div>Service 的职责：<strong class="font-semibold text-slate-900">负责业务逻辑。</strong></div>
+            <span class="callout-icon"><i data-lucide="target"></i></span>
+            <div>Service 的职责：<strong class="font-semibold text-neutral-900">负责业务逻辑。</strong></div>
           </div>
           <p class="doc-p">例如：</p>
           <figure class="code-card">
@@ -664,16 +680,16 @@ body.age</code></pre>
 }</code></pre>
           </figure>
           <div class="my-4 grid gap-4 sm:grid-cols-2">
-            <div class="rounded-xl border border-emerald-200 bg-emerald-50/60 p-4">
-              <p class="text-sm font-bold text-emerald-700">Service 应该关注</p>
-              <p class="mt-2 text-sm leading-6 text-slate-600">业务应该怎么运行</p>
+            <div class="rounded-xl border border-neutral-900 bg-white p-4">
+              <p class="text-sm font-bold text-neutral-900">Service 应该关注</p>
+              <p class="mt-2 text-sm leading-6 text-neutral-600">业务应该怎么运行</p>
             </div>
-            <div class="rounded-xl border border-slate-200 bg-slate-50 p-4">
-              <p class="text-sm font-bold text-slate-500">而不是</p>
-              <ul class="mt-2 space-y-1 text-sm leading-6 text-slate-600">
-                <li class="flex gap-2"><span class="text-slate-300">·</span>HTTP 怎么处理</li>
-                <li class="flex gap-2"><span class="text-slate-300">·</span>NestJS Controller 怎么写</li>
-                <li class="flex gap-2"><span class="text-slate-300">·</span>req / res 怎么操作</li>
+            <div class="rounded-xl border border-neutral-200 bg-neutral-50 p-4">
+              <p class="text-sm font-bold text-neutral-400">而不是</p>
+              <ul class="mt-2 space-y-1 text-sm leading-6 text-neutral-600">
+                <li class="flex gap-2"><span class="text-neutral-300">·</span>HTTP 怎么处理</li>
+                <li class="flex gap-2"><span class="text-neutral-300">·</span>NestJS Controller 怎么写</li>
+                <li class="flex gap-2"><span class="text-neutral-300">·</span>req / res 怎么操作</li>
               </ul>
             </div>
           </div>
@@ -689,8 +705,8 @@ body.age</code></pre>
             </div>
           </header>
           <div class="callout callout-key">
-            <span class="callout-icon">🎯</span>
-            <div>Repository 的职责：<strong class="font-semibold text-slate-900">负责数据访问。</strong></div>
+            <span class="callout-icon"><i data-lucide="database"></i></span>
+            <div>Repository 的职责：<strong class="font-semibold text-neutral-900">负责数据访问。</strong></div>
           </div>
           <p class="doc-p">例如：</p>
           <figure class="code-card">
@@ -718,11 +734,11 @@ body.age</code></pre>
           <p class="doc-p">于是形成：</p>
           <div class="flow flow-sm">
             <div class="flow-node">Controller</div>
-            <div class="flow-arrow">↓</div>
+            <div class="flow-arrow"><i data-lucide="arrow-down"></i></div>
             <div class="flow-node">Service</div>
-            <div class="flow-arrow">↓</div>
+            <div class="flow-arrow"><i data-lucide="arrow-down"></i></div>
             <div class="flow-node">Repository</div>
-            <div class="flow-arrow">↓</div>
+            <div class="flow-arrow"><i data-lucide="arrow-down"></i></div>
             <div class="flow-node flow-node-accent">Database</div>
           </div>
         </section>
@@ -753,8 +769,8 @@ body.age</code></pre>
           </div>
           <p class="doc-p">这体现的是：</p>
           <div class="callout callout-key">
-            <span class="callout-icon">💡</span>
-            <div><strong class="font-semibold text-slate-900">单一职责原则（Single Responsibility Principle）</strong></div>
+            <span class="callout-icon"><i data-lucide="crosshair"></i></span>
+            <div><strong class="font-semibold text-neutral-900">单一职责原则（Single Responsibility Principle）</strong></div>
           </div>
           <p class="doc-p">一个模块应该主要负责一个明确的变化原因。</p>
         </section>
@@ -769,8 +785,8 @@ body.age</code></pre>
             </div>
           </header>
           <div class="callout callout-key">
-            <span class="callout-icon">📦</span>
-            <div>DTO：<strong class="font-semibold text-slate-900">Data Transfer Object</strong></div>
+            <span class="callout-icon"><i data-lucide="package"></i></span>
+            <div>DTO：<strong class="font-semibold text-neutral-900">Data Transfer Object</strong></div>
           </div>
           <p class="doc-p">用于描述 API 的输入或输出数据。例如：</p>
           <figure class="code-card">
@@ -786,8 +802,8 @@ body.age</code></pre>
           </figure>
           <p class="doc-p">表示：</p>
           <div class="callout callout-key">
-            <span class="callout-icon">💡</span>
-            <div>创建用户这个 API <strong class="font-semibold text-slate-900">允许客户端传入什么</strong>。</div>
+            <span class="callout-icon"><i data-lucide="clipboard-list"></i></span>
+            <div>创建用户这个 API <strong class="font-semibold text-neutral-900">允许客户端传入什么</strong>。</div>
           </div>
           <p class="doc-p">例如：</p>
           <figure class="code-card">
@@ -814,18 +830,18 @@ body.age</code></pre>
           </header>
           <p class="doc-p">这是后端学习中的重要概念。</p>
           <div class="my-4 grid gap-4 lg:grid-cols-3">
-            <div class="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
-              <p class="font-mono text-sm font-bold text-indigo-600">DTO</p>
-              <p class="mt-2 text-sm leading-6 text-slate-600">描述：<strong class="font-semibold text-slate-800">API 输入 / 输出</strong></p>
+            <div class="rounded-2xl border border-neutral-200 bg-white p-5 shadow-sm">
+              <p class="font-mono text-sm font-bold text-neutral-900">DTO</p>
+              <p class="mt-2 text-sm leading-6 text-neutral-600">描述：<strong class="font-semibold text-neutral-800">API 输入 / 输出</strong></p>
               <div class="mt-3 flex flex-wrap gap-1.5">
                 <span class="chip">CreateUserDto</span>
                 <span class="chip">UpdateUserDto</span>
                 <span class="chip">LoginDto</span>
               </div>
             </div>
-            <div class="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
-              <p class="font-mono text-sm font-bold text-indigo-600">Entity</p>
-              <p class="mt-2 text-sm leading-6 text-slate-600">描述：<strong class="font-semibold text-slate-800">业务领域中的对象</strong></p>
+            <div class="rounded-2xl border border-neutral-200 bg-white p-5 shadow-sm">
+              <p class="font-mono text-sm font-bold text-neutral-900">Entity</p>
+              <p class="mt-2 text-sm leading-6 text-neutral-600">描述：<strong class="font-semibold text-neutral-800">业务领域中的对象</strong></p>
               <div class="mt-3 flex flex-wrap gap-1.5">
                 <span class="chip">User</span>
                 <span class="chip">Order</span>
@@ -833,10 +849,10 @@ body.age</code></pre>
                 <span class="chip">Payment</span>
               </div>
             </div>
-            <div class="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
-              <p class="font-mono text-sm font-bold text-indigo-600">Database Model</p>
-              <p class="mt-2 text-sm leading-6 text-slate-600">描述：<strong class="font-semibold text-slate-800">数据库中的数据结构</strong>，例如 Prisma：</p>
-              <pre class="tree-pre mt-3 rounded-lg bg-slate-50 p-3 text-xs">model User {
+            <div class="rounded-2xl border border-neutral-200 bg-white p-5 shadow-sm">
+              <p class="font-mono text-sm font-bold text-neutral-900">Database Model</p>
+              <p class="mt-2 text-sm leading-6 text-neutral-600">描述：<strong class="font-semibold text-neutral-800">数据库中的数据结构</strong>，例如 Prisma：</p>
+              <pre class="tree-pre mt-3 rounded-lg bg-neutral-50 p-3 text-xs">model User {
   id       String
   email    String
   password String
@@ -844,7 +860,7 @@ body.age</code></pre>
             </div>
           </div>
           <div class="callout callout-warn">
-            <span class="callout-icon">⚠️</span>
+            <span class="callout-icon">!</span>
             <div>三者不应该无脑混为一谈。</div>
           </div>
         </section>
@@ -860,10 +876,10 @@ body.age</code></pre>
           </header>
           <p class="doc-p">API 输入不能完全信任客户端。例如一个 <code>email</code> 字段，需要验证：</p>
           <ul class="my-4 grid gap-x-8 gap-y-2.5 sm:grid-cols-2">
-            <li class="check-item"><span class="check-dot">✓</span>是否存在</li>
-            <li class="check-item"><span class="check-dot">✓</span>是否是字符串</li>
-            <li class="check-item"><span class="check-dot">✓</span>是否符合邮箱格式</li>
-            <li class="check-item"><span class="check-dot">✓</span>长度是否合理</li>
+            <li class="check-item"><span class="check-dot"><i data-lucide="check"></i></span>是否存在</li>
+            <li class="check-item"><span class="check-dot"><i data-lucide="check"></i></span>是否是字符串</li>
+            <li class="check-item"><span class="check-dot"><i data-lucide="check"></i></span>是否符合邮箱格式</li>
+            <li class="check-item"><span class="check-dot"><i data-lucide="check"></i></span>长度是否合理</li>
           </ul>
           <p class="doc-p">常见方案：</p>
           <div class="my-4 flex flex-wrap gap-2">
@@ -884,8 +900,8 @@ body.age</code></pre>
 });</code></pre>
           </figure>
           <div class="callout callout-key">
-            <span class="callout-icon">💡</span>
-            <div>核心思想：<strong class="font-semibold text-slate-900">API 边界必须进行输入验证。</strong></div>
+            <span class="callout-icon"><i data-lucide="shield-check"></i></span>
+            <div>核心思想：<strong class="font-semibold text-neutral-900">API 边界必须进行输入验证。</strong></div>
           </div>
         </section>
 
@@ -919,11 +935,11 @@ body.age</code></pre>
           <p class="doc-p">然后通过统一异常处理：</p>
           <div class="flow flow-sm">
             <div class="flow-node">Service</div>
-            <div class="flow-arrow">↓</div>
+            <div class="flow-arrow"><i data-lucide="arrow-down"></i></div>
             <div class="flow-node">throw Error</div>
-            <div class="flow-arrow">↓</div>
+            <div class="flow-arrow"><i data-lucide="arrow-down"></i></div>
             <div class="flow-node">Global Exception Handler</div>
-            <div class="flow-arrow">↓</div>
+            <div class="flow-arrow"><i data-lucide="arrow-down"></i></div>
             <div class="flow-node flow-node-accent">HTTP Response</div>
           </div>
           <p class="doc-p">而不是每个 Controller 都自己：</p>
@@ -986,8 +1002,8 @@ body.age</code></pre>
           </div>
           <p class="doc-p">但不要为了统一而统一。</p>
           <div class="callout callout-key">
-            <span class="callout-icon">💡</span>
-            <div>API 设计应该优先保证<strong class="font-semibold text-slate-900">清晰、稳定、易用</strong>。</div>
+            <span class="callout-icon"><i data-lucide="compass"></i></span>
+            <div>API 设计应该优先保证<strong class="font-semibold text-neutral-900">清晰、稳定、易用</strong>。</div>
           </div>
         </section>
 
@@ -1003,14 +1019,14 @@ body.age</code></pre>
           <p class="doc-p">当项目开始变大：</p>
           <div class="my-4 grid gap-4 sm:grid-cols-2">
             <div class="cmp-bad">
-              <p class="cmp-title text-rose-600">❌ 不推荐</p>
+              <p class="cmp-title text-neutral-400"><i data-lucide="circle-x" class="h-4 w-4"></i>不推荐</p>
               <pre class="tree-pre">controllers/
 services/
 repositories/</pre>
-              <p class="mt-3 text-xs leading-5 text-rose-500">里面塞几十个甚至上百个文件。</p>
+              <p class="mt-3 text-xs leading-5 text-neutral-500">里面塞几十个甚至上百个文件。</p>
             </div>
             <div class="cmp-good">
-              <p class="cmp-title text-emerald-600">✅ 更推荐：按业务领域组织</p>
+              <p class="cmp-title text-neutral-900"><i data-lucide="circle-check" class="h-4 w-4"></i>更推荐：按业务领域组织</p>
               <pre class="tree-pre">users/
 ├── user.controller.ts
 ├── user.service.ts
@@ -1025,8 +1041,8 @@ auth/
             </div>
           </div>
           <div class="callout callout-key">
-            <span class="callout-icon">💡</span>
-            <div>这是一种<strong class="font-semibold text-slate-900">按业务领域组织代码（Feature / Domain-oriented Organization）</strong>的方式。</div>
+            <span class="callout-icon"><i data-lucide="folder-tree"></i></span>
+            <div>这是一种<strong class="font-semibold text-neutral-900">按业务领域组织代码（Feature / Domain-oriented Organization）</strong>的方式。</div>
           </div>
         </section>
 
@@ -1040,8 +1056,8 @@ auth/
             </div>
           </header>
           <div class="callout callout-key">
-            <span class="callout-icon">🧲</span>
-            <div>高内聚：<strong class="font-semibold text-slate-900">一个模块内部的代码应该尽可能围绕同一个业务职责。</strong></div>
+            <span class="callout-icon"><i data-lucide="magnet"></i></span>
+            <div>高内聚：<strong class="font-semibold text-neutral-900">一个模块内部的代码应该尽可能围绕同一个业务职责。</strong></div>
           </div>
           <p class="doc-p">例如：</p>
           <figure class="diagram-card">
@@ -1066,8 +1082,8 @@ auth/
             </div>
           </header>
           <div class="callout callout-key">
-            <span class="callout-icon">🔗</span>
-            <div>耦合描述：<strong class="font-semibold text-slate-900">一个模块对另一个模块的依赖程度。</strong></div>
+            <span class="callout-icon"><i data-lucide="link"></i></span>
+            <div>耦合描述：<strong class="font-semibold text-neutral-900">一个模块对另一个模块的依赖程度。</strong></div>
           </div>
           <p class="doc-p">例如：</p>
           <figure class="code-card">
@@ -1083,13 +1099,13 @@ auth/
           </figure>
           <div class="flow flow-sm">
             <div class="flow-node">UserService</div>
-            <div class="flow-arrow">↓</div>
+            <div class="flow-arrow"><i data-lucide="arrow-down"></i></div>
             <div class="flow-node">Prisma</div>
           </div>
           <p class="doc-p">Service 强依赖 Prisma。如果以后：</p>
           <div class="flow flow-sm">
             <div class="flow-node">Prisma</div>
-            <div class="flow-arrow">↓</div>
+            <div class="flow-arrow"><i data-lucide="arrow-down"></i></div>
             <div class="flow-node">Drizzle</div>
           </div>
           <p class="doc-p">可能需要修改大量业务代码。</p>
@@ -1107,9 +1123,9 @@ auth/
           <p class="doc-p">更好的方式：</p>
           <div class="flow flow-sm">
             <div class="flow-node">UserService</div>
-            <div class="flow-arrow">↓</div>
+            <div class="flow-arrow"><i data-lucide="arrow-down"></i></div>
             <div class="flow-node">UserRepository</div>
-            <div class="flow-arrow">↓</div>
+            <div class="flow-arrow"><i data-lucide="arrow-down"></i></div>
             <div class="flow-node flow-node-accent">PrismaUserRepository</div>
           </div>
           <p class="doc-p">Service 只依赖抽象：</p>
@@ -1137,8 +1153,8 @@ auth/
 }</code></pre>
           </figure>
           <div class="my-4 grid gap-4 sm:grid-cols-2">
-            <div class="rounded-xl border border-rose-200 bg-rose-50/60 p-4">
-              <p class="text-sm font-bold text-rose-600">Service 不需要知道</p>
+            <div class="rounded-xl border border-neutral-200 bg-neutral-50 p-4">
+              <p class="text-sm font-bold text-neutral-400">Service 不需要知道</p>
               <div class="mt-3 flex flex-wrap gap-1.5">
                 <span class="chip">Prisma</span>
                 <span class="chip">PostgreSQL</span>
@@ -1146,8 +1162,8 @@ auth/
                 <span class="chip">MongoDB</span>
               </div>
             </div>
-            <div class="rounded-xl border border-emerald-200 bg-emerald-50/60 p-4">
-              <p class="text-sm font-bold text-emerald-700">它只知道</p>
+            <div class="rounded-xl border border-neutral-900 bg-white p-4">
+              <p class="text-sm font-bold text-neutral-900">它只知道</p>
               <div class="mt-3 flex flex-wrap gap-1.5">
                 <span class="chip">UserRepository</span>
               </div>
@@ -1166,8 +1182,8 @@ auth/
             </div>
           </header>
           <div class="callout callout-key">
-            <span class="callout-icon">💉</span>
-            <div>Dependency Injection：<strong class="font-semibold text-slate-900">不让一个类自己创建依赖，而由外部把依赖传入。</strong></div>
+            <span class="callout-icon"><i data-lucide="syringe"></i></span>
+            <div>Dependency Injection：<strong class="font-semibold text-neutral-900">不让一个类自己创建依赖，而由外部把依赖传入。</strong></div>
           </div>
           <p class="doc-p">例如：</p>
           <figure class="code-card">
@@ -1201,8 +1217,8 @@ auth/
           </figure>
           <p class="doc-p">而是由外部提供。</p>
           <div class="callout callout-key">
-            <span class="callout-icon">💡</span>
-            <div>这就是 <strong class="font-semibold text-slate-900">Dependency Injection</strong>。</div>
+            <span class="callout-icon"><i data-lucide="syringe"></i></span>
+            <div>这就是 <strong class="font-semibold text-neutral-900">Dependency Injection</strong>。</div>
           </div>
           <p class="doc-p">NestJS 会大量使用这种思想。</p>
         </section>
@@ -1218,20 +1234,20 @@ auth/
           </header>
           <div class="my-4 grid gap-4 sm:grid-cols-2">
             <div class="cmp-bad">
-              <p class="cmp-title text-rose-600">传统依赖</p>
+              <p class="cmp-title text-neutral-400">传统依赖</p>
               <div class="flex flex-col items-center">
                 <div class="fr-node w-40 text-center">Business</div>
-                <div class="flow-arrow">↓</div>
-                <div class="fr-node w-40 border-rose-200 bg-white text-center text-rose-600">Prisma</div>
+                <div class="flow-arrow"><i data-lucide="arrow-down"></i></div>
+                <div class="fr-node w-40 border-neutral-300 bg-white text-center text-neutral-400">Prisma</div>
               </div>
             </div>
             <div class="cmp-good">
-              <p class="cmp-title text-emerald-600">更合理</p>
+              <p class="cmp-title text-neutral-900">更合理</p>
               <div class="flex flex-col items-center">
                 <div class="fr-node w-40 text-center">Business</div>
-                <div class="flow-arrow">↓</div>
-                <div class="fr-node w-40 border-emerald-300 bg-emerald-50 text-center text-emerald-700">Interface</div>
-                <div class="flow-arrow">↑</div>
+                <div class="flow-arrow"><i data-lucide="arrow-down"></i></div>
+                <div class="fr-node w-40 border-neutral-900 bg-white text-center font-bold text-neutral-900">Interface</div>
+                <div class="flow-arrow"><i data-lucide="arrow-up"></i></div>
                 <div class="fr-node w-40 text-center">Prisma</div>
               </div>
             </div>
@@ -1271,14 +1287,14 @@ auth/
           <p class="doc-p">这样：</p>
           <div class="flow flow-sm">
             <div class="flow-node">业务层</div>
-            <div class="flow-arrow">↓</div>
+            <div class="flow-arrow"><i data-lucide="arrow-down"></i></div>
             <div class="flow-node flow-node-accent">抽象</div>
-            <div class="flow-arrow">↑</div>
+            <div class="flow-arrow"><i data-lucide="arrow-up"></i></div>
             <div class="flow-node">基础设施</div>
           </div>
           <div class="callout callout-key">
-            <span class="callout-icon">💡</span>
-            <div>这就是 <strong class="font-semibold text-slate-900">Dependency Inversion Principle</strong>。</div>
+            <span class="callout-icon"><i data-lucide="arrow-down-up"></i></span>
+            <div>这就是 <strong class="font-semibold text-neutral-900">Dependency Inversion Principle</strong>。</div>
           </div>
         </section>
 
@@ -1293,8 +1309,8 @@ auth/
           </header>
           <p class="doc-p">当业务越来越复杂，可以从简单 Service 进一步演进到 Use Case。一个 Use Case 表示：</p>
           <div class="callout callout-key">
-            <span class="callout-icon">🎬</span>
-            <div><strong class="font-semibold text-slate-900">一个完整的业务动作。</strong></div>
+            <span class="callout-icon"><i data-lucide="clapperboard"></i></span>
+            <div><strong class="font-semibold text-neutral-900">一个完整的业务动作。</strong></div>
           </div>
           <p class="doc-p">例如：</p>
           <div class="my-4 flex flex-wrap gap-2">
@@ -1391,7 +1407,7 @@ auth/
           </figure>
           <p class="doc-p">这是 Clean Architecture / DDD 等思想可以演进到的方向之一。但是：</p>
           <div class="callout callout-warn">
-            <span class="callout-icon">⚠️</span>
+            <span class="callout-icon">!</span>
             <div>不要在刚学后端时直接套这个目录结构。</div>
           </div>
           <p class="doc-p">架构应该根据复杂度演进。</p>
@@ -1406,51 +1422,51 @@ auth/
               <h2 class="sec-title">推荐的架构演进路线</h2>
             </div>
           </header>
-          <ol class="relative ml-3 space-y-7 border-l-2 border-indigo-100 pl-8">
+          <ol class="relative ml-3 space-y-7 border-l-2 border-neutral-200 pl-8">
             <li class="relative">
-              <span class="absolute -left-[39px] flex h-6 w-6 items-center justify-center rounded-full bg-indigo-600 font-mono text-[11px] font-bold text-white shadow-sm">1</span>
-              <p class="text-[11px] font-semibold uppercase tracking-wider text-slate-400">Level 1</p>
-              <p class="font-mono text-sm font-semibold text-slate-800">单文件 API</p>
+              <span class="absolute -left-[39px] flex h-6 w-6 items-center justify-center rounded-full bg-neutral-900 font-mono text-[11px] font-bold text-white">1</span>
+              <p class="text-[11px] font-semibold uppercase tracking-wider text-neutral-400">Level 1</p>
+              <p class="font-mono text-sm font-semibold text-neutral-800">单文件 API</p>
             </li>
             <li class="relative">
-              <span class="absolute -left-[39px] flex h-6 w-6 items-center justify-center rounded-full bg-indigo-600 font-mono text-[11px] font-bold text-white shadow-sm">2</span>
-              <p class="text-[11px] font-semibold uppercase tracking-wider text-slate-400">Level 2</p>
-              <p class="font-mono text-sm font-semibold text-slate-800">Controller + Service</p>
+              <span class="absolute -left-[39px] flex h-6 w-6 items-center justify-center rounded-full bg-neutral-900 font-mono text-[11px] font-bold text-white">2</span>
+              <p class="text-[11px] font-semibold uppercase tracking-wider text-neutral-400">Level 2</p>
+              <p class="font-mono text-sm font-semibold text-neutral-800">Controller + Service</p>
             </li>
             <li class="relative">
-              <span class="absolute -left-[39px] flex h-6 w-6 items-center justify-center rounded-full bg-indigo-600 font-mono text-[11px] font-bold text-white shadow-sm">3</span>
-              <p class="text-[11px] font-semibold uppercase tracking-wider text-slate-400">Level 3</p>
-              <p class="font-mono text-sm font-semibold text-slate-800">Controller + Service + Repository</p>
+              <span class="absolute -left-[39px] flex h-6 w-6 items-center justify-center rounded-full bg-neutral-900 font-mono text-[11px] font-bold text-white">3</span>
+              <p class="text-[11px] font-semibold uppercase tracking-wider text-neutral-400">Level 3</p>
+              <p class="font-mono text-sm font-semibold text-neutral-800">Controller + Service + Repository</p>
             </li>
             <li class="relative">
-              <span class="absolute -left-[39px] flex h-6 w-6 items-center justify-center rounded-full bg-indigo-600 font-mono text-[11px] font-bold text-white shadow-sm">4</span>
-              <p class="text-[11px] font-semibold uppercase tracking-wider text-slate-400">Level 4</p>
-              <p class="font-mono text-sm font-semibold text-slate-800">Module + DTO + Validation + Error</p>
+              <span class="absolute -left-[39px] flex h-6 w-6 items-center justify-center rounded-full bg-neutral-900 font-mono text-[11px] font-bold text-white">4</span>
+              <p class="text-[11px] font-semibold uppercase tracking-wider text-neutral-400">Level 4</p>
+              <p class="font-mono text-sm font-semibold text-neutral-800">Module + DTO + Validation + Error</p>
             </li>
             <li class="relative">
-              <span class="absolute -left-[39px] flex h-6 w-6 items-center justify-center rounded-full bg-indigo-600 font-mono text-[11px] font-bold text-white shadow-sm">5</span>
-              <p class="text-[11px] font-semibold uppercase tracking-wider text-slate-400">Level 5</p>
-              <p class="font-mono text-sm font-semibold text-slate-800">Dependency Injection</p>
+              <span class="absolute -left-[39px] flex h-6 w-6 items-center justify-center rounded-full bg-neutral-900 font-mono text-[11px] font-bold text-white">5</span>
+              <p class="text-[11px] font-semibold uppercase tracking-wider text-neutral-400">Level 5</p>
+              <p class="font-mono text-sm font-semibold text-neutral-800">Dependency Injection</p>
             </li>
             <li class="relative">
-              <span class="absolute -left-[39px] flex h-6 w-6 items-center justify-center rounded-full bg-indigo-600 font-mono text-[11px] font-bold text-white shadow-sm">6</span>
-              <p class="text-[11px] font-semibold uppercase tracking-wider text-slate-400">Level 6</p>
-              <p class="font-mono text-sm font-semibold text-slate-800">Interface + Dependency Inversion</p>
+              <span class="absolute -left-[39px] flex h-6 w-6 items-center justify-center rounded-full bg-neutral-900 font-mono text-[11px] font-bold text-white">6</span>
+              <p class="text-[11px] font-semibold uppercase tracking-wider text-neutral-400">Level 6</p>
+              <p class="font-mono text-sm font-semibold text-neutral-800">Interface + Dependency Inversion</p>
             </li>
             <li class="relative">
-              <span class="absolute -left-[39px] flex h-6 w-6 items-center justify-center rounded-full bg-indigo-600 font-mono text-[11px] font-bold text-white shadow-sm">7</span>
-              <p class="text-[11px] font-semibold uppercase tracking-wider text-slate-400">Level 7</p>
-              <p class="font-mono text-sm font-semibold text-slate-800">Use Case + Domain</p>
+              <span class="absolute -left-[39px] flex h-6 w-6 items-center justify-center rounded-full bg-neutral-900 font-mono text-[11px] font-bold text-white">7</span>
+              <p class="text-[11px] font-semibold uppercase tracking-wider text-neutral-400">Level 7</p>
+              <p class="font-mono text-sm font-semibold text-neutral-800">Use Case + Domain</p>
             </li>
             <li class="relative">
-              <span class="absolute -left-[39px] flex h-6 w-6 items-center justify-center rounded-full bg-violet-600 font-mono text-[11px] font-bold text-white shadow-sm">8</span>
-              <p class="text-[11px] font-semibold uppercase tracking-wider text-slate-400">Level 8</p>
-              <p class="font-mono text-sm font-semibold text-slate-800">Clean Architecture / DDD</p>
+              <span class="absolute -left-[39px] flex h-6 w-6 items-center justify-center rounded-full bg-neutral-950 ring-2 ring-neutral-900 ring-offset-2 font-mono text-[11px] font-bold text-white">8</span>
+              <p class="text-[11px] font-semibold uppercase tracking-wider text-neutral-400">Level 8</p>
+              <p class="font-mono text-sm font-bold text-neutral-900">Clean Architecture / DDD</p>
             </li>
           </ol>
           <div class="callout callout-key mt-6">
-            <span class="callout-icon">💡</span>
-            <div>核心原则：<strong class="font-semibold text-slate-900">不要为了“高级架构”而架构。</strong></div>
+            <span class="callout-icon"><i data-lucide="lightbulb"></i></span>
+            <div>核心原则：<strong class="font-semibold text-neutral-900">不要为了“高级架构”而架构。</strong></div>
           </div>
         </section>
 
@@ -1464,12 +1480,12 @@ auth/
             </div>
           </header>
           <div class="my-4 space-y-4">
-            <div class="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm sm:p-6">
+            <div class="rounded-2xl border border-neutral-200 bg-white p-5 shadow-sm sm:p-6">
               <div class="flex flex-wrap items-center gap-3">
                 <span class="level-badge">Level 1</span>
-                <h3 class="text-base font-bold text-slate-900">Todo API</h3>
+                <h3 class="text-base font-bold text-neutral-900">Todo API</h3>
               </div>
-              <p class="mt-3 text-xs font-semibold text-slate-400">学习</p>
+              <p class="mt-3 text-xs font-semibold text-neutral-400">学习</p>
               <div class="mt-2 flex flex-wrap gap-1.5">
                 <span class="chip">HTTP</span>
                 <span class="chip">REST</span>
@@ -1480,12 +1496,12 @@ auth/
               </div>
             </div>
 
-            <div class="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm sm:p-6">
+            <div class="rounded-2xl border border-neutral-200 bg-white p-5 shadow-sm sm:p-6">
               <div class="flex flex-wrap items-center gap-3">
                 <span class="level-badge">Level 2</span>
-                <h3 class="text-base font-bold text-slate-900">User API</h3>
+                <h3 class="text-base font-bold text-neutral-900">User API</h3>
               </div>
-              <p class="mt-3 text-xs font-semibold text-slate-400">加入</p>
+              <p class="mt-3 text-xs font-semibold text-neutral-400">加入</p>
               <div class="mt-2 flex flex-wrap gap-1.5">
                 <span class="chip">PostgreSQL</span>
                 <span class="chip">ORM</span>
@@ -1495,12 +1511,12 @@ auth/
               </div>
             </div>
 
-            <div class="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm sm:p-6">
+            <div class="rounded-2xl border border-neutral-200 bg-white p-5 shadow-sm sm:p-6">
               <div class="flex flex-wrap items-center gap-3">
                 <span class="level-badge">Level 3</span>
-                <h3 class="text-base font-bold text-slate-900">Blog API</h3>
+                <h3 class="text-base font-bold text-neutral-900">Blog API</h3>
               </div>
-              <p class="mt-3 text-xs font-semibold text-slate-400">加入</p>
+              <p class="mt-3 text-xs font-semibold text-neutral-400">加入</p>
               <div class="mt-2 flex flex-wrap gap-1.5">
                 <span class="chip">User</span>
                 <span class="chip">Post</span>
@@ -1514,12 +1530,12 @@ auth/
               </div>
             </div>
 
-            <div class="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm sm:p-6">
+            <div class="rounded-2xl border border-neutral-200 bg-white p-5 shadow-sm sm:p-6">
               <div class="flex flex-wrap items-center gap-3">
                 <span class="level-badge">Level 4</span>
-                <h3 class="text-base font-bold text-slate-900">电商 API</h3>
+                <h3 class="text-base font-bold text-neutral-900">电商 API</h3>
               </div>
-              <p class="mt-3 text-xs font-semibold text-slate-400">加入</p>
+              <p class="mt-3 text-xs font-semibold text-neutral-400">加入</p>
               <div class="mt-2 flex flex-wrap gap-1.5">
                 <span class="chip">User</span>
                 <span class="chip">Product</span>
@@ -1528,7 +1544,7 @@ auth/
                 <span class="chip">Payment</span>
                 <span class="chip">Inventory</span>
               </div>
-              <p class="mt-4 text-xs font-semibold text-slate-400">进一步学习</p>
+              <p class="mt-4 text-xs font-semibold text-neutral-400">进一步学习</p>
               <div class="mt-2 flex flex-wrap gap-1.5">
                 <span class="chip">Transaction</span>
                 <span class="chip">Use Case</span>
@@ -1538,22 +1554,22 @@ auth/
               </div>
             </div>
 
-            <div class="rounded-2xl border border-indigo-200 bg-white p-5 shadow-sm sm:p-6">
+            <div class="rounded-2xl border border-neutral-900 bg-white p-5 shadow-sm sm:p-6">
               <div class="flex flex-wrap items-center gap-3">
                 <span class="level-badge">Level 5</span>
-                <h3 class="text-base font-bold text-slate-900">完整全栈项目</h3>
+                <h3 class="text-base font-bold text-neutral-900">完整全栈项目</h3>
               </div>
-              <p class="mt-3 text-xs font-semibold text-slate-400">最终</p>
-              <div class="mt-2 flex flex-wrap items-center gap-x-2 gap-y-2 rounded-xl border border-slate-100 bg-slate-50 px-4 py-3">
-                <span class="fr-node">React</span><span class="fr-arrow">→</span>
-                <span class="fr-node">API</span><span class="fr-arrow">→</span>
-                <span class="fr-node">NestJS</span><span class="fr-arrow">→</span>
-                <span class="fr-node">Application</span><span class="fr-arrow">→</span>
-                <span class="fr-node">Domain</span><span class="fr-arrow">→</span>
-                <span class="fr-node">Repository</span><span class="fr-arrow">→</span>
-                <span class="fr-node border-indigo-300 bg-indigo-50 text-indigo-700">PostgreSQL</span>
+              <p class="mt-3 text-xs font-semibold text-neutral-400">最终</p>
+              <div class="mt-2 flex flex-wrap items-center gap-x-2 gap-y-2 rounded-xl border border-neutral-100 bg-neutral-50 px-4 py-3">
+                <span class="fr-node">React</span><span class="fr-arrow"><i data-lucide="arrow-right"></i></span>
+                <span class="fr-node">API</span><span class="fr-arrow"><i data-lucide="arrow-right"></i></span>
+                <span class="fr-node">NestJS</span><span class="fr-arrow"><i data-lucide="arrow-right"></i></span>
+                <span class="fr-node">Application</span><span class="fr-arrow"><i data-lucide="arrow-right"></i></span>
+                <span class="fr-node">Domain</span><span class="fr-arrow"><i data-lucide="arrow-right"></i></span>
+                <span class="fr-node">Repository</span><span class="fr-arrow"><i data-lucide="arrow-right"></i></span>
+                <span class="fr-node border-neutral-900 bg-neutral-900 text-white">PostgreSQL</span>
               </div>
-              <p class="mt-4 text-xs font-semibold text-slate-400">进一步加入</p>
+              <p class="mt-4 text-xs font-semibold text-neutral-400">进一步加入</p>
               <div class="mt-2 flex flex-wrap gap-1.5">
                 <span class="chip">Redis</span>
                 <span class="chip">Queue</span>
@@ -1586,25 +1602,25 @@ auth/
           </div>
           <p class="doc-p">例如：</p>
           <div class="my-4 max-w-md space-y-2">
-            <div class="flex items-center justify-between rounded-lg border border-slate-200 bg-white px-4 py-2.5 shadow-sm">
-              <span class="font-mono text-sm font-semibold text-slate-800">HTTP</span>
-              <span class="tier-tag tag-rose">变化快</span>
+            <div class="flex items-center justify-between rounded-lg border border-neutral-200 bg-white px-4 py-2.5 shadow-sm">
+              <span class="font-mono text-sm font-semibold text-neutral-800">HTTP</span>
+              <span class="tier-tag tag-low">变化快</span>
             </div>
-            <div class="flex items-center justify-between rounded-lg border border-slate-200 bg-white px-4 py-2.5 shadow-sm">
-              <span class="font-mono text-sm font-semibold text-slate-800">NestJS</span>
-              <span class="tier-tag tag-amber">可能更换</span>
+            <div class="flex items-center justify-between rounded-lg border border-neutral-200 bg-white px-4 py-2.5 shadow-sm">
+              <span class="font-mono text-sm font-semibold text-neutral-800">NestJS</span>
+              <span class="tier-tag tag-mid">可能更换</span>
             </div>
-            <div class="flex items-center justify-between rounded-lg border border-slate-200 bg-white px-4 py-2.5 shadow-sm">
-              <span class="font-mono text-sm font-semibold text-slate-800">Prisma</span>
-              <span class="tier-tag tag-amber">可能更换</span>
+            <div class="flex items-center justify-between rounded-lg border border-neutral-200 bg-white px-4 py-2.5 shadow-sm">
+              <span class="font-mono text-sm font-semibold text-neutral-800">Prisma</span>
+              <span class="tier-tag tag-mid">可能更换</span>
             </div>
-            <div class="flex items-center justify-between rounded-lg border border-slate-200 bg-white px-4 py-2.5 shadow-sm">
-              <span class="font-mono text-sm font-semibold text-slate-800">PostgreSQL</span>
-              <span class="tier-tag tag-emerald">相对稳定</span>
+            <div class="flex items-center justify-between rounded-lg border border-neutral-200 bg-white px-4 py-2.5 shadow-sm">
+              <span class="font-mono text-sm font-semibold text-neutral-800">PostgreSQL</span>
+              <span class="tier-tag tag-high">相对稳定</span>
             </div>
-            <div class="flex items-center justify-between rounded-lg border border-indigo-200 bg-indigo-50 px-4 py-2.5 shadow-sm">
-              <span class="font-mono text-sm font-bold text-indigo-700">业务规则</span>
-              <span class="tier-tag tag-indigo">核心</span>
+            <div class="flex items-center justify-between rounded-lg border border-neutral-900 bg-white px-4 py-2.5 shadow-sm">
+              <span class="font-mono text-sm font-bold text-neutral-900">业务规则</span>
+              <span class="tier-tag tag-core">核心</span>
             </div>
           </div>
           <p class="doc-p">不要让 <code>业务逻辑</code> 被 <code>HTTP</code>、<code>ORM</code>、<code>Framework</code>、<code>Database</code> 绑死。</p>
@@ -1685,10 +1701,10 @@ auth/
           </header>
           <p class="doc-p">建议按以下优先级：</p>
           <div class="my-4 grid gap-4 sm:grid-cols-2">
-            <div class="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
+            <div class="rounded-2xl border border-neutral-200 bg-white p-5 shadow-sm">
               <div class="flex items-center gap-2.5">
-                <span class="prio-badge bg-indigo-600">P1</span>
-                <h3 class="text-sm font-bold text-slate-900">第一优先级：必须掌握</h3>
+                <span class="prio-badge bg-neutral-900">P1</span>
+                <h3 class="text-sm font-bold text-neutral-900">第一优先级：必须掌握</h3>
               </div>
               <div class="mt-3 flex flex-wrap gap-1.5">
                 <span class="chip">HTTP</span>
@@ -1708,10 +1724,10 @@ auth/
                 <span class="chip">ORM</span>
               </div>
             </div>
-            <div class="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
+            <div class="rounded-2xl border border-neutral-200 bg-white p-5 shadow-sm">
               <div class="flex items-center gap-2.5">
-                <span class="prio-badge bg-violet-600">P2</span>
-                <h3 class="text-sm font-bold text-slate-900">第二优先级：架构能力</h3>
+                <span class="prio-badge bg-neutral-700">P2</span>
+                <h3 class="text-sm font-bold text-neutral-900">第二优先级：架构能力</h3>
               </div>
               <div class="mt-3 flex flex-wrap gap-1.5">
                 <span class="chip">Dependency Injection</span>
@@ -1724,10 +1740,10 @@ auth/
                 <span class="chip">SOLID</span>
               </div>
             </div>
-            <div class="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
+            <div class="rounded-2xl border border-neutral-200 bg-white p-5 shadow-sm">
               <div class="flex items-center gap-2.5">
-                <span class="prio-badge bg-sky-600">P3</span>
-                <h3 class="text-sm font-bold text-slate-900">第三优先级：工程化</h3>
+                <span class="prio-badge bg-neutral-500">P3</span>
+                <h3 class="text-sm font-bold text-neutral-900">第三优先级：工程化</h3>
               </div>
               <div class="mt-3 flex flex-wrap gap-1.5">
                 <span class="chip">Authentication</span>
@@ -1742,10 +1758,10 @@ auth/
                 <span class="chip">Monitoring</span>
               </div>
             </div>
-            <div class="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
+            <div class="rounded-2xl border border-neutral-200 bg-white p-5 shadow-sm">
               <div class="flex items-center gap-2.5">
-                <span class="prio-badge bg-slate-600">P4</span>
-                <h3 class="text-sm font-bold text-slate-900">第四优先级：进阶架构</h3>
+                <span class="prio-badge bg-neutral-300 text-neutral-700">P4</span>
+                <h3 class="text-sm font-bold text-neutral-900">第四优先级：进阶架构</h3>
               </div>
               <div class="mt-3 flex flex-wrap gap-1.5">
                 <span class="chip">DDD</span>
@@ -1759,7 +1775,7 @@ auth/
             </div>
           </div>
           <div class="callout callout-warn">
-            <span class="callout-icon">⚠️</span>
+            <span class="callout-icon">!</span>
             <div>不要反过来学。</div>
           </div>
         </section>
@@ -1774,35 +1790,35 @@ auth/
             </div>
           </header>
           <div class="my-4 grid gap-4 sm:grid-cols-2">
-            <div class="rounded-2xl border border-rose-200 bg-rose-50/60 p-5">
-              <p class="cmp-title text-rose-600">❌ 不要把目标定成</p>
-              <p class="text-sm leading-6 text-slate-600">“我会 NestJS 了。”</p>
+            <div class="rounded-2xl border border-neutral-200 bg-neutral-50 p-5">
+              <p class="cmp-title text-neutral-400"><i data-lucide="circle-x" class="h-4 w-4"></i>不要把目标定成</p>
+              <p class="text-sm leading-6 text-neutral-600">“我会 NestJS 了。”</p>
             </div>
-            <div class="rounded-2xl border border-emerald-200 bg-emerald-50/60 p-5">
-              <p class="cmp-title text-emerald-600">✅ 而应该达到</p>
-              <p class="text-sm leading-6 text-slate-600">“我能根据业务复杂度设计合理的 TS 后端架构，并且知道什么时候应该增加抽象、什么时候应该保持简单。”</p>
+            <div class="rounded-2xl border border-neutral-900 bg-white p-5 shadow-sm">
+              <p class="cmp-title text-neutral-900"><i data-lucide="circle-check" class="h-4 w-4"></i>而应该达到</p>
+              <p class="text-sm leading-6 text-neutral-600">“我能根据业务复杂度设计合理的 TS 后端架构，并且知道什么时候应该增加抽象、什么时候应该保持简单。”</p>
             </div>
           </div>
-          <p class="doc-p mt-6 font-semibold text-slate-800">最终能够做到：</p>
+          <p class="doc-p mt-6 font-semibold text-neutral-800">最终能够做到：</p>
           <div class="flow flow-sm">
             <div class="flow-node">能写 API</div>
-            <div class="flow-arrow">↓</div>
+            <div class="flow-arrow"><i data-lucide="arrow-down"></i></div>
             <div class="flow-node">能写 CRUD</div>
-            <div class="flow-arrow">↓</div>
+            <div class="flow-arrow"><i data-lucide="arrow-down"></i></div>
             <div class="flow-node">能拆 Controller / Service / Repository</div>
-            <div class="flow-arrow">↓</div>
+            <div class="flow-arrow"><i data-lucide="arrow-down"></i></div>
             <div class="flow-node">能做模块化</div>
-            <div class="flow-arrow">↓</div>
+            <div class="flow-arrow"><i data-lucide="arrow-down"></i></div>
             <div class="flow-node">能使用 DI</div>
-            <div class="flow-arrow">↓</div>
+            <div class="flow-arrow"><i data-lucide="arrow-down"></i></div>
             <div class="flow-node">理解接口与依赖倒置</div>
-            <div class="flow-arrow">↓</div>
+            <div class="flow-arrow"><i data-lucide="arrow-down"></i></div>
             <div class="flow-node">理解高内聚低耦合</div>
-            <div class="flow-arrow">↓</div>
+            <div class="flow-arrow"><i data-lucide="arrow-down"></i></div>
             <div class="flow-node">能设计 Use Case</div>
-            <div class="flow-arrow">↓</div>
+            <div class="flow-arrow"><i data-lucide="arrow-down"></i></div>
             <div class="flow-node">能进行架构演进</div>
-            <div class="flow-arrow">↓</div>
+            <div class="flow-arrow"><i data-lucide="arrow-down"></i></div>
             <div class="flow-node flow-node-accent">能写可维护的生产级后端</div>
           </div>
           <div class="big-quote mt-10">
@@ -1816,9 +1832,9 @@ auth/
   </div>
 
   <!-- ======================= Footer ======================= -->
-  <footer class="border-t border-slate-200 bg-white">
-    <div class="mx-auto max-w-6xl px-4 py-8 text-center text-xs text-slate-400 sm:px-6 lg:px-8">
-      <p class="font-medium text-slate-500">TS 后端架构：从 0 基础到高内聚低耦合</p>
+  <footer class="border-t border-neutral-200 bg-white">
+    <div class="mx-auto max-w-6xl px-4 py-8 text-center text-xs text-neutral-400 sm:px-6 lg:px-8">
+      <p class="font-medium text-neutral-600">TS 后端架构：从 0 基础到高内聚低耦合</p>
       <p class="mt-1">先解决问题，再引入抽象 · 样式由 Tailwind CSS 构建 · 代码高亮由 highlight.js 提供</p>
     </div>
   </footer>
@@ -1865,7 +1881,7 @@ auth/
         var code = card.querySelector('code');
         if (!code) return;
         copyText(code.innerText).then(function () {
-          btn.textContent = '已复制 ✓';
+          btn.innerHTML = '已复制 <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg>';
           btn.classList.add('copied');
           setTimeout(function () {
             btn.textContent = '复制';
@@ -1913,6 +1929,9 @@ auth/
     backTop.addEventListener('click', function () {
       window.scrollTo({ top: 0, behavior: 'smooth' });
     });
+
+    // 渲染 Lucide 图标
+    if (window.lucide) lucide.createIcons();
   </script>
 </body>
 </html>
