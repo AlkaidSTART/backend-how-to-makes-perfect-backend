@@ -30,7 +30,8 @@
   <!-- Lucide 图标库 (CDN) -->
   <script src="https://unpkg.com/lucide@0.469.0/dist/umd/lucide.min.js"></script>
 
-  <style type="text/tailwindcss">
+  <!-- 公共样式（唯一来源）：这段文本会通过 postMessage 注入到各小节 iframe，改动只需改这里 -->
+  <style type="text/tailwindcss" data-common>
     html { scroll-behavior: smooth; }
     ::selection { background: #171717; color: #ffffff; }
 
@@ -57,7 +58,6 @@
       .sec-num { @apply mt-0.5 flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-neutral-900 font-mono text-sm font-bold text-white; }
       .sec-title { @apply text-xl font-bold tracking-tight text-neutral-900 sm:text-2xl; }
       .doc-section { @apply scroll-mt-8; }
-      .doc-section + .doc-section { @apply mt-16 border-t border-neutral-200 pt-12; }
       .doc-h3 { @apply mb-4 mt-10 flex items-center gap-2 text-lg font-bold text-neutral-900; }
       .doc-h3::before { content: ""; @apply inline-block h-4 w-1 rounded-full bg-neutral-900; }
       .doc-body :not(pre) > code { @apply rounded-md border border-neutral-200 bg-neutral-100 px-1.5 py-0.5 font-mono text-[0.85em] font-medium text-neutral-900; }
@@ -65,6 +65,8 @@
       /* ---------- 流程图 ---------- */
       .flow { @apply my-5 flex flex-col items-center; }
       .flow-node { @apply w-full max-w-xs rounded-xl border border-neutral-200 bg-white px-4 py-2.5 text-center text-sm font-semibold text-neutral-700 shadow-sm; }
+      .flow-sub { @apply mt-0.5 block text-xs font-normal leading-snug text-neutral-500; }
+      .flow-node-accent .flow-sub { @apply text-neutral-300; }
       .flow-node-accent { @apply border-neutral-900 bg-neutral-900 text-white; }
       .flow-arrow { @apply select-none py-1 text-lg leading-none text-neutral-300; }
       .flow-sm .flow-node { @apply px-3 py-1.5 text-[13px]; }
@@ -140,20 +142,23 @@
       .big-quote { @apply my-6 rounded-2xl bg-neutral-950 p-6 text-center shadow-lg sm:p-8; }
       .banner-tag { @apply text-xs font-semibold uppercase tracking-widest text-neutral-500; }
       .banner-text { @apply mt-2 text-lg font-bold leading-relaxed text-white sm:text-xl; }
-
-      /* ---------- Hero ---------- */
-      .hero-chip { @apply rounded-lg border border-neutral-200 bg-white px-2.5 py-1 font-mono text-xs text-neutral-600; }
-
-      /* ---------- 目录 ---------- */
-      .toc-group { @apply mb-1 mt-5 px-3 text-[11px] font-semibold uppercase tracking-wider text-neutral-400 first:mt-0; }
-      .toc-link { @apply block border-l-2 border-transparent py-1 pl-3 text-[13px] leading-5 text-neutral-500 transition hover:border-neutral-300 hover:text-neutral-900; }
-      .toc-active { @apply border-neutral-900 font-semibold text-neutral-900; }
-
-      /* ---------- 返回顶部 ---------- */
-      #back-top { @apply pointer-events-none fixed bottom-6 right-6 z-40 flex h-10 w-10 items-center justify-center rounded-full bg-neutral-900 text-white opacity-0 shadow-lg transition; }
-      #back-top.show { @apply pointer-events-auto opacity-100; }
-      #back-top:hover { @apply bg-neutral-700; }
     }
+  </style>
+
+  <!-- 仅首页使用：Hero / 目录 / 返回顶部 / 小节分隔线（不会注入 iframe） -->
+  <style type="text/tailwindcss">
+    .doc-section + .doc-section { @apply mt-16 border-t border-neutral-200 pt-12; }
+    .hero-chip { @apply rounded-lg border border-neutral-200 bg-white px-2.5 py-1 font-mono text-xs text-neutral-600; }
+
+    /* ---------- 目录 ---------- */
+    .toc-group { @apply mb-1 mt-5 px-3 text-[11px] font-semibold uppercase tracking-wider text-neutral-400 first:mt-0; }
+    .toc-link { @apply block border-l-2 border-transparent py-1 pl-3 text-[13px] leading-5 text-neutral-500 transition hover:border-neutral-300 hover:text-neutral-900; }
+    .toc-active { @apply border-neutral-900 font-semibold text-neutral-900; }
+
+    /* ---------- 返回顶部 ---------- */
+    #back-top { @apply pointer-events-none fixed bottom-6 right-6 z-40 flex h-10 w-10 items-center justify-center rounded-full bg-neutral-900 text-white opacity-0 shadow-lg transition; }
+    #back-top.show { @apply pointer-events-auto opacity-100; }
+    #back-top:hover { @apply bg-neutral-700; }
   </style>
 </head>
 
@@ -497,8 +502,27 @@
       window.scrollTo({ top: 0, behavior: 'smooth' });
     });
 
+    // 公共样式注入：iframe 是独立文档，父页面 CSS 作用不到其中，
+    // 因此把 data-common 样式块的文本通过 postMessage 发给每个小节页（file:// 下同样可用）
+    var commonCss = (document.querySelector('style[data-common]') || {}).textContent || '';
+    function sendCommonCss(frame) {
+      frame.contentWindow.postMessage({ type: 'common-style', css: commonCss }, '*');
+    }
+
     // iframe 高度自适应：小节页面通过 postMessage 上报内容高度
     var iframes = Array.prototype.slice.call(document.querySelectorAll('iframe[data-section]'));
+    iframes.forEach(function (frame) {
+      // 注意：未开始加载真实文档的 iframe，其 contentDocument 是 readyState 为
+      // 'complete' 的初始 about:blank，直接判 ready 会把样式发进一个即将被替换的空白文档
+      var doc = null;
+      try { doc = frame.contentDocument; } catch (e) {}
+      if (doc && doc.readyState === 'complete' && doc.location.href.indexOf('about:blank') === -1) {
+        sendCommonCss(frame);
+      } else {
+        frame.addEventListener('load', function () { sendCommonCss(frame); });
+      }
+    });
+
     window.addEventListener('message', function (e) {
       var d = e.data;
       if (!d || d.type !== 'section-height') return;

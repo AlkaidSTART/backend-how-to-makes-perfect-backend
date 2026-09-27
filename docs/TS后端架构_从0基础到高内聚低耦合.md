@@ -54,6 +54,8 @@ HTTP Request
 数据库
   ↓
 HTTP Response
+  ↓
+客户端（收到响应）
 ```
 
 例如：

@@ -1,6 +1,46 @@
-// 各小节页面（sections/*.html）共用脚本：代码高亮、复制按钮、Lucide 图标、iframe 高度同步
+// 各小节页面（sections/*.html）共用脚本：
+// Tailwind 配置、公共样式接收、代码高亮、复制按钮、Lucide 图标、iframe 高度同步
 (function () {
   'use strict';
+
+  // Tailwind 配置（与 index.html 中的配置保持一致）
+  window.tailwind = window.tailwind || {};
+  window.tailwind.config = {
+    theme: {
+      extend: {
+        fontFamily: {
+          sans: ['system-ui', '-apple-system', 'Segoe UI', 'Roboto', 'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei', 'sans-serif'],
+          mono: ['"JetBrains Mono"', 'ui-monospace', 'SFMono-Regular', 'Menlo', 'Consolas', 'monospace'],
+        },
+      },
+    },
+  };
+
+  // 公共样式：由父页面 index.html 在 iframe load 后通过 postMessage 注入，
+  // 追加为 text/tailwindcss 样式块后由本页的 Play CDN 编译生效
+  var commonApplied = false;
+  function applyCommonStyle(css) {
+    if (commonApplied || !css) return;
+    commonApplied = true;
+    var style = document.createElement('style');
+    style.type = 'text/tailwindcss';
+    style.textContent = css;
+    document.head.appendChild(style);
+  }
+  window.addEventListener('message', function (e) {
+    var d = e.data;
+    if (d && d.type === 'common-style') applyCommonStyle(d.css);
+  });
+  // 兜底：直接通过 http(s) 打开某个小节页时，从 index.html 抓取公共样式
+  if (window.parent === window && /^https?:$/.test(location.protocol)) {
+    fetch('../index.html')
+      .then(function (r) { return r.text(); })
+      .then(function (text) {
+        var m = text.match(/<style type="text\/tailwindcss" data-common>([\s\S]*?)<\/style>/);
+        if (m) applyCommonStyle(m[1]);
+      })
+      .catch(function () {});
+  }
 
   function copyText(text) {
     if (navigator.clipboard && window.isSecureContext) {
@@ -43,7 +83,7 @@
   if (window.hljs) hljs.highlightAll();
   if (window.lucide) lucide.createIcons();
 
-  // 高度同步：ResizeObserver 覆盖 Tailwind 编译完成、字体加载、宽度变化引起的所有尺寸变化
+  // 高度同步：ResizeObserver 覆盖 Tailwind 编译完成、公共样式注入、字体加载、宽度变化等所有尺寸变化
   function postHeight() {
     var h = Math.max(document.body.scrollHeight, document.documentElement.scrollHeight);
     window.parent.postMessage({ type: 'section-height', height: Math.ceil(h) }, '*');
