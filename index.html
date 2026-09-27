@@ -34,16 +34,19 @@
     html { scroll-behavior: smooth; }
     ::selection { background: #171717; color: #ffffff; }
 
-    /* highlight.js 灰阶配色（无彩色） */
-    .hljs { color: #e5e5e5; background: transparent; }
+    /* highlight.js 柔和配色（低饱和 · 暗色） */
+    .hljs { color: #d6d3d1; background: transparent; }
     .hljs-comment, .hljs-quote { color: #8a8a8a; font-style: italic; }
-    .hljs-keyword, .hljs-selector-tag, .hljs-literal, .hljs-doctag, .hljs-name { color: #ffffff; font-weight: 600; }
-    .hljs-title, .hljs-section, .hljs-selector-id, .hljs-selector-class { color: #ffffff; font-weight: 600; }
-    .hljs-string, .hljs-regexp, .hljs-addition, .hljs-template-string { color: #a8a8a8; }
-    .hljs-number, .hljs-symbol, .hljs-bullet, .hljs-meta, .hljs-link { color: #d4d4d4; }
-    .hljs-attr, .hljs-attribute, .hljs-variable, .hljs-template-variable, .hljs-type, .hljs-built_in, .hljs-class { color: #f0f0f0; }
-    .hljs-params { color: #e5e5e5; }
-    .hljs-deletion { color: #a3a3a3; }
+    .hljs-keyword, .hljs-selector-tag, .hljs-doctag, .hljs-name { color: #c0b3ea; font-weight: 600; }
+    .hljs-literal { color: #d3a8b4; }
+    .hljs-title, .hljs-section { color: #a4b8e3; font-weight: 600; }
+    .hljs-selector-id, .hljs-selector-class { color: #a4b8e3; }
+    .hljs-string, .hljs-regexp, .hljs-addition, .hljs-template-string { color: #9fc49b; }
+    .hljs-number, .hljs-symbol, .hljs-bullet, .hljs-meta, .hljs-link { color: #d9b18c; }
+    .hljs-attr, .hljs-attribute { color: #93c1bd; }
+    .hljs-variable, .hljs-template-variable, .hljs-params { color: #d6d3d1; }
+    .hljs-type, .hljs-built_in, .hljs-class { color: #d8c396; }
+    .hljs-deletion { color: #c9989c; }
     .hljs-emphasis { font-style: italic; }
     .hljs-strong { font-weight: 700; }
 
@@ -69,14 +72,19 @@
       .fr-node { @apply rounded-lg border border-neutral-200 bg-white px-3 py-1.5 font-mono text-xs font-semibold text-neutral-700 shadow-sm; }
       .fr-arrow { @apply text-neutral-300; }
 
-      /* ---------- 代码卡片 ---------- */
-      .code-card { @apply my-4 overflow-hidden rounded-xl border border-neutral-800 bg-neutral-900 shadow-md; }
-      .code-head { @apply flex items-center justify-between gap-3 border-b border-neutral-800 bg-neutral-950/60 px-4 py-2; }
+      /* ---------- 代码卡片（macOS 窗口风格） ---------- */
+      .code-card { @apply my-4 overflow-hidden rounded-xl border border-neutral-800 bg-neutral-900 shadow-lg; }
+      .code-head { @apply flex items-center gap-3 border-b border-neutral-800 bg-neutral-950/60 px-4 py-2.5; }
+      .code-dots { @apply flex shrink-0 items-center gap-2; }
+      .code-dots i { @apply block h-3 w-3 rounded-full; }
+      .code-dots i:nth-child(1) { background: #ff5f57; box-shadow: inset 0 0 0 0.5px rgb(0 0 0 / 0.12); }
+      .code-dots i:nth-child(2) { background: #febc2e; box-shadow: inset 0 0 0 0.5px rgb(0 0 0 / 0.12); }
+      .code-dots i:nth-child(3) { background: #28c840; box-shadow: inset 0 0 0 0.5px rgb(0 0 0 / 0.12); }
       .code-lang { @apply font-mono text-[11px] font-medium uppercase tracking-wider text-neutral-500; }
       .code-flag { @apply rounded-md px-2 py-0.5 text-[11px] font-semibold; }
       .code-flag.bad { @apply border border-neutral-600 text-neutral-400; }
       .code-flag.good { @apply bg-white text-neutral-900; }
-      .code-copy { @apply shrink-0 rounded-md border border-neutral-700 px-2 py-0.5 text-[11px] text-neutral-400 transition hover:border-neutral-400 hover:text-neutral-100; }
+      .code-copy { @apply ml-auto shrink-0 rounded-md border border-neutral-700 px-2 py-0.5 text-[11px] text-neutral-400 transition hover:border-neutral-400 hover:text-neutral-100; }
       .code-copy.copied { @apply border-neutral-400 text-white; }
       .code-body { @apply overflow-x-auto p-4 text-[13px] leading-6; }
       .code-body code.hljs { background: transparent; padding: 0; }
@@ -348,6 +356,7 @@
           <p class="doc-p">例如：</p>
           <figure class="code-card">
             <figcaption class="code-head">
+              <span class="code-dots" aria-hidden="true"><i></i><i></i><i></i></span>
               <span class="code-lang">HTTP</span>
               <button class="code-copy" type="button">复制</button>
             </figcaption>
@@ -362,6 +371,7 @@ Content-Type: application/json
           <p class="doc-p">后端完成业务处理后返回：</p>
           <figure class="code-card">
             <figcaption class="code-head">
+              <span class="code-dots" aria-hidden="true"><i></i><i></i><i></i></span>
               <span class="code-lang">JSON</span>
               <button class="code-copy" type="button">复制</button>
             </figcaption>
@@ -404,6 +414,7 @@ Content-Type: application/json
           <p class="doc-p">例如：</p>
           <figure class="code-card">
             <figcaption class="code-head">
+              <span class="code-dots" aria-hidden="true"><i></i><i></i><i></i></span>
               <span class="code-lang">HTTP</span>
               <button class="code-copy" type="button">复制</button>
             </figcaption>
@@ -431,6 +442,7 @@ DELETE /users/123</code></pre>
           <p class="doc-p">例如：</p>
           <figure class="code-card">
             <figcaption class="code-head">
+              <span class="code-dots" aria-hidden="true"><i></i><i></i><i></i></span>
               <span class="code-lang">HTTP</span>
               <button class="code-copy" type="button">复制</button>
             </figcaption>
@@ -440,6 +452,7 @@ Authorization: Bearer xxx</code></pre>
           <p class="doc-p">对应：</p>
           <figure class="code-card">
             <figcaption class="code-head">
+              <span class="code-dots" aria-hidden="true"><i></i><i></i><i></i></span>
               <span class="code-lang">TypeScript</span>
               <button class="code-copy" type="button">复制</button>
             </figcaption>
@@ -450,6 +463,7 @@ headers.authorization</code></pre>
           <p class="doc-p">POST Body：</p>
           <figure class="code-card">
             <figcaption class="code-head">
+              <span class="code-dots" aria-hidden="true"><i></i><i></i><i></i></span>
               <span class="code-lang">JSON</span>
               <button class="code-copy" type="button">复制</button>
             </figcaption>
@@ -461,6 +475,7 @@ headers.authorization</code></pre>
           <p class="doc-p">对应：</p>
           <figure class="code-card">
             <figcaption class="code-head">
+              <span class="code-dots" aria-hidden="true"><i></i><i></i><i></i></span>
               <span class="code-lang">TypeScript</span>
               <button class="code-copy" type="button">复制</button>
             </figcaption>
@@ -554,6 +569,7 @@ body.age</code></pre>
           <p class="doc-p">刚开始甚至可以直接：</p>
           <figure class="code-card">
             <figcaption class="code-head">
+              <span class="code-dots" aria-hidden="true"><i></i><i></i><i></i></span>
               <span class="code-lang">TypeScript</span>
               <button class="code-copy" type="button">复制</button>
             </figcaption>
@@ -590,6 +606,7 @@ body.age</code></pre>
           <p class="doc-p">例如：</p>
           <figure class="code-card">
             <figcaption class="code-head">
+              <span class="code-dots" aria-hidden="true"><i></i><i></i><i></i></span>
               <span class="code-lang">TypeScript</span>
               <button class="code-copy" type="button">复制</button>
             </figcaption>
@@ -614,6 +631,7 @@ body.age</code></pre>
           <p class="doc-p">Controller 不应该承担复杂业务逻辑。不推荐：</p>
           <figure class="code-card">
             <figcaption class="code-head">
+              <span class="code-dots" aria-hidden="true"><i></i><i></i><i></i></span>
               <span class="flex items-center gap-2">
                 <span class="code-flag bad">不推荐</span>
                 <span class="code-lang">TypeScript</span>
@@ -664,6 +682,7 @@ body.age</code></pre>
           <p class="doc-p">例如：</p>
           <figure class="code-card">
             <figcaption class="code-head">
+              <span class="code-dots" aria-hidden="true"><i></i><i></i><i></i></span>
               <span class="code-lang">TypeScript</span>
               <button class="code-copy" type="button">复制</button>
             </figcaption>
@@ -711,6 +730,7 @@ body.age</code></pre>
           <p class="doc-p">例如：</p>
           <figure class="code-card">
             <figcaption class="code-head">
+              <span class="code-dots" aria-hidden="true"><i></i><i></i><i></i></span>
               <span class="code-lang">TypeScript</span>
               <button class="code-copy" type="button">复制</button>
             </figcaption>
@@ -791,6 +811,7 @@ body.age</code></pre>
           <p class="doc-p">用于描述 API 的输入或输出数据。例如：</p>
           <figure class="code-card">
             <figcaption class="code-head">
+              <span class="code-dots" aria-hidden="true"><i></i><i></i><i></i></span>
               <span class="code-lang">TypeScript</span>
               <button class="code-copy" type="button">复制</button>
             </figcaption>
@@ -808,6 +829,7 @@ body.age</code></pre>
           <p class="doc-p">例如：</p>
           <figure class="code-card">
             <figcaption class="code-head">
+              <span class="code-dots" aria-hidden="true"><i></i><i></i><i></i></span>
               <span class="code-lang">JSON</span>
               <button class="code-copy" type="button">复制</button>
             </figcaption>
@@ -890,6 +912,7 @@ body.age</code></pre>
           <p class="doc-p">现代 TypeScript 项目可以考虑 Zod：</p>
           <figure class="code-card">
             <figcaption class="code-head">
+              <span class="code-dots" aria-hidden="true"><i></i><i></i><i></i></span>
               <span class="code-lang">TypeScript</span>
               <button class="code-copy" type="button">复制</button>
             </figcaption>
@@ -917,6 +940,7 @@ body.age</code></pre>
           <p class="doc-p">不要在项目中到处 <code>throw new Error("xxx")</code>，可以逐渐形成明确的错误类型。例如：</p>
           <figure class="code-card">
             <figcaption class="code-head">
+              <span class="code-dots" aria-hidden="true"><i></i><i></i><i></i></span>
               <span class="code-lang">TypeScript</span>
               <button class="code-copy" type="button">复制</button>
             </figcaption>
@@ -925,6 +949,7 @@ body.age</code></pre>
           <p class="doc-p">业务层：</p>
           <figure class="code-card">
             <figcaption class="code-head">
+              <span class="code-dots" aria-hidden="true"><i></i><i></i><i></i></span>
               <span class="code-lang">TypeScript</span>
               <button class="code-copy" type="button">复制</button>
             </figcaption>
@@ -945,6 +970,7 @@ body.age</code></pre>
           <p class="doc-p">而不是每个 Controller 都自己：</p>
           <figure class="code-card">
             <figcaption class="code-head">
+              <span class="code-dots" aria-hidden="true"><i></i><i></i><i></i></span>
               <span class="flex items-center gap-2">
                 <span class="code-flag bad">不推荐</span>
                 <span class="code-lang">TypeScript</span>
@@ -972,6 +998,7 @@ body.age</code></pre>
           <div class="my-4 grid gap-4 sm:grid-cols-2">
             <figure class="code-card my-0">
               <figcaption class="code-head">
+                <span class="code-dots" aria-hidden="true"><i></i><i></i><i></i></span>
                 <span class="flex items-center gap-2">
                   <span class="code-flag good">成功</span>
                   <span class="code-lang">JSON</span>
@@ -985,6 +1012,7 @@ body.age</code></pre>
             </figure>
             <figure class="code-card my-0">
               <figcaption class="code-head">
+                <span class="code-dots" aria-hidden="true"><i></i><i></i><i></i></span>
                 <span class="flex items-center gap-2">
                   <span class="code-flag bad">失败</span>
                   <span class="code-lang">JSON</span>
@@ -1088,6 +1116,7 @@ auth/
           <p class="doc-p">例如：</p>
           <figure class="code-card">
             <figcaption class="code-head">
+              <span class="code-dots" aria-hidden="true"><i></i><i></i><i></i></span>
               <span class="code-lang">TypeScript</span>
               <button class="code-copy" type="button">复制</button>
             </figcaption>
@@ -1131,6 +1160,7 @@ auth/
           <p class="doc-p">Service 只依赖抽象：</p>
           <figure class="code-card">
             <figcaption class="code-head">
+              <span class="code-dots" aria-hidden="true"><i></i><i></i><i></i></span>
               <span class="code-lang">TypeScript</span>
               <button class="code-copy" type="button">复制</button>
             </figcaption>
@@ -1141,6 +1171,7 @@ auth/
           <p class="doc-p">具体实现：</p>
           <figure class="code-card">
             <figcaption class="code-head">
+              <span class="code-dots" aria-hidden="true"><i></i><i></i><i></i></span>
               <span class="code-lang">TypeScript</span>
               <button class="code-copy" type="button">复制</button>
             </figcaption>
@@ -1188,6 +1219,7 @@ auth/
           <p class="doc-p">例如：</p>
           <figure class="code-card">
             <figcaption class="code-head">
+              <span class="code-dots" aria-hidden="true"><i></i><i></i><i></i></span>
               <span class="code-lang">TypeScript</span>
               <button class="code-copy" type="button">复制</button>
             </figcaption>
@@ -1200,6 +1232,7 @@ auth/
           <p class="doc-p">外部：</p>
           <figure class="code-card">
             <figcaption class="code-head">
+              <span class="code-dots" aria-hidden="true"><i></i><i></i><i></i></span>
               <span class="code-lang">TypeScript</span>
               <button class="code-copy" type="button">复制</button>
             </figcaption>
@@ -1210,6 +1243,7 @@ auth/
           <p class="doc-p">Service 不负责：</p>
           <figure class="code-card">
             <figcaption class="code-head">
+              <span class="code-dots" aria-hidden="true"><i></i><i></i><i></i></span>
               <span class="code-lang">TypeScript</span>
               <button class="code-copy" type="button">复制</button>
             </figcaption>
@@ -1255,6 +1289,7 @@ auth/
           <p class="doc-p">业务依赖抽象，而不是具体实现。例如：</p>
           <figure class="code-card">
             <figcaption class="code-head">
+              <span class="code-dots" aria-hidden="true"><i></i><i></i><i></i></span>
               <span class="code-lang">TypeScript</span>
               <button class="code-copy" type="button">复制</button>
             </figcaption>
@@ -1265,6 +1300,7 @@ auth/
           <p class="doc-p">业务：</p>
           <figure class="code-card">
             <figcaption class="code-head">
+              <span class="code-dots" aria-hidden="true"><i></i><i></i><i></i></span>
               <span class="code-lang">TypeScript</span>
               <button class="code-copy" type="button">复制</button>
             </figcaption>
@@ -1277,6 +1313,7 @@ auth/
           <p class="doc-p">基础设施：</p>
           <figure class="code-card">
             <figcaption class="code-head">
+              <span class="code-dots" aria-hidden="true"><i></i><i></i><i></i></span>
               <span class="code-lang">TypeScript</span>
               <button class="code-copy" type="button">复制</button>
             </figcaption>
@@ -1323,6 +1360,7 @@ auth/
           <p class="doc-p">例如注册：</p>
           <figure class="code-card">
             <figcaption class="code-head">
+              <span class="code-dots" aria-hidden="true"><i></i><i></i><i></i></span>
               <span class="code-lang">TypeScript</span>
               <button class="code-copy" type="button">复制</button>
             </figcaption>
