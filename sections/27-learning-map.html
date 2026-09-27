@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>27 最终学习地图 · TS 后端架构</title>
+  <meta name="description" content="从最基础的 HTTP 接口开始，逐步理解 TypeScript 后端的分层、模块化、依赖注入、依赖倒置，以及高内聚、低耦合的工程化架构。">
+  <meta name="theme-color" content="#ffffff">
+
+  <!-- 字体 -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+
+  <!-- Tailwind CSS (CDN) -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['system-ui', '-apple-system', 'Segoe UI', 'Roboto', 'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei', 'sans-serif'],
+            mono: ['"JetBrains Mono"', 'ui-monospace', 'SFMono-Regular', 'Menlo', 'Consolas', 'monospace'],
+          },
+        },
+      },
+    };
+  </script>
+
+  <!-- Lucide 图标库 (CDN) -->
+  <script src="https://unpkg.com/lucide@0.469.0/dist/umd/lucide.min.js"></script>
+
+  <style type="text/tailwindcss">
+    html { scroll-behavior: smooth; }
+    ::selection { background: #171717; color: #ffffff; }
+
+    /* highlight.js 柔和配色（低饱和 · 暗色） */
+    .hljs { color: #d6d3d1; background: transparent; }
+    .hljs-comment, .hljs-quote { color: #8a8a8a; font-style: italic; }
+    .hljs-keyword, .hljs-selector-tag, .hljs-doctag, .hljs-name { color: #c0b3ea; font-weight: 600; }
+    .hljs-literal { color: #d3a8b4; }
+    .hljs-title, .hljs-section { color: #a4b8e3; font-weight: 600; }
+    .hljs-selector-id, .hljs-selector-class { color: #a4b8e3; }
+    .hljs-string, .hljs-regexp, .hljs-addition, .hljs-template-string { color: #9fc49b; }
+    .hljs-number, .hljs-symbol, .hljs-bullet, .hljs-meta, .hljs-link { color: #d9b18c; }
+    .hljs-attr, .hljs-attribute { color: #93c1bd; }
+    .hljs-variable, .hljs-template-variable, .hljs-params { color: #d6d3d1; }
+    .hljs-type, .hljs-built_in, .hljs-class { color: #d8c396; }
+    .hljs-deletion { color: #c9989c; }
+    .hljs-emphasis { font-style: italic; }
+    .hljs-strong { font-weight: 700; }
+
+    @layer components {
+      /* ---------- 版式 ---------- */
+      .doc-p { @apply my-3 text-[15px] leading-7 text-neutral-600; }
+      .eyebrow { @apply text-[11px] font-semibold uppercase tracking-widest text-neutral-400; }
+      .sec-num { @apply mt-0.5 flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-neutral-900 font-mono text-sm font-bold text-white; }
+      .sec-title { @apply text-xl font-bold tracking-tight text-neutral-900 sm:text-2xl; }
+      .doc-section { @apply scroll-mt-8; }
+      .doc-section + .doc-section { @apply mt-16 border-t border-neutral-200 pt-12; }
+      .doc-h3 { @apply mb-4 mt-10 flex items-center gap-2 text-lg font-bold text-neutral-900; }
+      .doc-h3::before { content: ""; @apply inline-block h-4 w-1 rounded-full bg-neutral-900; }
+      .doc-body :not(pre) > code { @apply rounded-md border border-neutral-200 bg-neutral-100 px-1.5 py-0.5 font-mono text-[0.85em] font-medium text-neutral-900; }
+
+      /* ---------- 流程图 ---------- */
+      .flow { @apply my-5 flex flex-col items-center; }
+      .flow-node { @apply w-full max-w-xs rounded-xl border border-neutral-200 bg-white px-4 py-2.5 text-center text-sm font-semibold text-neutral-700 shadow-sm; }
+      .flow-node-accent { @apply border-neutral-900 bg-neutral-900 text-white; }
+      .flow-arrow { @apply select-none py-1 text-lg leading-none text-neutral-300; }
+      .flow-sm .flow-node { @apply px-3 py-1.5 text-[13px]; }
+      .flow-row { @apply my-4 flex flex-wrap items-center justify-center gap-x-2 gap-y-2; }
+      .fr-node { @apply rounded-lg border border-neutral-200 bg-white px-3 py-1.5 font-mono text-xs font-semibold text-neutral-700 shadow-sm; }
+      .fr-arrow { @apply text-neutral-300; }
+
+      /* ---------- 代码卡片（macOS 窗口风格） ---------- */
+      .code-card { @apply my-4 overflow-hidden rounded-xl border border-neutral-800 bg-neutral-900 shadow-lg; }
+      .code-head { @apply flex items-center gap-3 border-b border-neutral-800 bg-neutral-950/60 px-4 py-2.5; }
+      .code-dots { @apply flex shrink-0 items-center gap-2; }
+      .code-dots i { @apply block h-3 w-3 rounded-full; }
+      .code-dots i:nth-child(1) { background: #ff5f57; box-shadow: inset 0 0 0 0.5px rgb(0 0 0 / 0.12); }
+      .code-dots i:nth-child(2) { background: #febc2e; box-shadow: inset 0 0 0 0.5px rgb(0 0 0 / 0.12); }
+      .code-dots i:nth-child(3) { background: #28c840; box-shadow: inset 0 0 0 0.5px rgb(0 0 0 / 0.12); }
+      .code-lang { @apply font-mono text-[11px] font-medium uppercase tracking-wider text-neutral-500; }
+      .code-flag { @apply rounded-md px-2 py-0.5 text-[11px] font-semibold; }
+      .code-flag.bad { @apply border border-neutral-600 text-neutral-400; }
+      .code-flag.good { @apply bg-white text-neutral-900; }
+      .code-copy { @apply ml-auto shrink-0 rounded-md border border-neutral-700 px-2 py-0.5 text-[11px] text-neutral-400 transition hover:border-neutral-400 hover:text-neutral-100; }
+      .code-copy.copied { @apply border-neutral-400 text-white; }
+      .code-body { @apply overflow-x-auto p-4 text-[13px] leading-6; }
+      .code-body code.hljs { background: transparent; padding: 0; }
+
+      /* ---------- 示意图 / 目录树 ---------- */
+      .diagram-card { @apply my-4 overflow-hidden rounded-xl border border-neutral-200 bg-neutral-50 shadow-sm; }
+      .diagram-head { @apply border-b border-neutral-200 bg-white/70 px-4 py-2 font-mono text-[11px] font-medium uppercase tracking-wider text-neutral-400; }
+      .diagram-card pre { @apply overflow-x-auto p-5 font-mono text-[13px] leading-6 text-neutral-600; }
+      .tree-pre { @apply overflow-x-auto font-mono text-[13px] leading-6 text-neutral-700; }
+
+      /* ---------- 提示块 ---------- */
+      .callout { @apply my-4 flex gap-3 rounded-xl border p-4 text-sm leading-6 text-neutral-700; }
+      .callout-key { @apply border-neutral-200 bg-neutral-50; }
+      .callout-warn { @apply border-neutral-900 bg-white font-medium text-neutral-900; }
+      .callout-icon { @apply shrink-0 select-none font-bold leading-6; }
+
+      /* ---------- Lucide 图标 ---------- */
+      .callout-icon { @apply mt-[3px] flex h-[18px] w-[18px] items-center justify-center; }
+      .callout-icon svg { @apply h-[18px] w-[18px]; }
+      .check-dot svg, .cross-dot svg { @apply h-2.5 w-2.5; }
+      .flow-arrow svg { @apply h-[18px] w-[18px]; }
+      .fr-arrow svg { @apply h-3.5 w-3.5; }
+      .code-copy svg { @apply h-3 w-3; }
+
+      /* ---------- 徽章 / 标签 ---------- */
+      .chip { @apply inline-flex items-center rounded-lg border border-neutral-200 bg-white px-2.5 py-1 font-mono text-xs font-medium text-neutral-600 shadow-sm; }
+      .method-badge { @apply inline-block rounded-md bg-neutral-900 px-2 py-0.5 font-mono text-xs font-bold text-white; }
+      .status-badge { @apply inline-block rounded-md px-2 py-0.5 font-mono text-xs font-semibold; }
+      .st-ok { @apply bg-neutral-900 text-white; }
+      .st-warn { @apply bg-neutral-200 text-neutral-700; }
+      .st-err { @apply border border-neutral-900 bg-white font-bold text-neutral-900; }
+      .check-item { @apply flex items-start gap-2 text-sm leading-6 text-neutral-600; }
+      .check-dot { @apply mt-1 flex h-4 w-4 shrink-0 items-center justify-center rounded-full bg-neutral-900 text-[10px] font-bold text-white; }
+      .cross-item { @apply flex items-start gap-2 text-sm leading-6 text-neutral-600; }
+      .cross-dot { @apply mt-1 flex h-4 w-4 shrink-0 items-center justify-center rounded-full bg-neutral-200 text-[10px] font-bold text-neutral-500; }
+      .tier-tag { @apply rounded-md px-2 py-0.5 text-xs font-semibold; }
+      .tag-low { @apply border border-neutral-300 bg-white text-neutral-500; }
+      .tag-mid { @apply bg-neutral-100 text-neutral-600; }
+      .tag-high { @apply bg-neutral-800 text-white; }
+      .tag-core { @apply bg-neutral-900 text-white; }
+
+      /* ---------- 卡片 ---------- */
+      .layer-card { @apply rounded-2xl border border-neutral-200 bg-white p-5 text-center shadow-sm; }
+      .layer-name { @apply font-mono text-sm font-bold text-neutral-900; }
+      .layer-role { @apply mt-1.5 text-xs font-semibold uppercase tracking-wider text-neutral-400; }
+      .level-badge { @apply inline-block rounded-md bg-neutral-900 px-2 py-1 text-xs font-bold text-white; }
+      .prio-badge { @apply inline-flex h-6 w-8 items-center justify-center rounded-md text-[11px] font-bold text-white; }
+      .cmp-bad { @apply rounded-2xl border border-neutral-200 bg-neutral-50 p-5; }
+      .cmp-good { @apply rounded-2xl border border-neutral-900 bg-white p-5 shadow-sm; }
+      .cmp-title { @apply mb-3 flex items-center gap-2 text-sm font-bold; }
+
+      /* ---------- 金句横幅 ---------- */
+      .big-quote { @apply my-6 rounded-2xl bg-neutral-950 p-6 text-center shadow-lg sm:p-8; }
+      .banner-tag { @apply text-xs font-semibold uppercase tracking-widest text-neutral-500; }
+      .banner-text { @apply mt-2 text-lg font-bold leading-relaxed text-white sm:text-xl; }
+
+      /* ---------- Hero ---------- */
+      .hero-chip { @apply rounded-lg border border-neutral-200 bg-white px-2.5 py-1 font-mono text-xs text-neutral-600; }
+
+      /* ---------- 目录 ---------- */
+      .toc-group { @apply mb-1 mt-5 px-3 text-[11px] font-semibold uppercase tracking-wider text-neutral-400 first:mt-0; }
+      .toc-link { @apply block border-l-2 border-transparent py-1 pl-3 text-[13px] leading-5 text-neutral-500 transition hover:border-neutral-300 hover:text-neutral-900; }
+      .toc-active { @apply border-neutral-900 font-semibold text-neutral-900; }
+
+      /* ---------- 返回顶部 ---------- */
+      #back-top { @apply pointer-events-none fixed bottom-6 right-6 z-40 flex h-10 w-10 items-center justify-center rounded-full bg-neutral-900 text-white opacity-0 shadow-lg transition; }
+      #back-top.show { @apply pointer-events-auto opacity-100; }
+      #back-top:hover { @apply bg-neutral-700; }
+    }
+  </style>
+</head>
+
+<body data-section="learning-map" class="doc-body bg-white font-sans text-neutral-800 antialiased px-3 pb-4 pt-1">
+
+        <!-- 27 最终学习地图 -->
+        <section id="learning-map" class="doc-section">
+          <header class="mb-5 flex items-start gap-3">
+            <span class="sec-num">27</span>
+            <div>
+              <p class="eyebrow">实战与总结</p>
+              <h2 class="sec-title">最终学习地图</h2>
+            </div>
+          </header>
+          <figure class="diagram-card">
+            <figcaption class="diagram-head">Learning Map</figcaption>
+            <pre>                    TS 后端
+                       │
+             ┌─────────┴─────────┐
+             ↓                   ↓
+          Web 基础             TypeScript
+             │                   │
+       HTTP / REST          类型 / 泛型 / 类型体操
+             │                   │
+             └─────────┬─────────┘
+                       ↓
+                    Node.js
+                       ↓
+                    NestJS
+                       ↓
+              ┌────────┴────────┐
+              ↓                 ↓
+          Controller          Module
+              ↓
+           Service
+              ↓
+         Repository
+              ↓
+           Database
+              │
+              ↓
+      ┌─────────────────┐
+      │ DTO / Validation │
+      │ Error Handling   │
+      │ Authentication   │
+      └─────────────────┘
+              ↓
+        Dependency Injection
+              ↓
+           Interface
+              ↓
+       Dependency Inversion
+              ↓
+        高内聚 + 低耦合
+              ↓
+           Use Case
+              ↓
+            Domain
+              ↓
+       Clean Architecture
+              ↓
+      Transaction / Queue
+      Cache / Event / Test
+              ↓
+          工程化后端</pre>
+          </figure>
+        </section>
+
+  <!-- highlight.js (CDN) -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/http.min.js"></script>
+  <!-- 小节共用脚本：高亮、复制、图标、高度同步 -->
+  <script src="../assets/section.js"></script>
+</body>
+</html>
