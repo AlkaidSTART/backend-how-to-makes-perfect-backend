@@ -218,16 +218,17 @@
         <a class="py-1 text-neutral-600 hover:text-neutral-900" href="#cohesion">16 什么叫高内聚</a>
         <a class="py-1 text-neutral-600 hover:text-neutral-900" href="#coupling">17 什么叫低耦合</a>
         <a class="py-1 text-neutral-600 hover:text-neutral-900" href="#abstraction">18 依赖抽象</a>
-        <a class="py-1 text-neutral-600 hover:text-neutral-900" href="#di">19 依赖注入 DI</a>
-        <a class="py-1 text-neutral-600 hover:text-neutral-900" href="#dip">20 依赖倒置</a>
-        <a class="py-1 text-neutral-600 hover:text-neutral-900" href="#use-case">21 Use Case</a>
-        <a class="py-1 text-neutral-600 hover:text-neutral-900" href="#evolution">22 架构演进</a>
-        <a class="py-1 text-neutral-600 hover:text-neutral-900" href="#evolution-path">23 演进路线</a>
-        <a class="py-1 text-neutral-600 hover:text-neutral-900" href="#practice">24 项目实战路线</a>
-        <a class="py-1 text-neutral-600 hover:text-neutral-900" href="#core-insight">25 核心认知</a>
-        <a class="py-1 text-neutral-600 hover:text-neutral-900" href="#learning-map">26 学习地图</a>
-        <a class="py-1 text-neutral-600 hover:text-neutral-900" href="#priority">27 学习优先级</a>
-        <a class="py-1 text-neutral-600 hover:text-neutral-900" href="#final-goal">28 最终目标</a>
+        <a class="py-1 text-neutral-600 hover:text-neutral-900" href="#scenarios">19 场景与判断</a>
+        <a class="py-1 text-neutral-600 hover:text-neutral-900" href="#di">20 依赖注入 DI</a>
+        <a class="py-1 text-neutral-600 hover:text-neutral-900" href="#dip">21 依赖倒置</a>
+        <a class="py-1 text-neutral-600 hover:text-neutral-900" href="#use-case">22 Use Case</a>
+        <a class="py-1 text-neutral-600 hover:text-neutral-900" href="#evolution">23 架构演进</a>
+        <a class="py-1 text-neutral-600 hover:text-neutral-900" href="#evolution-path">24 演进路线</a>
+        <a class="py-1 text-neutral-600 hover:text-neutral-900" href="#practice">25 项目实战路线</a>
+        <a class="py-1 text-neutral-600 hover:text-neutral-900" href="#core-insight">26 核心认知</a>
+        <a class="py-1 text-neutral-600 hover:text-neutral-900" href="#learning-map">27 学习地图</a>
+        <a class="py-1 text-neutral-600 hover:text-neutral-900" href="#priority">28 学习优先级</a>
+        <a class="py-1 text-neutral-600 hover:text-neutral-900" href="#final-goal">29 最终目标</a>
       </div>
     </details>
   </div>
@@ -270,6 +271,7 @@
           <a class="toc-link" href="#cohesion">什么叫高内聚？</a>
           <a class="toc-link" href="#coupling">什么叫低耦合？</a>
           <a class="toc-link" href="#abstraction">依赖抽象</a>
+          <a class="toc-link" href="#scenarios">场景与判断</a>
 
           <p class="toc-group">依赖管理</p>
           <a class="toc-link" href="#di">第八阶段：依赖注入 DI</a>
@@ -1203,10 +1205,513 @@ auth/
           <p class="doc-p">这就是降低耦合的核心手段之一。</p>
         </section>
 
-        <!-- 19 第八阶段：依赖注入 DI -->
-        <section id="di" class="doc-section">
+        <!-- 19 高内聚，低耦合的场景与判断 -->
+        <section id="scenarios" class="doc-section">
           <header class="mb-5 flex items-start gap-3">
             <span class="sec-num">19</span>
+            <div>
+              <p class="eyebrow">模块与耦合</p>
+              <h2 class="sec-title">高内聚，低耦合的场景与判断</h2>
+            </div>
+          </header>
+          <p class="doc-p">这个问题其实比“什么是高内聚、低耦合”更重要。你真正需要掌握的不是“要不要使用高内聚低耦合”，而是：</p>
+          <div class="callout callout-key">
+            <span class="callout-icon"><i data-lucide="scissors"></i></span>
+            <div>“<strong class="font-semibold text-neutral-900">什么时候代码的变化开始互相影响，我需要开始拆分？</strong>”</div>
+          </div>
+          <div class="big-quote">
+            <p class="banner-tag">Core Mindset</p>
+            <p class="banner-text">高内聚、低耦合不是一种架构，<br class="hidden sm:block">而是一种判断标准。</p>
+          </div>
+
+          <h3 class="doc-h3">一句话判断法</h3>
+          <p class="doc-p">以后写 TS 后端时，可以先问自己两个问题：</p>
+          <div class="my-4 grid gap-4 sm:grid-cols-2">
+            <div class="rounded-2xl border border-neutral-900 bg-white p-5 shadow-sm">
+              <p class="text-[11px] font-semibold uppercase tracking-wider text-neutral-400">问题 1</p>
+              <p class="mt-1.5 text-sm font-bold text-neutral-900">这些代码是不是因为同一个原因而变化？</p>
+              <div class="mt-3 space-y-2 text-sm leading-6 text-neutral-600">
+                <p class="flex items-center gap-2"><span class="status-badge st-ok">是</span>放在一起 → 高内聚</p>
+                <p class="flex items-center gap-2"><span class="status-badge st-warn">否</span>考虑拆开</p>
+              </div>
+            </div>
+            <div class="rounded-2xl border border-neutral-900 bg-white p-5 shadow-sm">
+              <p class="text-[11px] font-semibold uppercase tracking-wider text-neutral-400">问题 2</p>
+              <p class="mt-1.5 text-sm font-bold text-neutral-900">A 修改的时候，是否经常必须修改 B？</p>
+              <div class="mt-3 space-y-2 text-sm leading-6 text-neutral-600">
+                <p class="flex items-center gap-2"><span class="status-badge st-ok">是</span>耦合过高 → 考虑降低耦合</p>
+                <p class="flex items-center gap-2"><span class="status-badge st-warn">否</span>没必要为了“低耦合”强行抽象</p>
+              </div>
+            </div>
+          </div>
+          <p class="doc-p">所以：</p>
+          <figure class="diagram-card">
+            <figcaption class="diagram-head">判断模型</figcaption>
+            <pre>                代码变化
+                   │
+          ┌────────┴────────┐
+          ↓                 ↓
+     是否一起变化？     是否互相影响？
+          │                 │
+         是                是
+          ↓                 ↓
+       高内聚            耦合过高
+          │                 │
+       放一起             考虑拆分</pre>
+          </figure>
+          <div class="my-4 grid gap-4 sm:grid-cols-2">
+            <div class="rounded-2xl border border-neutral-200 bg-neutral-50 p-5">
+              <p class="font-mono text-sm font-bold text-neutral-900">高内聚</p>
+              <p class="mt-2 text-sm leading-6 text-neutral-600">解决<strong class="font-semibold text-neutral-800">“东西应该放在哪里”</strong>。</p>
+            </div>
+            <div class="rounded-2xl border border-neutral-200 bg-neutral-50 p-5">
+              <p class="font-mono text-sm font-bold text-neutral-900">低耦合</p>
+              <p class="mt-2 text-sm leading-6 text-neutral-600">解决<strong class="font-semibold text-neutral-800">“东西之间应该怎么依赖”</strong>。</p>
+            </div>
+          </div>
+          <p class="doc-p">这个区别非常重要。</p>
+
+          <h3 class="doc-h3">场景 1：刚开始写 CRUD</h3>
+          <p class="doc-p">比如现在只有一个 <code>User</code>，只有创建、查询、修改、删除用户，那么完全可以：</p>
+          <figure class="diagram-card">
+            <figcaption class="diagram-head">users/</figcaption>
+            <pre>users/
+├── user.controller.ts
+├── user.service.ts
+└── user.repository.ts</pre>
+          </figure>
+          <p class="doc-p">这已经够了。没必要一开始就：</p>
+          <figure class="code-card">
+            <figcaption class="code-head">
+              <span class="code-dots" aria-hidden="true"><i></i><i></i><i></i></span>
+              <span class="flex items-center gap-2">
+                <span class="code-flag bad">不推荐</span>
+                <span class="code-lang">Text</span>
+              </span>
+              <button class="code-copy" type="button">复制</button>
+            </figcaption>
+            <pre class="code-body"><code>users/
+├── domain/
+├── application/
+├── infrastructure/
+├── presentation/
+├── ports/
+├── adapters/
+└── value-objects/</code></pre>
+          </figure>
+          <p class="doc-p">这种属于<strong class="font-semibold text-neutral-800">架构过度设计</strong>。</p>
+
+          <h3 class="doc-h3">什么时候开始需要高内聚？</h3>
+          <p class="doc-p">假设项目慢慢变成：</p>
+          <div class="my-4 flex flex-wrap gap-2">
+            <span class="chip">注册</span>
+            <span class="chip">登录</span>
+            <span class="chip">修改资料</span>
+            <span class="chip">修改密码</span>
+            <span class="chip">上传头像</span>
+            <span class="chip">收藏</span>
+            <span class="chip">关注</span>
+            <span class="chip">VIP</span>
+          </div>
+          <p class="doc-p">然后你发现 <code>user.service.ts</code> 已经 800 行，里面同时出现：</p>
+          <figure class="code-card">
+            <figcaption class="code-head">
+              <span class="code-dots" aria-hidden="true"><i></i><i></i><i></i></span>
+              <span class="flex items-center gap-2">
+                <span class="code-flag bad">信号</span>
+                <span class="code-lang">TypeScript</span>
+              </span>
+              <button class="code-copy" type="button">复制</button>
+            </figcaption>
+            <pre class="code-body"><code class="language-ts">class UserService {
+  register()
+  login()
+  updateProfile()
+  changePassword()
+  uploadAvatar()
+  addFavorite()
+  followUser()
+  checkVip()
+}</code></pre>
+          </figure>
+          <p class="doc-p">这时候应该开始问：<strong class="font-semibold text-neutral-800">这些东西真的都属于同一个职责吗？</strong>可能就应该拆成：</p>
+          <figure class="diagram-card">
+            <figcaption class="diagram-head">users/</figcaption>
+            <pre>users/
+├── application/
+│   ├── register-user.ts
+│   ├── update-profile.ts
+│   ├── change-password.ts
+│   └── follow-user.ts
+│
+├── domain/
+│   └── user.ts
+│
+└── infrastructure/
+    └── user.repository.ts</pre>
+          </figure>
+          <p class="doc-p">为什么？因为注册、修改密码、关注、VIP 虽然都和 User 有关，但它们的<strong class="font-semibold text-neutral-800">变化原因可能不同</strong>。这就是高内聚的实际应用。</p>
+
+          <h3 class="doc-h3">一个特别好用的判断方法：看“变化原因”</h3>
+          <p class="doc-p">假设 <code>UserService</code> 里同时有 <code>register()</code>、<code>login()</code>、<code>sendEmail()</code>、<code>uploadAvatar()</code>、<code>createOrder()</code>，就依次问自己：</p>
+          <div class="my-4 space-y-2.5">
+            <div class="flex items-center justify-between gap-3 rounded-xl border border-neutral-200 bg-white px-4 py-3 shadow-sm">
+              <span class="text-sm text-neutral-600">如果登录规则变了，需要改 UserService 吗？</span>
+              <span class="status-badge st-ok">是</span>
+            </div>
+            <div class="flex items-center justify-between gap-3 rounded-xl border border-neutral-200 bg-white px-4 py-3 shadow-sm">
+              <span class="text-sm text-neutral-600">如果邮件服务变了，也要改 UserService 吗？</span>
+              <span class="status-badge st-ok">是</span>
+            </div>
+            <div class="flex items-center justify-between gap-3 rounded-xl border border-neutral-200 bg-white px-4 py-3 shadow-sm">
+              <span class="text-sm text-neutral-600">如果订单系统变了，还得改 UserService 吗？</span>
+              <span class="status-badge st-ok">是</span>
+            </div>
+          </div>
+          <div class="callout callout-warn">
+            <span class="callout-icon">!</span>
+            <div>那这个 Service 大概率已经<strong class="font-semibold">职责过多、内聚性下降</strong>。</div>
+          </div>
+
+          <h3 class="doc-h3">低耦合什么时候开始重要？</h3>
+          <p class="doc-p">最典型的场景是数据库。项目小的时候，直接注入 <code>PrismaClient</code> 完全可以，不要看到 Prisma 就开始抽象：</p>
+          <figure class="code-card">
+            <figcaption class="code-head">
+              <span class="code-dots" aria-hidden="true"><i></i><i></i><i></i></span>
+              <span class="code-lang">TypeScript</span>
+              <button class="code-copy" type="button">复制</button>
+            </figcaption>
+            <pre class="code-body"><code class="language-ts">class UserService {
+  constructor(
+    private prisma: PrismaClient,
+  ) {}
+}</code></pre>
+          </figure>
+          <p class="doc-p">但如果 <code>UserService</code>、<code>OrderService</code>、<code>PaymentService</code>、<code>ProductService</code> 全部直接依赖 Prisma，业务代码到处都是 <code>prisma.user.find...</code>，这时候就要开始考虑：</p>
+          <div class="flow flow-sm">
+            <div class="flow-node">业务逻辑</div>
+            <div class="flow-arrow"><i data-lucide="arrow-down"></i></div>
+            <div class="flow-node">Repository Interface</div>
+            <div class="flow-arrow"><i data-lucide="arrow-down"></i></div>
+            <div class="flow-node flow-node-accent">Prisma Repository</div>
+          </div>
+
+          <h3 class="doc-h3">什么时候“不需要”低耦合？</h3>
+          <p class="doc-p">这个非常重要。假设项目只有 3 个接口、1 个开发者、没有复杂业务、不会更换 ORM，那么下面这样已经足够：</p>
+          <figure class="code-card">
+            <figcaption class="code-head">
+              <span class="code-dots" aria-hidden="true"><i></i><i></i><i></i></span>
+              <span class="code-lang">TypeScript</span>
+              <button class="code-copy" type="button">复制</button>
+            </figcaption>
+            <pre class="code-body"><code class="language-ts">class UserRepository {
+  async findById(id: string) {
+    return prisma.user.findUnique({
+      where: { id },
+    });
+  }
+}</code></pre>
+          </figure>
+          <p class="doc-p">你没必要搞出这一套：</p>
+          <figure class="code-card">
+            <figcaption class="code-head">
+              <span class="code-dots" aria-hidden="true"><i></i><i></i><i></i></span>
+              <span class="flex items-center gap-2">
+                <span class="code-flag bad">不推荐</span>
+                <span class="code-lang">TypeScript</span>
+              </span>
+              <button class="code-copy" type="button">复制</button>
+            </figcaption>
+            <pre class="code-body"><code class="language-ts">interface UserRepositoryPort {}
+
+abstract class AbstractUserRepository {}
+
+class PrismaUserRepositoryAdapter {}
+
+class UserRepositoryFactory {}</code></pre>
+          </figure>
+          <p class="doc-p">这纯属给自己增加工作量。</p>
+
+          <h3 class="doc-h3">真正的判断标准：变化概率 × 影响范围</h3>
+          <p class="doc-p">推荐用这个思维：</p>
+          <div class="my-4 flex flex-wrap items-center gap-2 rounded-xl border border-neutral-200 bg-white p-4 shadow-sm">
+            <span class="font-mono text-sm font-bold text-neutral-900">是否需要抽象</span>
+            <span class="text-neutral-300">=</span>
+            <span class="chip">变化概率</span>
+            <span class="text-neutral-300">×</span>
+            <span class="chip">影响范围</span>
+          </div>
+          <div class="my-4 overflow-hidden rounded-xl border border-neutral-200 bg-white shadow-sm">
+            <table class="w-full text-sm">
+              <thead class="bg-neutral-50 text-left text-xs uppercase tracking-wider text-neutral-400">
+                <tr>
+                  <th class="px-4 py-2.5 font-semibold">东西</th>
+                  <th class="px-4 py-2.5 font-semibold">变化概率</th>
+                  <th class="px-4 py-2.5 font-semibold">影响范围</th>
+                  <th class="px-4 py-2.5 font-semibold">是否值得抽象</th>
+                </tr>
+              </thead>
+              <tbody class="divide-y divide-neutral-100">
+                <tr><td class="px-4 py-2.5 font-mono text-neutral-800">User Service</td><td class="px-4 py-2.5"><span class="tier-tag tag-low">低</span></td><td class="px-4 py-2.5"><span class="tier-tag tag-low">小</span></td><td class="px-4 py-2.5"><span class="tier-tag tag-low">❌</span></td></tr>
+                <tr><td class="px-4 py-2.5 font-mono text-neutral-800">Prisma 查询</td><td class="px-4 py-2.5"><span class="tier-tag tag-mid">中</span></td><td class="px-4 py-2.5"><span class="tier-tag tag-mid">中</span></td><td class="px-4 py-2.5"><span class="tier-tag tag-mid">⚠️</span></td></tr>
+                <tr><td class="px-4 py-2.5 font-mono text-neutral-800">支付服务</td><td class="px-4 py-2.5"><span class="tier-tag tag-high">高</span></td><td class="px-4 py-2.5"><span class="tier-tag tag-high">大</span></td><td class="px-4 py-2.5"><span class="tier-tag tag-core">✅</span></td></tr>
+                <tr><td class="px-4 py-2.5 font-mono text-neutral-800">邮件服务</td><td class="px-4 py-2.5"><span class="tier-tag tag-high">高</span></td><td class="px-4 py-2.5"><span class="tier-tag tag-mid">中</span></td><td class="px-4 py-2.5"><span class="tier-tag tag-core">✅</span></td></tr>
+                <tr><td class="px-4 py-2.5 font-mono text-neutral-800">第三方 AI API</td><td class="px-4 py-2.5"><span class="tier-tag tag-high">高</span></td><td class="px-4 py-2.5"><span class="tier-tag tag-high">大</span></td><td class="px-4 py-2.5"><span class="tier-tag tag-core">✅</span></td></tr>
+                <tr><td class="px-4 py-2.5 font-mono text-neutral-800">核心业务规则</td><td class="px-4 py-2.5"><span class="tier-tag tag-high">高</span></td><td class="px-4 py-2.5"><span class="tier-tag tag-high">大</span></td><td class="px-4 py-2.5"><span class="tier-tag tag-core">✅</span></td></tr>
+              </tbody>
+            </table>
+          </div>
+          <p class="doc-p">这比“架构书说 Repository 很重要，所以我要 Repository”靠谱得多。</p>
+
+          <h3 class="doc-h3">低耦合最典型的场景：第三方服务</h3>
+          <p class="doc-p">比如做 AI 产品，一开始直接把模型调用写在业务代码里：</p>
+          <figure class="code-card">
+            <figcaption class="code-head">
+              <span class="code-dots" aria-hidden="true"><i></i><i></i><i></i></span>
+              <span class="code-lang">TypeScript</span>
+              <button class="code-copy" type="button">复制</button>
+            </figcaption>
+            <pre class="code-body"><code class="language-ts">const result =
+  await openai.chat.completions.create(...);</code></pre>
+          </figure>
+          <p class="doc-p">项目早期没问题。但当模型越来越多：</p>
+          <div class="my-4 flex flex-wrap gap-2">
+            <span class="chip">OpenAI</span>
+            <span class="chip">DeepSeek</span>
+            <span class="chip">Gemini</span>
+            <span class="chip">Claude</span>
+            <span class="chip">本地 Ollama</span>
+          </div>
+          <p class="doc-p">开始做模型路由时，如果业务代码到处是 <code>openai.xxx()</code>、<code>deepseek.xxx()</code>、<code>gemini.xxx()</code>，就麻烦了。应该变成：</p>
+          <div class="flow flow-sm">
+            <div class="flow-node">业务</div>
+            <div class="flow-arrow"><i data-lucide="arrow-down"></i></div>
+            <div class="flow-node">LLM Provider Interface</div>
+            <div class="flow-arrow"><i data-lucide="arrow-down"></i></div>
+            <div class="flex flex-wrap items-center justify-center gap-2">
+              <span class="fr-node">OpenAI</span>
+              <span class="fr-node">DeepSeek</span>
+              <span class="fr-node">Gemini</span>
+              <span class="fr-node">Ollama</span>
+            </div>
+          </div>
+          <figure class="code-card">
+            <figcaption class="code-head">
+              <span class="code-dots" aria-hidden="true"><i></i><i></i><i></i></span>
+              <span class="code-lang">TypeScript</span>
+              <button class="code-copy" type="button">复制</button>
+            </figcaption>
+            <pre class="code-body"><code class="language-ts">interface LLMProvider {
+  chat(input: ChatInput): Promise&lt;ChatOutput&gt;;
+}
+
+class OpenAIProvider implements LLMProvider {}
+
+class DeepSeekProvider implements LLMProvider {}
+
+class GeminiProvider implements LLMProvider {}</code></pre>
+          </figure>
+          <p class="doc-p">业务只知道 <code>llmProvider.chat()</code>，不知道具体是哪家模型。这就是<strong class="font-semibold text-neutral-800">低耦合真正有价值的场景</strong>。</p>
+
+          <h3 class="doc-h3">另一个典型场景：支付</h3>
+          <p class="doc-p">如果订单业务直接写 <code>stripe.paymentIntents.create(...)</code>，以后接微信支付就会很痛苦。更合理的结构：</p>
+          <div class="flow flow-sm">
+            <div class="flow-node">OrderService</div>
+            <div class="flow-arrow"><i data-lucide="arrow-down"></i></div>
+            <div class="flow-node">PaymentService</div>
+            <div class="flow-arrow"><i data-lucide="arrow-down"></i></div>
+            <div class="flow-node">PaymentProvider</div>
+            <div class="flow-arrow"><i data-lucide="arrow-down"></i></div>
+            <div class="flex flex-wrap items-center justify-center gap-2">
+              <span class="fr-node">Stripe</span>
+              <span class="fr-node">Alipay</span>
+              <span class="fr-node">WeChat Pay</span>
+            </div>
+          </div>
+          <div class="callout callout-key">
+            <span class="callout-icon"><i data-lucide="credit-card"></i></span>
+            <div>支付供应商本身就是<strong class="font-semibold text-neutral-900">高度可变的东西</strong>，所以这里非常值得降低耦合。</div>
+          </div>
+
+          <h3 class="doc-h3">再看一个高内聚案例</h3>
+          <p class="doc-p">假设 <code>order.service.ts</code> 同时处理：</p>
+          <div class="my-4 flex flex-wrap gap-2">
+            <span class="chip">创建订单</span>
+            <span class="chip">取消订单</span>
+            <span class="chip">支付订单</span>
+            <span class="chip">退款</span>
+            <span class="chip">库存</span>
+            <span class="chip">优惠券</span>
+            <span class="chip">物流</span>
+            <span class="chip">邮件通知</span>
+          </div>
+          <p class="doc-p">于是问题来了：库存规则变化，要改 <code>OrderService</code>；优惠券规则变化，又要改 <code>OrderService</code>。最后 <code>OrderService = 2000 行</code>，这就是典型的<strong class="font-semibold text-neutral-800">低内聚</strong>。可以慢慢演进：</p>
+          <figure class="diagram-card">
+            <figcaption class="diagram-head">按职责拆分</figcaption>
+            <pre>Order
+ ├── CreateOrder
+ ├── CancelOrder
+ └── PayOrder
+
+Inventory
+ ├── ReserveStock
+ └── ReleaseStock
+
+Coupon
+ └── CalculateDiscount
+
+Payment
+ └── CreatePayment
+
+Notification
+ └── SendOrderNotification</pre>
+          </figure>
+
+          <h3 class="doc-h3">但千万不要“为了拆而拆”</h3>
+          <p class="doc-p">比如把一个简单的邮箱校验拆成四个文件：</p>
+          <figure class="code-card">
+            <figcaption class="code-head">
+              <span class="code-dots" aria-hidden="true"><i></i><i></i><i></i></span>
+              <span class="flex items-center gap-2">
+                <span class="code-flag bad">过度</span>
+                <span class="code-lang">Text</span>
+              </span>
+              <button class="code-copy" type="button">复制</button>
+            </figcaption>
+            <pre class="code-body"><code>email/
+├── email-validator.ts
+├── email-normalizer.ts
+├── email-length-checker.ts
+└── email-format-checker.ts</code></pre>
+          </figure>
+          <p class="doc-p">如果它们天然属于一个简单概念，一个 <code>validateEmail()</code> 就够了。</p>
+
+          <h3 class="doc-h3">非常实用的经验法则：5 个信号</h3>
+          <div class="my-4 space-y-4">
+            <div class="rounded-2xl border border-neutral-200 bg-white p-5 shadow-sm">
+              <div class="flex items-center gap-2.5">
+                <span class="level-badge">信号 1</span>
+                <p class="text-sm font-bold text-neutral-900">一个文件越来越大</p>
+              </div>
+              <p class="mt-2 text-sm leading-6 text-neutral-600">100 行 → 200 行 → 500 行 → 1000 行。开始检查职责。</p>
+            </div>
+            <div class="rounded-2xl border border-neutral-200 bg-white p-5 shadow-sm">
+              <div class="flex items-center gap-2.5">
+                <span class="level-badge">信号 2</span>
+                <p class="text-sm font-bold text-neutral-900">一个类经常因为不同的事情修改</p>
+              </div>
+              <p class="mt-2 text-sm leading-6 text-neutral-600">支付改一次、订单改一次、库存改一次、邮件改一次，结果 <code>OrderService</code> 一直在改。这是<strong class="font-semibold text-neutral-800">内聚性下降</strong>的信号。</p>
+            </div>
+            <div class="rounded-2xl border border-neutral-200 bg-white p-5 shadow-sm">
+              <div class="flex items-center gap-2.5">
+                <span class="level-badge">信号 3</span>
+                <p class="text-sm font-bold text-neutral-900">一个模块修改，经常导致其他模块一起修改</p>
+              </div>
+              <p class="mt-2 text-sm leading-6 text-neutral-600">修改 User → Auth 要改 → Order 要改 → Payment 又要改。这是<strong class="font-semibold text-neutral-800">耦合过高</strong>的信号。</p>
+            </div>
+            <div class="rounded-2xl border border-neutral-200 bg-white p-5 shadow-sm">
+              <div class="flex items-center gap-2.5">
+                <span class="level-badge">信号 4</span>
+                <p class="text-sm font-bold text-neutral-900">你无法单独测试某个业务</p>
+              </div>
+              <p class="mt-2 text-sm leading-6 text-neutral-600">测试 <code>CreateOrder</code> 却必须启动 PostgreSQL、Redis、第三方支付、消息队列。说明业务逻辑和基础设施耦合严重，可以考虑抽象。</p>
+            </div>
+            <div class="rounded-2xl border border-neutral-200 bg-white p-5 shadow-sm">
+              <div class="flex items-center gap-2.5">
+                <span class="level-badge">信号 5</span>
+                <p class="text-sm font-bold text-neutral-900">你开始出现大量 <code>if provider === xxx</code></p>
+              </div>
+              <p class="mt-2 text-sm leading-6 text-neutral-600">OpenAI、DeepSeek、Gemini、Claude、Ollama…… 越来越多。这是非常典型的<strong class="font-semibold text-neutral-800">变化点没有被隔离</strong>，此时接口 + 策略 / Provider 抽象就很有价值。</p>
+            </div>
+          </div>
+          <figure class="code-card">
+            <figcaption class="code-head">
+              <span class="code-dots" aria-hidden="true"><i></i><i></i><i></i></span>
+              <span class="flex items-center gap-2">
+                <span class="code-flag bad">信号</span>
+                <span class="code-lang">TypeScript</span>
+              </span>
+              <button class="code-copy" type="button">复制</button>
+            </figcaption>
+            <pre class="code-body"><code class="language-ts">if (provider === "openai") {
+  ...
+}
+
+if (provider === "deepseek") {
+  ...
+}
+
+if (provider === "gemini") {
+  ...
+}</code></pre>
+          </figure>
+
+          <h3 class="doc-h3">最终决策树</h3>
+          <p class="doc-p">以后写代码的时候，脑子里可以过一遍：</p>
+          <figure class="diagram-card">
+            <figcaption class="diagram-head">Decision Tree</figcaption>
+            <pre>我现在要写一段代码
+       ↓
+它属于哪个业务？
+       ↓
+和这个业务高度相关？
+   ┌───┴───┐
+   是      否
+   ↓        ↓
+放在一起   考虑拆分
+            ↓
+       ┌──────────────┐
+       │              │
+是否容易变化？    是否会被多个地方依赖？
+       │              │
+       ↓              ↓
+      是             是
+       │              │
+       └──────┬───────┘
+              ↓
+         考虑抽象接口
+              ↓
+    Dependency Injection</pre>
+          </figure>
+
+          <h3 class="doc-h3">最重要的一句话</h3>
+          <div class="big-quote">
+            <p class="banner-tag">记住这句话</p>
+            <p class="banner-text">高内聚不是“拆得越细越好”，低耦合也不是“抽象越多越好”。<br class="hidden sm:block">真正的架构能力，是识别代码的变化边界，<br class="hidden sm:block">把经常一起变化的东西放在一起，把容易独立变化的东西隔离开。</p>
+          </div>
+          <p class="doc-p">所以以后看到一个新需求，不要第一反应“我要不要上 Clean Architecture？”，而是先问：</p>
+          <div class="my-4 space-y-2.5">
+            <div class="flex items-center gap-3 rounded-xl border border-neutral-200 bg-white px-4 py-3 shadow-sm">
+              <span class="font-mono text-sm font-bold text-neutral-900">Q1</span>
+              <span class="text-sm text-neutral-600">谁负责这个业务？</span>
+            </div>
+            <div class="flex items-center gap-3 rounded-xl border border-neutral-200 bg-white px-4 py-3 shadow-sm">
+              <span class="font-mono text-sm font-bold text-neutral-900">Q2</span>
+              <span class="text-sm text-neutral-600">哪些代码会因为这个需求一起变化？</span>
+            </div>
+            <div class="flex items-center gap-3 rounded-xl border border-neutral-200 bg-white px-4 py-3 shadow-sm">
+              <span class="font-mono text-sm font-bold text-neutral-900">Q3</span>
+              <span class="text-sm text-neutral-600">哪些代码未来可能独立变化？</span>
+            </div>
+            <div class="flex items-center gap-3 rounded-xl border border-neutral-200 bg-white px-4 py-3 shadow-sm">
+              <span class="font-mono text-sm font-bold text-neutral-900">Q4</span>
+              <span class="text-sm text-neutral-600">这次变化会影响多少地方？</span>
+            </div>
+            <div class="flex items-center gap-3 rounded-xl border border-neutral-200 bg-white px-4 py-3 shadow-sm">
+              <span class="font-mono text-sm font-bold text-neutral-900">Q5</span>
+              <span class="text-sm text-neutral-600">如果现在不抽象，未来修改成本有多大？</span>
+            </div>
+          </div>
+          <div class="callout callout-key">
+            <span class="callout-icon"><i data-lucide="lightbulb"></i></span>
+            <div>这 5 个问题，<strong class="font-semibold text-neutral-900">比背 DDD、SOLID、Clean Architecture 有用得多</strong>。</div>
+          </div>
+        </section>
+
+        <!-- 20 第八阶段：依赖注入 DI -->
+        <section id="di" class="doc-section">
+          <header class="mb-5 flex items-start gap-3">
+            <span class="sec-num">20</span>
             <div>
               <p class="eyebrow">依赖管理</p>
               <h2 class="sec-title">第八阶段：依赖注入 DI</h2>
@@ -1257,10 +1762,10 @@ auth/
           <p class="doc-p">NestJS 会大量使用这种思想。</p>
         </section>
 
-        <!-- 20 依赖倒置 -->
+        <!-- 21 依赖倒置 -->
         <section id="dip" class="doc-section">
           <header class="mb-5 flex items-start gap-3">
-            <span class="sec-num">20</span>
+            <span class="sec-num">21</span>
             <div>
               <p class="eyebrow">依赖管理</p>
               <h2 class="sec-title">依赖倒置</h2>
@@ -1335,10 +1840,10 @@ auth/
           </div>
         </section>
 
-        <!-- 21 第九阶段：Use Case -->
+        <!-- 22 第九阶段：Use Case -->
         <section id="use-case" class="doc-section">
           <header class="mb-5 flex items-start gap-3">
-            <span class="sec-num">21</span>
+            <span class="sec-num">22</span>
             <div>
               <p class="eyebrow">进阶架构</p>
               <h2 class="sec-title">第九阶段：Use Case</h2>
@@ -1400,10 +1905,10 @@ auth/
           <p class="doc-p">而应该依赖抽象。</p>
         </section>
 
-        <!-- 22 第十阶段：架构演进 -->
+        <!-- 23 第十阶段：架构演进 -->
         <section id="evolution" class="doc-section">
           <header class="mb-5 flex items-start gap-3">
-            <span class="sec-num">22</span>
+            <span class="sec-num">23</span>
             <div>
               <p class="eyebrow">进阶架构</p>
               <h2 class="sec-title">第十阶段：架构演进</h2>
@@ -1451,10 +1956,10 @@ auth/
           <p class="doc-p">架构应该根据复杂度演进。</p>
         </section>
 
-        <!-- 23 推荐的架构演进路线 -->
+        <!-- 24 推荐的架构演进路线 -->
         <section id="evolution-path" class="doc-section">
           <header class="mb-5 flex items-start gap-3">
-            <span class="sec-num">23</span>
+            <span class="sec-num">24</span>
             <div>
               <p class="eyebrow">进阶架构</p>
               <h2 class="sec-title">推荐的架构演进路线</h2>
@@ -1508,10 +2013,10 @@ auth/
           </div>
         </section>
 
-        <!-- 24 项目实战路线 -->
+        <!-- 25 项目实战路线 -->
         <section id="practice" class="doc-section">
           <header class="mb-5 flex items-start gap-3">
-            <span class="sec-num">24</span>
+            <span class="sec-num">25</span>
             <div>
               <p class="eyebrow">实战与总结</p>
               <h2 class="sec-title">项目实战路线</h2>
@@ -1624,10 +2129,10 @@ auth/
           </div>
         </section>
 
-        <!-- 25 后端架构核心认知 -->
+        <!-- 26 后端架构核心认知 -->
         <section id="core-insight" class="doc-section">
           <header class="mb-5 flex items-start gap-3">
-            <span class="sec-num">25</span>
+            <span class="sec-num">26</span>
             <div>
               <p class="eyebrow">实战与总结</p>
               <h2 class="sec-title">后端架构核心认知</h2>
@@ -1665,10 +2170,10 @@ auth/
           <p class="doc-p">这就是架构设计的核心之一。</p>
         </section>
 
-        <!-- 26 最终学习地图 -->
+        <!-- 27 最终学习地图 -->
         <section id="learning-map" class="doc-section">
           <header class="mb-5 flex items-start gap-3">
-            <span class="sec-num">26</span>
+            <span class="sec-num">27</span>
             <div>
               <p class="eyebrow">实战与总结</p>
               <h2 class="sec-title">最终学习地图</h2>
@@ -1728,10 +2233,10 @@ auth/
           </figure>
         </section>
 
-        <!-- 27 学习时的优先级 -->
+        <!-- 28 学习时的优先级 -->
         <section id="priority" class="doc-section">
           <header class="mb-5 flex items-start gap-3">
-            <span class="sec-num">27</span>
+            <span class="sec-num">28</span>
             <div>
               <p class="eyebrow">实战与总结</p>
               <h2 class="sec-title">学习时的优先级</h2>
@@ -1818,10 +2323,10 @@ auth/
           </div>
         </section>
 
-        <!-- 28 最终目标 -->
+        <!-- 29 最终目标 -->
         <section id="final-goal" class="doc-section">
           <header class="mb-5 flex items-start gap-3">
-            <span class="sec-num">28</span>
+            <span class="sec-num">29</span>
             <div>
               <p class="eyebrow">实战与总结</p>
               <h2 class="sec-title">最终目标</h2>

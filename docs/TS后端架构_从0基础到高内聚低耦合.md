@@ -782,7 +782,451 @@ UserRepository
 
 ---
 
-# 19. 第八阶段：依赖注入 DI
+# 19. 高内聚，低耦合的场景与判断
+
+这个问题其实比"什么是高内聚、低耦合"更重要。
+
+你真正需要掌握的不是：
+
+> "我要不要使用高内聚低耦合？"
+
+而是：
+
+> **"什么时候代码的变化开始互相影响，我需要开始拆分？"**
+
+因为**高内聚、低耦合不是一种架构，而是一种判断标准。**
+
+## 19.1 一句话判断法
+
+你以后写 TS 后端时，可以先问自己两个问题：
+
+**问题 1：这些代码是不是因为同一个原因而变化？**
+
+- 如果是：放在一起 → 高内聚
+- 如果不是：考虑拆开
+
+**问题 2：A 修改的时候，是否经常必须修改 B？**
+
+- 如果是：耦合过高 → 考虑降低耦合
+- 如果不是：没必要为了"低耦合"强行抽象
+
+## 19.2 判断模型
+
+```text
+                代码变化
+                   │
+          ┌────────┴────────┐
+          ↓                 ↓
+     是否一起变化？     是否互相影响？
+          │                 │
+         是                是
+          ↓                 ↓
+       高内聚            耦合过高
+          │                 │
+       放一起             考虑拆分
+```
+
+所以：
+
+> **高内聚解决"东西应该放在哪里"。**
+>
+> **低耦合解决"东西之间应该怎么依赖"。**
+
+这个区别非常重要。
+
+## 19.3 场景 1：刚开始写 CRUD
+
+比如你现在做 `User`，只有创建用户、查询用户、修改用户、删除用户，你完全可以：
+
+```text
+users/
+├── user.controller.ts
+├── user.service.ts
+└── user.repository.ts
+```
+
+这已经够了。没必要一开始就：
+
+```text
+users/
+├── domain/
+├── application/
+├── infrastructure/
+├── presentation/
+├── ports/
+├── adapters/
+└── value-objects/
+```
+
+这种属于**架构过度设计**。
+
+## 19.4 什么时候开始需要高内聚？
+
+假设你的项目慢慢变成：
+
+```text
+用户
+├── 注册
+├── 登录
+├── 修改资料
+├── 修改密码
+├── 上传头像
+├── 收藏
+├── 关注
+└── VIP
+```
+
+然后你发现 `user.service.ts` 已经 800 行，里面同时出现：
+
+```ts
+register()
+login()
+updateProfile()
+changePassword()
+uploadAvatar()
+addFavorite()
+followUser()
+checkVip()
+```
+
+这时候你应该开始问：
+
+> **这些东西真的都属于同一个职责吗？**
+
+可能就应该拆成：
+
+```text
+users/
+├── application/
+│   ├── register-user.ts
+│   ├── update-profile.ts
+│   ├── change-password.ts
+│   └── follow-user.ts
+│
+├── domain/
+│   └── user.ts
+│
+└── infrastructure/
+    └── user.repository.ts
+```
+
+为什么？因为注册、修改密码、关注、VIP 虽然都和 User 有关，但它们的**变化原因可能不同**。这就是高内聚的实际应用。
+
+## 19.5 一个特别好用的判断方法：看"变化原因"
+
+比如 `UserService` 里面：
+
+```ts
+register()
+login()
+sendEmail()
+uploadAvatar()
+createOrder()
+```
+
+你就依次问自己：
+
+> 如果登录规则变了，我是不是需要改 `UserService`？
+> 如果邮件服务变了，我是不是也要改 `UserService`？
+> 如果订单系统变了，我是不是还得改 `UserService`？
+
+如果答案都是"是"，那这个 Service 大概率已经**职责过多、内聚性下降**。
+
+## 19.6 低耦合什么时候开始重要？
+
+最典型的场景是数据库。
+
+项目小的时候，这样完全可以，不要看到 Prisma 就开始抽象：
+
+```ts
+class UserService {
+  constructor(
+    private prisma: PrismaClient
+  ) {}
+}
+```
+
+但是如果出现 `UserService`、`OrderService`、`PaymentService`、`ProductService` 全部直接依赖 Prisma，业务代码到处写：
+
+```ts
+prisma.user.find...
+prisma.order.find...
+prisma.payment.find...
+```
+
+这时候你就开始需要考虑：
+
+```text
+业务逻辑
+    ↓
+Repository Interface
+    ↓
+Prisma Repository
+```
+
+## 19.7 什么时候"不需要"低耦合？
+
+这个非常重要。假设项目只有 3 个接口、1 个开发者、没有复杂业务、不会更换 ORM，那么下面这样已经足够：
+
+```ts
+class UserRepository {
+  async findById(id: string) {
+    return prisma.user.findUnique({
+      where: { id }
+    });
+  }
+}
+```
+
+你没必要搞：
+
+```ts
+interface UserRepositoryPort {}
+
+abstract class AbstractUserRepository {}
+
+class PrismaUserRepositoryAdapter {}
+
+class UserRepositoryFactory {}
+```
+
+这纯属给自己增加工作量。
+
+## 19.8 真正的判断标准：变化概率 × 影响范围
+
+推荐用这个思维：
+
+```text
+是否需要抽象 = 变化概率 × 影响范围
+```
+
+| 东西           | 变化概率 | 影响范围 | 是否值得抽象 |
+| ------------ | ---: | ---: | ------ |
+| User Service |    低 |    小 | ❌      |
+| Prisma 查询    |    中 |    中 | ⚠️     |
+| 支付服务         |    高 |    大 | ✅      |
+| 邮件服务         |    高 |    中 | ✅      |
+| 第三方 AI API   |    高 |    大 | ✅      |
+| 核心业务规则       |    高 |    大 | ✅      |
+
+这比"架构书说 Repository 很重要，所以我要 Repository"靠谱得多。
+
+## 19.9 低耦合最典型的场景：第三方服务
+
+例如你现在做 AI 产品，一开始可以直接把调用写在业务代码里面：
+
+```ts
+const result = await openai.chat.completions.create(...)
+```
+
+项目早期没问题。但是后来：
+
+```text
+OpenAI
+DeepSeek
+Gemini
+Claude
+本地 Ollama
+```
+
+你开始做模型路由。这时候如果业务代码到处是：
+
+```ts
+openai.xxx()
+deepseek.xxx()
+gemini.xxx()
+```
+
+就麻烦了。应该变成：
+
+```text
+业务
+ ↓
+LLM Provider Interface
+ ↓
+┌────────────┬────────────┬────────────┐
+OpenAI     DeepSeek     Gemini       Ollama
+```
+
+例如：
+
+```ts
+interface LLMProvider {
+  chat(input: ChatInput): Promise<ChatOutput>;
+}
+
+class OpenAIProvider implements LLMProvider {}
+
+class DeepSeekProvider implements LLMProvider {}
+
+class GeminiProvider implements LLMProvider {}
+```
+
+业务只知道 `llmProvider.chat()`，不知道具体是哪家模型。这就是**低耦合真正有价值的场景**。
+
+## 19.10 另一个典型场景：支付
+
+例如支付宝、微信支付、Stripe、PayPal。如果你的订单业务直接写：
+
+```ts
+stripe.paymentIntents.create(...)
+```
+
+以后接微信支付就很痛苦。更合理：
+
+```text
+OrderService
+     ↓
+PaymentService
+     ↓
+PaymentProvider
+     ↓
+┌─────────┬─────────┬─────────┐
+Stripe   Alipay   WeChat
+```
+
+因为支付供应商本身就是**高度可变的东西**，所以这里非常值得降低耦合。
+
+## 19.11 再看一个高内聚案例
+
+假设 `order.service.ts` 同时处理创建订单、取消订单、支付订单、退款、库存、优惠券、物流、邮件通知。
+
+这时候问题就来了：库存规则变化，导致 `OrderService` 也要修改；优惠券规则变化，又改 `OrderService`。最后 `OrderService = 2000 行`。
+
+这就是典型的**低内聚**。可以慢慢演进：
+
+```text
+Order
+ ├── CreateOrder
+ ├── CancelOrder
+ └── PayOrder
+
+Inventory
+ ├── ReserveStock
+ └── ReleaseStock
+
+Coupon
+ └── CalculateDiscount
+
+Payment
+ └── CreatePayment
+
+Notification
+ └── SendOrderNotification
+```
+
+## 19.12 但千万不要"为了拆而拆"
+
+比如：
+
+```ts
+function validateEmail()
+function normalizeEmail()
+function checkEmailLength()
+function checkEmailFormat()
+```
+
+然后拆成：
+
+```text
+email/
+├── email-validator.ts
+├── email-normalizer.ts
+├── email-length-checker.ts
+└── email-format-checker.ts
+```
+
+这就有点过了。如果它们天然属于一个简单概念，一个 `validateEmail()` 就够了。
+
+## 19.13 非常实用的经验法则：5 个信号
+
+你以后写项目，可以用这 5 个信号判断。
+
+**信号 1：一个文件越来越大**
+
+100 行 → 200 行 → 500 行 → 1000 行。开始检查职责。
+
+**信号 2：一个类经常因为不同的事情修改**
+
+支付改一次、订单改一次、库存改一次、邮件改一次，结果 `OrderService` 一直在改。这是**内聚性下降**的信号。
+
+**信号 3：一个模块修改，经常导致其他模块一起修改**
+
+修改 User → Auth 要改 → Order 要改 → Payment 又要改。这是**耦合过高**的信号。
+
+**信号 4：你无法单独测试某个业务**
+
+例如测试 `CreateOrder`，却必须启动 PostgreSQL、Redis、第三方支付、消息队列。这说明业务逻辑和基础设施耦合比较严重，可以考虑抽象。
+
+**信号 5：你开始出现大量 `if provider === xxx`**
+
+```ts
+if (provider === "openai") {
+  ...
+}
+
+if (provider === "deepseek") {
+  ...
+}
+
+if (provider === "gemini") {
+  ...
+}
+```
+
+而且越来越多：OpenAI、DeepSeek、Gemini、Claude、Ollama…… 这就是非常典型的**变化点没有被隔离**。这时候接口 + 策略 / Provider 抽象就很有价值。
+
+## 19.14 最终决策树
+
+以后写代码的时候脑子里过一下：
+
+```text
+我现在要写一段代码
+       ↓
+它属于哪个业务？
+       ↓
+和这个业务高度相关？
+   ┌───┴───┐
+   是      否
+   ↓        ↓
+放在一起   考虑拆分
+            ↓
+       ┌──────────────┐
+       │              │
+是否容易变化？    是否会被多个地方依赖？
+       │              │
+       ↓              ↓
+      是             是
+       │              │
+       └──────┬───────┘
+              ↓
+         考虑抽象接口
+              ↓
+          Dependency
+           Injection
+```
+
+## 19.15 最重要的一句话
+
+你可以把这句话直接记到你的后端学习笔记里：
+
+> **高内聚不是"拆得越细越好"，低耦合也不是"抽象越多越好"。**
+>
+> **真正的架构能力，是识别代码的变化边界，并把经常一起变化的东西放在一起，把容易独立变化的东西隔离开。**
+
+所以你以后看到一个新需求，不要第一反应"我要不要上 Clean Architecture？"，而是先问：
+
+1. 谁负责这个业务？
+2. 哪些代码会因为这个需求一起变化？
+3. 哪些代码未来可能独立变化？
+4. 这次变化会影响多少地方？
+5. 如果现在不抽象，未来修改成本有多大？
+
+**这 5 个问题，比背 DDD、SOLID、Clean Architecture 有用得多。**
+
+---
+
+# 20. 第八阶段：依赖注入 DI
 
 Dependency Injection：
 
@@ -822,7 +1266,7 @@ NestJS 会大量使用这种思想。
 
 ---
 
-# 20. 依赖倒置
+# 21. 依赖倒置
 
 传统依赖：
 
@@ -886,7 +1330,7 @@ class PrismaUserRepository
 
 ---
 
-# 21. 第九阶段：Use Case
+# 22. 第九阶段：Use Case
 
 当业务越来越复杂，可以从简单 Service 进一步演进到 Use Case。
 
@@ -947,7 +1391,7 @@ HTTP
 
 ---
 
-# 22. 第十阶段：架构演进
+# 23. 第十阶段：架构演进
 
 成熟项目可以进一步组织成：
 
@@ -994,7 +1438,7 @@ src/
 
 ---
 
-# 23. 推荐的架构演进路线
+# 24. 推荐的架构演进路线
 
 ```text
 Level 1
@@ -1028,7 +1472,7 @@ Clean Architecture / DDD
 
 ---
 
-# 24. 项目实战路线
+# 25. 项目实战路线
 
 ## Level 1：Todo API
 
@@ -1139,7 +1583,7 @@ CI/CD
 
 ---
 
-# 25. 后端架构核心认知
+# 26. 后端架构核心认知
 
 整个架构可以浓缩成一句话：
 
@@ -1190,7 +1634,7 @@ Database
 
 ---
 
-# 26. 最终学习地图
+# 27. 最终学习地图
 
 ```text
                     TS 后端
@@ -1246,7 +1690,7 @@ Database
 
 ---
 
-# 27. 学习时的优先级
+# 28. 学习时的优先级
 
 建议按以下优先级：
 
@@ -1314,7 +1758,7 @@ Event Sourcing
 
 ---
 
-# 28. 最终目标
+# 29. 最终目标
 
 不要把目标定成：
 
