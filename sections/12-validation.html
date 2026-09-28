@@ -59,7 +59,7 @@
 });</code></pre>
           </figure>
           <h3 class="doc-h3">真实项目示例：NestJS 全局校验管道</h3>
-          <p class="doc-p">真实项目（<code>~/Desktop/iidc-web/server</code>）用的是 class-validator：规则写在 DTO 上，校验管道在入口处<strong class="font-semibold text-neutral-900">全局注册一次</strong>（<code>src/main.ts</code>）：</p>
+          <p class="doc-p">真实项目用的是 class-validator：规则写在 DTO 上，校验管道在入口处<strong class="font-semibold text-neutral-900">全局注册一次</strong>：</p>
           <figure class="code-card">
             <figcaption class="code-head">
               <span class="code-dots" aria-hidden="true"><i></i><i></i><i></i></span>
@@ -69,7 +69,7 @@
               </span>
               <button class="code-copy" type="button">复制</button>
             </figcaption>
-            <pre class="code-body"><code class="language-ts">// main.ts —— 注册一次，所有接口生效
+            <pre class="code-body"><code class="language-ts">// 入口文件 —— 注册一次，所有接口生效
 app.useGlobalPipes(
   new ValidationPipe({ transform: true, whitelist: true }),
 );</code></pre>

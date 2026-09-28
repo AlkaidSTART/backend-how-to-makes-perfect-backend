@@ -68,7 +68,7 @@
 }</code></pre>
           </figure>
           <h3 class="doc-h3">真实项目示例：带校验规则的 DTO</h3>
-          <p class="doc-p">真实项目（<code>~/Desktop/iidc-web/server</code>）的 DTO 不只是字段声明，还是校验规则的挂载点。登录接口的 DTO，来自 <code>src/module/system/auth/dto/login.dto.ts</code>：</p>
+          <p class="doc-p">真实项目的 DTO 不只是字段声明，还是校验规则的挂载点。例如登录接口的 DTO：</p>
           <figure class="code-card">
             <figcaption class="code-head">
               <span class="code-dots" aria-hidden="true"><i></i><i></i><i></i></span>
@@ -94,7 +94,7 @@
   uuid?: string;
 }</code></pre>
           </figure>
-          <p class="doc-p">DTO 之间还可以继承，避免重复声明。更新接口比创建接口多一个 id，来自 <code>src/module/system/post/dto/index.ts</code>：</p>
+          <p class="doc-p">DTO 之间还可以继承，避免重复声明。例如更新接口比创建接口多一个主键：</p>
           <figure class="code-card">
             <figcaption class="code-head">
               <span class="code-dots" aria-hidden="true"><i></i><i></i><i></i></span>

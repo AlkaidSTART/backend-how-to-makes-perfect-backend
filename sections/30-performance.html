@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>30 Redis 缓存与多库组合 · TS 后端架构</title>
+  <meta name="description" content="从最基础的 HTTP 接口开始，逐步理解 TypeScript 后端的分层、模块化、依赖注入、依赖倒置，以及高内聚、低耦合的工程化架构。">
+  <meta name="theme-color" content="#ffffff">
+
+  <!-- 字体 -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+
+  <!-- Tailwind CSS (CDN) -->
+  <script src="https://cdn.tailwindcss.com"></script>
+
+  <!-- Lucide 图标库 (CDN) -->
+  <script src="https://unpkg.com/lucide@0.469.0/dist/umd/lucide.min.js"></script>
+
+  <!-- 公共样式由父页面 index.html 通过 postMessage 注入；直接打开时由 assets/section.js 从 index.html 抓取 -->
+</head>
+
+<body data-section="performance" class="doc-body bg-white font-sans text-neutral-800 antialiased px-3 pb-4 pt-1">
+
+        <!-- 30 Redis 缓存与多库组合 -->
+        <section id="performance" class="doc-section">
+          <header class="mb-5 flex items-start gap-3">
+            <span class="sec-num">30</span>
+            <div>
+              <p class="eyebrow">接口提效</p>
+              <h2 class="sec-title">Redis 缓存与多库组合</h2>
+            </div>
+          </header>
+          <div class="callout callout-key">
+            <span class="callout-icon"><i data-lucide="zap"></i></span>
+            <div>接口变慢，多数时候不是代码写得差，而是<strong class="font-semibold text-neutral-900">每次请求都在重复做昂贵的事</strong>：查数据库、算数据、调外部服务。</div>
+          </div>
+          <p class="doc-p">两条最常用的提效路线：</p>
+          <div class="my-4 flex flex-wrap gap-2">
+            <span class="chip">① 加缓存：同样的查询，别每次都打到数据库</span>
+            <span class="chip">② 多库组合：让合适的数据库干合适的活</span>
+          </div>
+
+          <h3 class="doc-h3">真实项目示例：方法级缓存装饰器</h3>
+          <p class="doc-p">「读多写少」的数据（配置、字典、权限），每次请求都查 MySQL 太浪费。真实项目把缓存做成了<strong class="font-semibold text-neutral-900">方法级装饰器</strong>，业务方法体里一行缓存代码都没有：</p>
+          <figure class="code-card">
+            <figcaption class="code-head">
+              <span class="code-dots" aria-hidden="true"><i></i><i></i><i></i></span>
+              <span class="flex items-center gap-2">
+                <span class="code-flag good">真实项目</span>
+                <span class="code-lang">TypeScript</span>
+              </span>
+              <button class="code-copy" type="button">复制</button>
+            </figcaption>
+            <pre class="code-body"><code class="language-ts">// 读：执行方法前先查 Redis，命中直接返回缓存
+// '{configKey}' 是 key 模板，装饰器会把方法参数填进去
+@Cacheable(CacheEnum.SYS_CONFIG_KEY, '{configKey}')
+async getConfigValue(configKey: string) {
+  // 只有未命中才会执行到这里（查 MySQL）
+}
+
+// 写：更新数据库的同时，自动清掉对应缓存
+@CacheEvict(CacheEnum.SYS_CONFIG_KEY, '{updateConfigDto.configKey}')
+async update(updateConfigDto: UpdateConfigDto) {
+  // 方法体里只有业务逻辑，缓存失效由装饰器统一处理
+}</code></pre>
+          </figure>
+          <ul class="my-3 space-y-2">
+            <li class="check-item"><span class="check-dot"><i data-lucide="check"></i></span>业务代码与缓存逻辑彻底解耦——这是 AOP（面向切面）思想：横切关注点抽到装饰器里</li>
+            <li class="check-item"><span class="check-dot"><i data-lucide="check"></i></span>只缓存「读多写少、能容忍短暂旧值」的数据</li>
+            <li class="check-item"><span class="check-dot"><i data-lucide="check"></i></span>每个写操作都配套一个 <code>@CacheEvict</code>，否则用户会读到旧数据</li>
+          </ul>
+          <p class="doc-p">一次带缓存的请求流程：</p>
+          <div class="flow flow-sm">
+            <div class="flow-node">请求进来</div>
+            <div class="flow-arrow"><i data-lucide="arrow-down"></i></div>
+            <div class="flow-node">先查 Redis 缓存</div>
+            <div class="flow-arrow"><i data-lucide="arrow-down"></i></div>
+            <div class="flow-node flow-node-accent">命中 → 直接返回（微秒级）</div>
+            <div class="flow-arrow"><i data-lucide="arrow-down"></i></div>
+            <div class="flow-node">未命中 → 查 MySQL，结果写回 Redis</div>
+          </div>
+          <p class="doc-p">真实项目里 Redis 不只做缓存，它承担的是所有「快、可丢、会过期」的数据：</p>
+          <div class="my-4 grid gap-4 sm:grid-cols-2">
+            <div class="rounded-xl border border-neutral-200 bg-neutral-50 p-4 text-sm leading-6 text-neutral-600">
+              <p class="font-bold text-neutral-900">登录会话</p>
+              <p class="mt-1">JWT 里只放 uuid，真正的会话在 Redis——删掉 key 即强制登出，Token 无需等它过期</p>
+            </div>
+            <div class="rounded-xl border border-neutral-200 bg-neutral-50 p-4 text-sm leading-6 text-neutral-600">
+              <p class="font-bold text-neutral-900">配置 / 字典缓存</p>
+              <p class="mt-1">@Cacheable 读多写少的数据，命中率极高</p>
+            </div>
+            <div class="rounded-xl border border-neutral-200 bg-neutral-50 p-4 text-sm leading-6 text-neutral-600">
+              <p class="font-bold text-neutral-900">验证码</p>
+              <p class="mt-1">写入后设 5 分钟过期，到期自动消失，无需清理任务</p>
+            </div>
+            <div class="rounded-xl border border-neutral-200 bg-neutral-50 p-4 text-sm leading-6 text-neutral-600">
+              <p class="font-bold text-neutral-900">在线用户</p>
+              <p class="mt-1">扫描登录 Token 的 key 就能列出在线用户、踢人下线</p>
+            </div>
+          </div>
+          <div class="callout callout-warn">
+            <span class="callout-icon"><i data-lucide="alert-triangle"></i></span>
+            <div>缓存不是免费的：引入它就引入了<strong class="font-semibold text-neutral-900">数据不一致的可能</strong>。「更新数据库 + 同步失效缓存」必须成对出现，这正是 @CacheEvict 存在的意义。</div>
+          </div>
+
+          <h3 class="doc-h3">多数据库组合：按数据特点分类</h3>
+          <p class="doc-p">没有一种数据库什么都能干好。真实项目按「数据的读写模式」给数据分类，再各自选存储：</p>
+          <div class="my-4 grid gap-4 sm:grid-cols-3">
+            <div class="rounded-xl border border-neutral-900 bg-white p-4">
+              <p class="font-mono text-sm font-bold text-neutral-900">MySQL</p>
+              <p class="mt-0.5 text-xs font-semibold uppercase tracking-wider text-neutral-400">关系型</p>
+              <p class="mt-2 text-sm leading-6 text-neutral-600">用户、角色、菜单、课程、订单——<strong class="font-semibold text-neutral-900">要事务、要关联查询</strong>的结构化数据</p>
+            </div>
+            <div class="rounded-xl border border-neutral-900 bg-white p-4">
+              <p class="font-mono text-sm font-bold text-neutral-900">Redis</p>
+              <p class="mt-0.5 text-xs font-semibold uppercase tracking-wider text-neutral-400">内存 KV</p>
+              <p class="mt-2 text-sm leading-6 text-neutral-600">会话、缓存、验证码——<strong class="font-semibold text-neutral-900">读写极快、可过期、丢了能重建</strong></p>
+            </div>
+            <div class="rounded-xl border border-neutral-900 bg-white p-4">
+              <p class="font-mono text-sm font-bold text-neutral-900">ChromaDB</p>
+              <p class="mt-0.5 text-xs font-semibold uppercase tracking-wider text-neutral-400">向量库</p>
+              <p class="mt-2 text-sm leading-6 text-neutral-600">文档切片的 Embedding——<strong class="font-semibold text-neutral-900">按语义找「相似」，而不是「相等」</strong></p>
+            </div>
+          </div>
+          <p class="doc-p">一个接口同时用到三种库的真实例子——AI 知识库的文档入库：</p>
+          <figure class="code-card">
+            <figcaption class="code-head">
+              <span class="code-dots" aria-hidden="true"><i></i><i></i><i></i></span>
+              <span class="flex items-center gap-2">
+                <span class="code-flag good">真实项目</span>
+                <span class="code-lang">TypeScript</span>
+              </span>
+              <button class="code-copy" type="button">复制</button>
+            </figcaption>
+            <pre class="code-body"><code class="language-ts">async ingestDocument(file: Express.Multer.File, meta: DocMeta) {
+  // 1. MySQL：存文档元数据（谁传的、什么状态）
+  const doc = await this.docRepo.save({ ...meta, status: 'processing' });
+
+  // 2. 文本分块 + 向量化（Embedding）
+  const chunks = await this.textSplitterService.splitText(rawText);
+  const vectors = await this.embeddingService.embedTexts(chunks);
+
+  // 3. 向量库：按「用户 + 课程」隔离的集合存向量
+  await this.chromaService.addDocuments(chunks, vectors, collection);
+}</code></pre>
+          </figure>
+          <p class="doc-p">元数据进关系型库（要查询、要展示列表），向量进向量库（要语义检索）——<strong class="font-semibold text-neutral-900">各存各的长处，接口负责编排</strong>。</p>
+          <div class="callout callout-key">
+            <span class="callout-icon"><i data-lucide="compass"></i></span>
+            <div>组合的原则：<strong class="font-semibold text-neutral-900">按数据特点选存储，而不是按技术热度</strong>。绝大多数项目 MySQL + Redis 已经够用；等真的出现全文检索、向量检索的需求，再引入对应组件。</div>
+          </div>
+          <p class="doc-p">再往后，规模逼出来还有这些手段，知道即可、不要提前上：</p>
+          <div class="my-4 flex flex-wrap gap-2">
+            <span class="chip">读写分离</span>
+            <span class="chip">Elasticsearch 全文检索</span>
+            <span class="chip">分库分表</span>
+            <span class="chip">对象存储（文件）</span>
+          </div>
+        </section>
+
+  <!-- highlight.js (CDN) -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/http.min.js"></script>
+  <!-- 小节共用脚本：高亮、复制、图标、高度同步 -->
+  <script src="../assets/section.js"></script>
+</body>
+</html>

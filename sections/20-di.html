@@ -76,7 +76,7 @@
           </div>
           <p class="doc-p">NestJS 会大量使用这种思想。</p>
           <h3 class="doc-h3">真实项目示例：NestJS 的依赖注入</h3>
-          <p class="doc-p">真实项目（<code>~/Desktop/iidc-web/server</code>）里，Controller 依赖 Service、Service 依赖 Repository，全都是「声明需要什么」：</p>
+          <p class="doc-p">真实项目里，Controller 依赖 Service、Service 依赖 Repository，全都是「声明需要什么」：</p>
           <figure class="code-card">
             <figcaption class="code-head">
               <span class="code-dots" aria-hidden="true"><i></i><i></i><i></i></span>
@@ -100,7 +100,7 @@ export class PostService {
   ) {}
 }</code></pre>
           </figure>
-          <p class="doc-p">那这些依赖由谁创建？由模块负责「装配」——<code>src/module/system/post/post.module.ts</code>：</p>
+          <p class="doc-p">那这些依赖由谁创建？由模块负责「装配」：</p>
           <figure class="code-card">
             <figcaption class="code-head">
               <span class="code-dots" aria-hidden="true"><i></i><i></i><i></i></span>

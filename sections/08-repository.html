@@ -71,7 +71,7 @@
             <div class="flow-node flow-node-accent">Database</div>
           </div>
           <h3 class="doc-h3">真实项目示例：TypeORM 的 Repository</h3>
-          <p class="doc-p">真实项目（<code>~/Desktop/iidc-web/server</code>）里并没有手写一个 <code>PostRepository</code> 类，而是用 <strong class="font-semibold text-neutral-900">Entity 描述表结构</strong>，再把 ORM 提供的通用 Repository 注入进 Service。先看 Entity（<code>src/module/system/post/entities/post.entity.ts</code>）：</p>
+          <p class="doc-p">真实项目里并没有手写一个 <code>PostRepository</code> 类，而是用 <strong class="font-semibold text-neutral-900">Entity 描述表结构</strong>，再把 ORM 提供的通用 Repository 注入进 Service。先看 Entity：</p>
           <figure class="code-card">
             <figcaption class="code-head">
               <span class="code-dots" aria-hidden="true"><i></i><i></i><i></i></span>
@@ -117,7 +117,7 @@ findOne(postId: number) {
   });
 }</code></pre>
           </figure>
-          <p class="doc-p"><code>save / findOne / update / createQueryBuilder</code> 这些数据访问方法全部由 TypeORM 的 Repository 提供。而公共字段被抽进了基类（<code>src/common/entities/base.ts</code>）：</p>
+          <p class="doc-p"><code>save / findOne / update / createQueryBuilder</code> 这些数据访问方法全部由 TypeORM 的 Repository 提供。而公共字段被抽进了实体基类：</p>
           <figure class="code-card">
             <figcaption class="code-head">
               <span class="code-dots" aria-hidden="true"><i></i><i></i><i></i></span>

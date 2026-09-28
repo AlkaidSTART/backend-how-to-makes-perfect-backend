@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>31 API 版本化 · TS 后端架构</title>
+  <meta name="description" content="从最基础的 HTTP 接口开始，逐步理解 TypeScript 后端的分层、模块化、依赖注入、依赖倒置，以及高内聚、低耦合的工程化架构。">
+  <meta name="theme-color" content="#ffffff">
+
+  <!-- 字体 -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+
+  <!-- Tailwind CSS (CDN) -->
+  <script src="https://cdn.tailwindcss.com"></script>
+
+  <!-- Lucide 图标库 (CDN) -->
+  <script src="https://unpkg.com/lucide@0.469.0/dist/umd/lucide.min.js"></script>
+
+  <!-- 公共样式由父页面 index.html 通过 postMessage 注入；直接打开时由 assets/section.js 从 index.html 抓取 -->
+</head>
+
+<body data-section="api-versioning" class="doc-body bg-white font-sans text-neutral-800 antialiased px-3 pb-4 pt-1">
+
+        <!-- 31 API 版本化 -->
+        <section id="api-versioning" class="doc-section">
+          <header class="mb-5 flex items-start gap-3">
+            <span class="sec-num">31</span>
+            <div>
+              <p class="eyebrow">接口提效</p>
+              <h2 class="sec-title">API 版本化：什么时候要 /v1？</h2>
+            </div>
+          </header>
+          <div class="callout callout-key">
+            <span class="callout-icon"><i data-lucide="git-branch"></i></span>
+            <div><code>/v1</code> 的意义不在于"标记第一个版本"，而在于：<strong class="font-semibold text-neutral-900">你能不能同时养活两个契约版本。</strong></div>
+          </div>
+          <p class="doc-p">接口第一次上线时，没有人会想版本号。这个问题真正出现，是在第一次"不得不破坏契约"的时刻：字段要改名、响应结构要调整，而调用方已经在用了。这时 URL 里有没有 <code>/v1</code>，决定了你有没有退路。</p>
+
+          <h3 class="doc-h3">判断标准：有没有"升不动"的调用方</h3>
+          <p class="doc-p">URL 版本号解决的问题只有一个——<strong class="font-semibold text-neutral-900">旧客户端还活着，接口契约却变了</strong>。所以先盘点你的调用方：</p>
+          <ul class="my-3 space-y-2">
+            <li class="check-item"><span class="check-dot"><i data-lucide="check"></i></span><span><strong class="font-semibold text-neutral-900">对外开放 API（第三方、合作伙伴）</strong>：微信支付、飞书开放平台的接口都带版本。调用方按自己的节奏升级，你无法协调发版，破坏性变更只能开 <code>/v2</code>。</span></li>
+            <li class="check-item"><span class="check-dot"><i data-lucide="check"></i></span><span><strong class="font-semibold text-neutral-900">移动端 App 的后端</strong>：应用商店审核要几天，用户不点更新，旧客户端会存活几个月甚至几年，契约必须能并行存在多份。很多团队第一天就加 <code>/v1</code>，就是给将来留这条退路。</span></li>
+            <li class="check-item"><span class="check-dot"><i data-lucide="check"></i></span><span><strong class="font-semibold text-neutral-900">B2B 集成、Webhook 回调地址</strong>：对方系统里写死了 URL，事后改契约的成本极高。</span></li>
+          </ul>
+
+          <h3 class="doc-h3">什么情况下不需要 /v1</h3>
+          <p class="doc-p">反过来，如果所有调用方都和你一起发版，URL 上的 <code>/v1</code> 就只是仪式：</p>
+          <ul class="my-3 space-y-2">
+            <li class="cross-item"><span class="cross-dot"><i data-lucide="minus"></i></span><span><strong class="font-semibold text-neutral-900">自家 Web 前端</strong>：前后端同仓库、同一条发布流水线，浏览器永远加载最新前端，不存在"旧客户端"。</span></li>
+            <li class="cross-item"><span class="cross-dot"><i data-lucide="minus"></i></span><span><strong class="font-semibold text-neutral-900">内部微服务之间</strong>：版本用包版本号、契约测试来表达。URL 上写 <code>/v1</code> 反而让人产生"v1 里可以随便改"的错觉。</span></li>
+            <li class="cross-item"><span class="cross-dot"><i data-lucide="minus"></i></span><span><strong class="font-semibold text-neutral-900">GraphQL</strong>：不用 URL 版本，用 <code>@deprecated</code> 标记字段、渐进下线。</span></li>
+            <li class="cross-item"><span class="cross-dot"><i data-lucide="minus"></i></span><span><strong class="font-semibold text-neutral-900">BFF 层</strong>：BFF 的版本就是前端发版版本，隐式绑定。</span></li>
+          </ul>
+
+          <h3 class="doc-h3">真正的成本：不是三个字符，是 N 套契约</h3>
+          <p class="doc-p">版本化的开销不是 URL 里多三个字符，而是<strong class="font-semibold text-neutral-900">同时维护多套契约</strong>：双份路由、双份文档、双份测试、双份客户端 SDK，并且要一直养到最后一方迁走为止：</p>
+          <figure class="code-card">
+            <figcaption class="code-head">
+              <span class="code-dots" aria-hidden="true"><i></i><i></i><i></i></span>
+              <span class="flex items-center gap-2">
+                <span class="code-flag bad">每个版本都是长期承诺</span>
+                <span class="code-lang">TypeScript</span>
+              </span>
+              <button class="code-copy" type="button">复制</button>
+            </figcaption>
+            <pre class="code-body"><code class="language-ts">// /v1 还活着：服务那些升不动、还没迁移的调用方
+app.use('/v1/users', v1UsersRouter);
+
+// /v2 承载破坏性变更：字段改名、结构调整
+app.use('/v2/users', v2UsersRouter);
+
+// 代价：每个调用方都要"选边"，每一套都要测试、都要修 bug</code></pre>
+          </figure>
+          <p class="doc-p">所以两条推论：</p>
+          <ul class="my-3 space-y-2">
+            <li class="check-item"><span class="check-dot"><i data-lucide="check"></i></span><span><strong class="font-semibold text-neutral-900">不要预防性版本化</strong>：还没有第二类调用方之前，别急着上 <code>/v2</code>。</span></li>
+            <li class="check-item"><span class="check-dot"><i data-lucide="check"></i></span><span><strong class="font-semibold text-neutral-900">版本号是承诺</strong>：<code>/v1</code> 存在的每一天，你都要养着它。</span></li>
+          </ul>
+
+          <h3 class="doc-h3">大厂怎么做：企业级案例</h3>
+          <p class="doc-p">把上面的判断放进真实世界，国内开放平台同样分两派——<strong class="font-semibold text-neutral-900">大版本进 URL</strong>，还是<strong class="font-semibold text-neutral-900">把版本藏进请求参数</strong>：</p>
+          <div class="flow-row">
+            <span class="fr-node">大版本进 URL · 微信支付 / 钉钉 / 飞书 / 高德 / 大模型 API</span>
+            <span class="fr-arrow">vs</span>
+            <span class="fr-node">版本藏进参数 · 支付宝 / 淘宝开放平台</span>
+          </div>
+          <div class="my-4 grid gap-4 sm:grid-cols-2">
+            <div class="rounded-xl border border-neutral-200 bg-neutral-50 p-4">
+              <p class="font-mono text-sm font-bold text-neutral-900">微信支付</p>
+              <p class="mt-0.5 text-xs font-semibold uppercase tracking-wider text-neutral-400">URL 大版本 · 新旧长期并行</p>
+              <p class="mt-2 text-sm leading-6 text-neutral-600">V2 时代 URL 里没有版本（<code>pay/unifiedorder</code>）；V3 重设计把 <code>/v3</code> 写进 URL（<code>api.mch.weixin.qq.com/v3/pay/...</code>），签名、证书、加密整套换掉。V2/V3 并行至今，V2 只维护不加功能——<strong class="font-semibold text-neutral-900">破坏性变更开新版本，绝不悄悄改旧的</strong>。</p>
+            </div>
+            <div class="rounded-xl border border-neutral-200 bg-neutral-50 p-4">
+              <p class="font-mono text-sm font-bold text-neutral-900">钉钉</p>
+              <p class="mt-0.5 text-xs font-semibold uppercase tracking-wider text-neutral-400">新旧域名并存</p>
+              <p class="mt-2 text-sm leading-6 text-neutral-600">旧服务端接口在 <code>oapi.dingtalk.com</code>（URL 无版本）；新版统一为 <code>api.dingtalk.com/v1.0/...</code>，主版本直接进 URL。大厂自己"补票"的方式：契约无法平滑兼容时，<strong class="font-semibold text-neutral-900">新域名 + 新版本一起翻篇</strong>，旧接口只维护。</p>
+            </div>
+            <div class="rounded-xl border border-neutral-200 bg-neutral-50 p-4">
+              <p class="font-mono text-sm font-bold text-neutral-900">飞书</p>
+              <p class="mt-0.5 text-xs font-semibold uppercase tracking-wider text-neutral-400">资源级版本（粒度最细）</p>
+              <p class="mt-2 text-sm leading-6 text-neutral-600"><code>open.feishu.cn/open-apis/im/v1/messages</code>、<code>/contact/v3/users</code>：版本号跟到每个资源对象——消息接口还在 v1，通讯录已经到 v3，<strong class="font-semibold text-neutral-900">谁破坏兼容谁单独升版本</strong>，互不拖累。</p>
+            </div>
+            <div class="rounded-xl border border-neutral-200 bg-neutral-50 p-4">
+              <p class="font-mono text-sm font-bold text-neutral-900">支付宝 / 淘宝开放平台</p>
+              <p class="mt-0.5 text-xs font-semibold uppercase tracking-wider text-neutral-400">网关固定 · 版本进参数</p>
+              <p class="mt-2 text-sm leading-6 text-neutral-600">网关地址永远是 <code>openapi.alipay.com/gateway.do</code>，接口靠 <code>method</code> + <code>version</code> 参数区分（淘宝 TOP 同理，公共参数 <code>v=2.0</code>）——版本号的另一种藏法：<strong class="font-semibold text-neutral-900">不在 URL，在请求参数里</strong>，网关按参数路由到对应实现。</p>
+            </div>
+            <div class="rounded-xl border border-neutral-200 bg-neutral-50 p-4">
+              <p class="font-mono text-sm font-bold text-neutral-900">高德地图</p>
+              <p class="mt-0.5 text-xs font-semibold uppercase tracking-wider text-neutral-400">v3 / v5 并行</p>
+              <p class="mt-2 text-sm leading-6 text-neutral-600"><code>restapi.amap.com/v3/geocode/geo</code> 仍在服务，搜索、路径规划已升级到 <code>/v5/...</code>，官方提供逐接口的迁移对照表。响应结构频繁增强的 API，靠大版本 URL <strong class="font-semibold text-neutral-900">把承诺划清楚</strong>。</p>
+            </div>
+            <div class="rounded-xl border border-neutral-200 bg-neutral-50 p-4">
+              <p class="font-mono text-sm font-bold text-neutral-900">国产大模型 API</p>
+              <p class="mt-0.5 text-xs font-semibold uppercase tracking-wider text-neutral-400">兼容性 /v1</p>
+              <p class="mt-2 text-sm leading-6 text-neutral-600">智谱 <code>open.bigmodel.cn/api/paas/v4/chat/completions</code>、Moonshot <code>api.moonshot.cn/v1/...</code>；DeepSeek 文档写得更直白：<code>/v1</code> 与模型版本无关，纯粹为了兼容 OpenAI SDK——<strong class="font-semibold text-neutral-900">为了接入生态，/v1 也可以只是仪式</strong>。</p>
+            </div>
+          </div>
+          <div class="callout callout-key">
+            <span class="callout-icon"><i data-lucide="building-2"></i></span>
+            <div>国内开放平台的共同点：版本绑定的是<strong class="font-semibold text-neutral-900">契约</strong>而不是代码；弃用与迁移窗口白纸黑字（微信支付 V2 长期只维护、高德给逐接口迁移指南）；升级永远由调用方发起。选哪一派，只取决于一件事——<strong class="font-semibold text-neutral-900">调用方能不能跟你同步发版</strong>。</div>
+          </div>
+
+          <h3 class="doc-h3">什么才算"破坏性变更"</h3>
+          <p class="doc-p">内部接口想做到"永远不需要版本号"，靠的是只做非破坏变更。判断标准：</p>
+          <div class="my-4 grid gap-4 sm:grid-cols-2">
+            <figure class="diagram-card my-0">
+              <figcaption class="diagram-head">破坏性变更 —— 只能开新版本</figcaption>
+              <pre>✗ 改字段名：user_name → userName
+✗ 改字段类型：id: number → id: string
+✗ 删字段、改字段含义
+✗ 同样输入返回不同结果
+✗ 错误码语义变化</pre>
+            </figure>
+            <figure class="diagram-card my-0">
+              <figcaption class="diagram-head">非破坏变更 —— 放心做，不用升版本</figcaption>
+              <pre>✓ 新增可选字段
+✓ 新增端点
+✓ 新增可选查询参数
+✓ 新增返回字段（旧调用方忽略即可）</pre>
+            </figure>
+          </div>
+          <p class="doc-p">只要坚持"只做非破坏变更"，内部接口就永远不需要版本号——而这件事靠 TypeScript 类型、OpenAPI codegen、tRPC 这类<strong class="font-semibold text-neutral-900">类型契约</strong>兜底，不靠 URL。</p>
+          <div class="callout callout-warn">
+            <span class="callout-icon"><i data-lucide="compass"></i></span>
+            <div>反过来讲，内部接口<strong class="font-semibold text-neutral-900">不加</strong> <code>/v1</code>，反而是给自己留了"用完即改"的灵活性——这正是提效的来源。版本号不是规范加分项，是用灵活性换兼容性的交易，只在有调用方接不住时才做。</div>
+          </div>
+
+          <div class="big-quote">
+            <p class="banner-tag">Rule of Thumb</p>
+            <p class="banner-text">有升不动的外部调用方，就加 /v1；<br class="hidden sm:block">调用方都跟你一起发版，就不加——靠兼容式演进和类型契约兜底。</p>
+          </div>
+        </section>
+
+  <!-- highlight.js (CDN) -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/http.min.js"></script>
+  <!-- 小节共用脚本：高亮、复制、图标、高度同步 -->
+  <script src="../assets/section.js"></script>
+</body>
+</html>

@@ -79,7 +79,7 @@
 }</code></pre>
           </figure>
           <h3 class="doc-h3">真实项目示例：语义化异常 + 全局异常过滤器</h3>
-          <p class="doc-p">真实项目（<code>~/Desktop/iidc-web/server</code>）里，业务代码只管抛出<strong class="font-semibold text-neutral-900">语义化异常</strong>。来自 <code>src/module/system/tenant/tenant.service.ts</code>（多租户成员管理）：</p>
+          <p class="doc-p">真实项目里，业务代码只管抛出<strong class="font-semibold text-neutral-900">语义化异常</strong>。例如多租户成员管理模块：</p>
           <figure class="code-card">
             <figcaption class="code-head">
               <span class="code-dots" aria-hidden="true"><i></i><i></i><i></i></span>
@@ -102,7 +102,7 @@ if (member.isOwner &amp;&amp; !(await this.hasAnotherOwner(tenantId, member.memb
   throw new BadRequestException('租户至少需要保留一名组织管理员');
 }</code></pre>
           </figure>
-          <p class="doc-p">抛出去的异常由全局异常过滤器统一接住（<code>src/common/filters/http-exceptions-filter.ts</code>），转成统一响应格式：</p>
+          <p class="doc-p">抛出去的异常由全局异常过滤器统一接住，转成统一响应格式：</p>
           <figure class="code-card">
             <figcaption class="code-head">
               <span class="code-dots" aria-hidden="true"><i></i><i></i><i></i></span>
@@ -139,7 +139,7 @@ export class HttpExceptionsFilter implements ExceptionFilter {
   }
 }</code></pre>
           </figure>
-          <p class="doc-p">在 <code>main.ts</code> 里注册一次即可：</p>
+          <p class="doc-p">在入口文件里注册一次即可：</p>
           <figure class="code-card">
             <figcaption class="code-head">
               <span class="code-dots" aria-hidden="true"><i></i><i></i><i></i></span>

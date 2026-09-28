@@ -1,0 +1,307 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>32 后端框架对比 · TS 后端架构</title>
+  <meta name="description" content="从最基础的 HTTP 接口开始，逐步理解 TypeScript 后端的分层、模块化、依赖注入、依赖倒置，以及高内聚、低耦合的工程化架构。">
+  <meta name="theme-color" content="#ffffff">
+
+  <!-- 字体 -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+
+  <!-- Tailwind CSS (CDN) -->
+  <script src="https://cdn.tailwindcss.com"></script>
+
+  <!-- Lucide 图标库 (CDN) -->
+  <script src="https://unpkg.com/lucide@0.469.0/dist/umd/lucide.min.js"></script>
+
+  <!-- 公共样式由父页面 index.html 通过 postMessage 注入；直接打开时由 assets/section.js 从 index.html 抓取 -->
+</head>
+
+<body data-section="frameworks" class="doc-body bg-white font-sans text-neutral-800 antialiased px-3 pb-4 pt-1">
+
+        <!-- 32 后端框架对比 -->
+        <section id="frameworks" class="doc-section">
+          <header class="mb-5 flex items-start gap-3">
+            <span class="sec-num">32</span>
+            <div>
+              <p class="eyebrow">框架选型</p>
+              <h2 class="sec-title">后端框架对比</h2>
+            </div>
+          </header>
+          <div class="callout callout-key">
+            <span class="callout-icon"><i data-lucide="git-compare"></i></span>
+            <div>学完分层之后，再<strong class="font-semibold text-neutral-900">单独横向看一遍框架</strong>：所有框架解决的都是同一件事——「HTTP 请求进来，怎么路由到处理函数、怎么取参数、怎么校验、怎么返回响应」。区别只在「框架替你做多少」。</div>
+          </div>
+          <p class="doc-p">把常见后端框架分成三类来对比，一一覆盖：</p>
+          <div class="my-4 flex flex-wrap gap-2">
+            <span class="chip">① TS/Node 后端框架</span>
+            <span class="chip">② 全栈框架（前后端一体）</span>
+            <span class="chip">③ 跨语言对照：FastAPI / Gin</span>
+          </div>
+
+          <h3 class="doc-h3">TS/Node 后端框架：两大家族</h3>
+          <p class="doc-p">按「框架替你做多少」，TS/Node 后端框架可以分成两大家族：</p>
+          <div class="my-4 grid gap-4 sm:grid-cols-2">
+            <div class="rounded-2xl border border-neutral-900 bg-white p-5 shadow-sm">
+              <p class="cmp-title"><i data-lucide="box" class="h-4 w-4"></i>微内核：路由 + 中间件</p>
+              <p class="text-xs leading-6 text-neutral-500">框架只管把请求接到处理函数，分层、校验、DI 都要<strong class="font-semibold text-neutral-900">自己搭</strong>。灵活，但架构靠自觉。</p>
+              <div class="mt-3 flex flex-wrap gap-2">
+                <span class="chip">Express</span><span class="chip">Koa</span><span class="chip">Fastify</span><span class="chip">Hono</span><span class="chip">ElysiaJS</span>
+              </div>
+            </div>
+            <div class="rounded-2xl border border-neutral-200 bg-neutral-50 p-5">
+              <p class="cmp-title text-neutral-800"><i data-lucide="boxes" class="h-4 w-4"></i>全家桶：架构自带</p>
+              <p class="text-xs leading-6 text-neutral-500">Module、Controller、Service、DI 开箱即用，<strong class="font-semibold text-neutral-900">架构是框架给的</strong>。省心，但要接受它的约定。</p>
+              <div class="mt-3 flex flex-wrap gap-2">
+                <span class="chip">NestJS</span>
+              </div>
+            </div>
+          </div>
+          <div class="my-4 overflow-hidden rounded-xl border border-neutral-200 bg-white shadow-sm">
+            <table class="w-full text-sm">
+              <thead class="bg-neutral-50 text-left text-xs uppercase tracking-wider text-neutral-400">
+                <tr>
+                  <th class="px-4 py-2.5 font-semibold">框架</th>
+                  <th class="px-4 py-2.5 font-semibold">一句话定位</th>
+                  <th class="px-4 py-2.5 font-semibold">类型体验</th>
+                  <th class="px-4 py-2.5 font-semibold">适合场景</th>
+                </tr>
+              </thead>
+              <tbody class="divide-y divide-neutral-100">
+                <tr><td class="px-4 py-2.5 font-mono text-neutral-800">Express</td><td class="px-4 py-2.5 text-neutral-600">Node 生态的「事实标准」，中间件最多、资料最全</td><td class="px-4 py-2.5"><span class="tier-tag tag-low">一般</span></td><td class="px-4 py-2.5 text-neutral-600">老项目维护、简单服务、学原理</td></tr>
+                <tr><td class="px-4 py-2.5 font-mono text-neutral-800">Koa</td><td class="px-4 py-2.5 text-neutral-600">Express 原班人马重写，async/await 洋葱模型</td><td class="px-4 py-2.5"><span class="tier-tag tag-low">一般</span></td><td class="px-4 py-2.5 text-neutral-600">想要更干净的异步中间件</td></tr>
+                <tr><td class="px-4 py-2.5 font-mono text-neutral-800">Fastify</td><td class="px-4 py-2.5 text-neutral-600">主打高性能，JSON Schema 声明即校验</td><td class="px-4 py-2.5"><span class="tier-tag tag-mid">良好</span></td><td class="px-4 py-2.5 text-neutral-600">性能敏感的 API 服务</td></tr>
+                <tr><td class="px-4 py-2.5 font-mono text-neutral-800">Hono</td><td class="px-4 py-2.5 text-neutral-600">超轻量、多运行时（Node / Bun / Deno / 边缘）</td><td class="px-4 py-2.5"><span class="tier-tag tag-mid">良好</span></td><td class="px-4 py-2.5 text-neutral-600">边缘函数、小而快的 API</td></tr>
+                <tr><td class="px-4 py-2.5 font-mono text-neutral-800">NestJS</td><td class="px-4 py-2.5 text-neutral-600">Angular 风格的企业级全家桶，DI / 模块 / 装饰器</td><td class="px-4 py-2.5"><span class="tier-tag tag-high">优秀</span></td><td class="px-4 py-2.5 text-neutral-600">中大型后端、团队协作</td></tr>
+                <tr><td class="px-4 py-2.5 font-mono text-neutral-800">ElysiaJS</td><td class="px-4 py-2.5 text-neutral-600">Bun 专属极速框架，AOT + JIT 类型编译，150k+ RPS</td><td class="px-4 py-2.5"><span class="tier-tag tag-high">优秀</span></td><td class="px-4 py-2.5 text-neutral-600">Bun 运行时、追求极致性能与全栈类型安全</td></tr>
+              </tbody>
+            </table>
+          </div>
+          <div class="callout callout-warn">
+            <span class="callout-icon"><i data-lucide="alert-triangle"></i></span>
+            <div>怎么选：个人学习 / 小工具，Express 或 Hono 随手写；性能敏感，上 Fastify；<strong class="font-semibold text-neutral-900">中大型业务系统，选 NestJS 这类自带架构的框架</strong>——它把本文档讲的分层、DI、模块化变成了开箱即用的默认。</div>
+          </div>
+
+          <h3 class="doc-h3">同一个接口，四种写法</h3>
+          <p class="doc-p">框架的差别，同一个「创建用户」接口最能看出来。先是 Express——一切都要自己动手：</p>
+          <figure class="code-card">
+            <figcaption class="code-head">
+              <span class="code-dots" aria-hidden="true"><i></i><i></i><i></i></span>
+              <span class="flex items-center gap-2">
+                <span class="code-flag bad">自己动手</span>
+                <span class="code-lang">Express</span>
+              </span>
+              <button class="code-copy" type="button">复制</button>
+            </figcaption>
+            <pre class="code-body"><code class="language-ts">app.post('/users', async (req, res) => {
+  try {
+    // 取参数、校验、错误处理都要手写
+    const user = await userService.create(req.body);
+    res.status(201).json(user);
+  } catch (e) {
+    res.status(500).json({ message: '服务器错误' });
+  }
+});</code></pre>
+          </figure>
+          <p class="doc-p">Fastify 用 JSON Schema 把「参数长什么样」声明出来，校验和序列化都由框架接管：</p>
+          <figure class="code-card">
+            <figcaption class="code-head">
+              <span class="code-dots" aria-hidden="true"><i></i><i></i><i></i></span>
+              <span class="flex items-center gap-2">
+                <span class="code-lang">Fastify</span>
+              </span>
+              <button class="code-copy" type="button">复制</button>
+            </figcaption>
+            <pre class="code-body"><code class="language-ts">app.post('/users', {
+  schema: {
+    body: {
+      type: 'object',
+      required: ['name'],
+      properties: { name: { type: 'string' } },
+    },
+  }, // 不满足 schema 的请求，框架直接拒绝
+}, async (request) => {
+  return userService.create(request.body); // return 即响应
+});</code></pre>
+          </figure>
+          <p class="doc-p">Hono 的写法和 Express 相近，胜在轻快和类型推导，前端还能用 <code>hono/client</code> 直接拿到接口类型：</p>
+          <figure class="code-card">
+            <figcaption class="code-head">
+              <span class="code-dots" aria-hidden="true"><i></i><i></i><i></i></span>
+              <span class="flex items-center gap-2">
+                <span class="code-lang">Hono</span>
+              </span>
+              <button class="code-copy" type="button">复制</button>
+            </figcaption>
+            <pre class="code-body"><code class="language-ts">const app = new Hono();
+
+app.post('/users', async (c) => {
+  const body = await c.req.json();
+  return c.json(await userService.create(body), 201);
+});</code></pre>
+          </figure>
+          <p class="doc-p">NestJS 是全家桶：取参数、校验（配合 DTO + 校验管道）、错误处理、响应序列化全部接管，方法体只剩一行业务调用：</p>
+          <figure class="code-card">
+            <figcaption class="code-head">
+              <span class="code-dots" aria-hidden="true"><i></i><i></i><i></i></span>
+              <span class="flex items-center gap-2">
+                <span class="code-flag good">全由框架接管</span>
+                <span class="code-lang">NestJS</span>
+              </span>
+              <button class="code-copy" type="button">复制</button>
+            </figcaption>
+            <pre class="code-body"><code class="language-ts">@Controller('users')
+export class UserController {
+  constructor(private readonly userService: UserService) {}
+
+  @Post()
+  create(@Body() dto: CreateUserDto) {
+    // 参数解析、校验、异常转换都是装饰器和管道的事
+    return this.userService.create(dto);
+  }
+}</code></pre>
+          </figure>
+          <ul class="my-3 space-y-2">
+            <li class="check-item"><span class="check-dot"><i data-lucide="check"></i></span>对比下来规律很清晰：<strong class="font-semibold text-neutral-900">框架越「厚」，业务方法体越干净</strong>——脏活（取参、校验、异常）被收进框架</li>
+            <li class="check-item"><span class="check-dot"><i data-lucide="check"></i></span>但无论哪个框架，<code>userService.create(dto)</code> 这一层的<strong class="font-semibold text-neutral-900">分层结构完全一样</strong>：Controller 调 Service，Service 调 Repository</li>
+            <li class="check-item"><span class="check-dot"><i data-lucide="check"></i></span>微内核框架（Express/Fastify/Hono）只是把第 6–14 章讲的校验、错误处理、统一响应退回给你自己组装</li>
+          </ul>
+
+          <h3 class="doc-h3">全栈框架：Next.js / Nuxt / Remix</h3>
+          <p class="doc-p">另一条路线是<strong class="font-semibold text-neutral-900">前后端一体</strong>：一个仓库、一个进程，前端框架直接提供「服务端接口」的能力，为的是 BFF（Backend For Frontend）和全栈一体化：</p>
+          <div class="my-4 overflow-hidden rounded-xl border border-neutral-200 bg-white shadow-sm">
+            <table class="w-full text-sm">
+              <thead class="bg-neutral-50 text-left text-xs uppercase tracking-wider text-neutral-400">
+                <tr>
+                  <th class="px-4 py-2.5 font-semibold">框架</th>
+                  <th class="px-4 py-2.5 font-semibold">前端</th>
+                  <th class="px-4 py-2.5 font-semibold">后端能力</th>
+                  <th class="px-4 py-2.5 font-semibold">适合场景</th>
+                </tr>
+              </thead>
+              <tbody class="divide-y divide-neutral-100">
+                <tr><td class="px-4 py-2.5 font-mono text-neutral-800">Next.js</td><td class="px-4 py-2.5 text-neutral-600">React</td><td class="px-4 py-2.5 text-neutral-600">Route Handlers / Server Actions</td><td class="px-4 py-2.5 text-neutral-600">官方推荐路线，生态最大</td></tr>
+                <tr><td class="px-4 py-2.5 font-mono text-neutral-800">Nuxt</td><td class="px-4 py-2.5 text-neutral-600">Vue</td><td class="px-4 py-2.5 text-neutral-600">server/api + Nitro 引擎</td><td class="px-4 py-2.5 text-neutral-600">Vue 全栈一体化</td></tr>
+                <tr><td class="px-4 py-2.5 font-mono text-neutral-800">Remix</td><td class="px-4 py-2.5 text-neutral-600">React</td><td class="px-4 py-2.5 text-neutral-600">loader / action 模型</td><td class="px-4 py-2.5 text-neutral-600">已与 React Router v7 合流</td></tr>
+                <tr><td class="px-4 py-2.5 font-mono text-neutral-800">SvelteKit</td><td class="px-4 py-2.5 text-neutral-600">Svelte</td><td class="px-4 py-2.5 text-neutral-600">+server.ts 接口文件</td><td class="px-4 py-2.5 text-neutral-600">轻量全栈一体化</td></tr>
+              </tbody>
+            </table>
+          </div>
+          <p class="doc-p">用全栈框架写接口长什么样？以 Next.js 的 Route Handler 为例：</p>
+          <figure class="code-card">
+            <figcaption class="code-head">
+              <span class="code-dots" aria-hidden="true"><i></i><i></i><i></i></span>
+              <span class="flex items-center gap-2">
+                <span class="code-lang">Next.js</span>
+              </span>
+              <button class="code-copy" type="button">复制</button>
+            </figcaption>
+            <pre class="code-body"><code class="language-ts">// app/api/users/route.ts —— 文件路径即路由
+export async function POST(request: Request) {
+  const body = await request.json();
+  const user = await userService.create(body);
+  return Response.json(user, { status: 201 });
+}</code></pre>
+          </figure>
+          <div class="callout callout-warn">
+            <span class="callout-icon"><i data-lucide="alert-triangle"></i></span>
+            <div>全栈框架的边界：适合<strong class="font-semibold text-neutral-900">页面 + 轻量接口</strong>（BFF、CRUD 原型、内容站）。它们不提供分层约束——没有 DI 容器、没有模块系统，Service / Repository 要自己组织。业务一旦变重，常见做法是<strong class="font-semibold text-neutral-900">全栈框架管前端 + NestJS 管后端</strong>各司其职，或者在前端仓库里按本文学的方式手搭分层。</div>
+          </div>
+
+          <h3 class="doc-h3">跨语言对照：FastAPI 与 Gin</h3>
+          <p class="doc-p">跳出 JS 世界看一眼，最能验证一件事：<strong class="font-semibold text-neutral-900">好用的后端设计是跨语言通用的</strong>。FastAPI（Python）被称作「Python 界的 NestJS 体验」，因为它把 TS 后端的核心三件套——类型注解、校验、DI——做成了默认：</p>
+          <div class="my-4 overflow-hidden rounded-xl border border-neutral-200 bg-white shadow-sm">
+            <table class="w-full text-sm">
+              <thead class="bg-neutral-50 text-left text-xs uppercase tracking-wider text-neutral-400">
+                <tr>
+                  <th class="px-4 py-2.5 font-semibold">FastAPI 的做法</th>
+                  <th class="px-4 py-2.5 font-semibold">TS 世界里对应</th>
+                </tr>
+              </thead>
+              <tbody class="divide-y divide-neutral-100">
+                <tr><td class="px-4 py-2.5 font-mono text-neutral-800">Pydantic 模型</td><td class="px-4 py-2.5 text-neutral-600">DTO + class-validator / Zod（第 10、12 章）</td></tr>
+                <tr><td class="px-4 py-2.5 font-mono text-neutral-800">Depends() 注入</td><td class="px-4 py-2.5 text-neutral-600">依赖注入 DI（第 20 章）</td></tr>
+                <tr><td class="px-4 py-2.5 font-mono text-neutral-800">自动 /docs 文档</td><td class="px-4 py-2.5 text-neutral-600">@nestjs/swagger 生成的 OpenAPI 文档</td></tr>
+                <tr><td class="px-4 py-2.5 font-mono text-neutral-800">路由装饰器 @app.get()</td><td class="px-4 py-2.5 text-neutral-600">@Controller / @Get（第 6 章）</td></tr>
+              </tbody>
+            </table>
+          </div>
+          <p class="doc-p">FastAPI 写起来是这样的——DTO、校验、文档、注入一体成型：</p>
+          <figure class="code-card">
+            <figcaption class="code-head">
+              <span class="code-dots" aria-hidden="true"><i></i><i></i><i></i></span>
+              <span class="flex items-center gap-2">
+                <span class="code-lang">Python · FastAPI</span>
+              </span>
+              <button class="code-copy" type="button">复制</button>
+            </figcaption>
+            <pre class="code-body"><code class="language-python">class CreateUserDto(BaseModel):   # ≈ DTO + 校验
+    name: str
+    email: EmailStr
+
+@app.post('/users', status_code=201)
+async def create(dto: CreateUserDto, service: UserService = Depends()):  # ≈ DI
+    return await service.create(dto)   # ≈ Controller 只调 Service</code></pre>
+          </figure>
+          <p class="doc-p">Gin（Go）则是「Express 的 Go 版」：同样是路由 + 中间件的微内核，性能更强。但 Go 没有装饰器和反射式 DI 的文化——依赖注入靠<strong class="font-semibold text-neutral-900">手写构造函数</strong>，分层照样要自己拆：</p>
+          <figure class="code-card">
+            <figcaption class="code-head">
+              <span class="code-dots" aria-hidden="true"><i></i><i></i><i></i></span>
+              <span class="flex items-center gap-2">
+                <span class="code-flag bad">分层靠自觉</span>
+                <span class="code-lang">Go · Gin</span>
+              </span>
+              <button class="code-copy" type="button">复制</button>
+            </figcaption>
+            <pre class="code-body"><code class="language-go">r := gin.Default()
+
+r.POST("/users", func(c *gin.Context) {
+    var dto CreateUserDto
+    if err := c.ShouldBindJSON(&amp;dto); err != nil {  // 校验要配 validator
+        c.JSON(400, gin.H{"message": "参数错误"})
+        return
+    }
+    user := userService.Create(dto)                 // 同样：Controller 只调 Service
+    c.JSON(201, user)
+})</code></pre>
+          </figure>
+          <p class="doc-p">三个生态放在一起对比：</p>
+          <div class="my-4 overflow-hidden rounded-xl border border-neutral-200 bg-white shadow-sm">
+            <table class="w-full text-sm">
+              <thead class="bg-neutral-50 text-left text-xs uppercase tracking-wider text-neutral-400">
+                <tr>
+                  <th class="px-4 py-2.5 font-semibold">代表框架</th>
+                  <th class="px-4 py-2.5 font-semibold">语言</th>
+                  <th class="px-4 py-2.5 font-semibold">定位</th>
+                  <th class="px-4 py-2.5 font-semibold">与本文的关系</th>
+                </tr>
+              </thead>
+              <tbody class="divide-y divide-neutral-100">
+                <tr><td class="px-4 py-2.5 font-mono text-neutral-800">NestJS</td><td class="px-4 py-2.5 text-neutral-600">TypeScript</td><td class="px-4 py-2.5 text-neutral-600">企业级全家桶</td><td class="px-4 py-2.5 text-neutral-600">本文的架构学习载体</td></tr>
+                <tr><td class="px-4 py-2.5 font-mono text-neutral-800">FastAPI</td><td class="px-4 py-2.5 text-neutral-600">Python</td><td class="px-4 py-2.5 text-neutral-600">类型驱动 + 自动文档，AI 服务首选</td><td class="px-4 py-2.5 text-neutral-600">DTO / 校验 / DI 思想高度同源</td></tr>
+                <tr><td class="px-4 py-2.5 font-mono text-neutral-800">Gin</td><td class="px-4 py-2.5 text-neutral-600">Go</td><td class="px-4 py-2.5 text-neutral-600">高性能微内核，Go 生态最流行</td><td class="px-4 py-2.5 text-neutral-600">分层思想照用，架构自己搭</td></tr>
+              </tbody>
+            </table>
+          </div>
+          <div class="callout callout-key">
+            <span class="callout-icon"><i data-lucide="compass"></i></span>
+            <div>看到规律了吗：<strong class="font-semibold text-neutral-900">无论语言，后端都在做同一组事</strong>——路由、取参、校验（DTO）、分层（Controller/Service/Repository）、依赖注入、错误处理、统一响应。差异只在「语言有没有装饰器」「框架替你做多少」。</div>
+          </div>
+
+          <div class="big-quote">
+            <p class="banner-tag"><i data-lucide="quote" class="mr-1 inline-block h-3.5 w-3.5 align-[-2px]"></i>一句话记住</p>
+            <p class="banner-text">框架决定「代码长什么样」，架构决定「代码放在哪里」。<br>换框架只是换表达方式，分层、DTO、DI 这些思想哪个框架都能带走。</p>
+          </div>
+        </section>
+
+  <!-- highlight.js (CDN) -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/http.min.js"></script>
+  <!-- 小节共用脚本：高亮、复制、图标、高度同步 -->
+  <script src="../assets/section.js"></script>
+</body>
+</html>
