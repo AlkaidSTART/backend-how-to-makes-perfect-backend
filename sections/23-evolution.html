@@ -66,6 +66,89 @@
 │
 └── main.ts</pre>
           </figure>
+          <p class="doc-p">每一部分各司其职：</p>
+          <div class="my-4 space-y-3">
+            <div class="rounded-xl border border-neutral-200 bg-white p-4 shadow-sm">
+              <div class="flex flex-wrap items-baseline gap-x-3 gap-y-1">
+                <p class="font-mono text-sm font-bold text-neutral-900">modules/</p>
+                <p class="text-xs font-semibold uppercase tracking-wider text-neutral-400">业务模块 · 按业务域切分</p>
+              </div>
+              <ul class="mt-2.5 space-y-1.5 text-sm leading-6 text-neutral-600">
+                <li class="flex gap-2"><span class="mt-2 h-1.5 w-1.5 shrink-0 rounded-full bg-neutral-300"></span><span>每个模块对应一个业务能力（<code>users</code>、<code>auth</code>），内部自成一体，互不 import 对方内部细节。</span></li>
+              </ul>
+            </div>
+            <div class="rounded-xl border border-neutral-200 bg-white p-4 shadow-sm">
+              <div class="flex flex-wrap items-baseline gap-x-3 gap-y-1">
+                <p class="font-mono text-sm font-bold text-neutral-900">modules/users/domain/</p>
+                <p class="text-xs font-semibold uppercase tracking-wider text-neutral-400">领域层 · 业务核心</p>
+              </div>
+              <ul class="mt-2.5 space-y-1.5 text-sm leading-6 text-neutral-600">
+                <li class="flex gap-2"><span class="mt-2 h-1.5 w-1.5 shrink-0 rounded-full bg-neutral-300"></span><span><code>entities/</code> 实体：核心业务对象，承载业务规则（如 <code>User</code>）。</span></li>
+                <li class="flex gap-2"><span class="mt-2 h-1.5 w-1.5 shrink-0 rounded-full bg-neutral-300"></span><span><code>value-objects/</code> 值对象：不可变的小型业务概念（如 <code>Email</code>）。</span></li>
+                <li class="flex gap-2"><span class="mt-2 h-1.5 w-1.5 shrink-0 rounded-full bg-neutral-300"></span><span><code>repositories/</code> 仓储<strong class="font-semibold text-neutral-900">接口</strong>：只声明“需要什么数据”，不关心怎么存。</span></li>
+              </ul>
+            </div>
+            <div class="rounded-xl border border-neutral-200 bg-white p-4 shadow-sm">
+              <div class="flex flex-wrap items-baseline gap-x-3 gap-y-1">
+                <p class="font-mono text-sm font-bold text-neutral-900">modules/users/application/</p>
+                <p class="text-xs font-semibold uppercase tracking-wider text-neutral-400">应用层 · 用例编排</p>
+              </div>
+              <ul class="mt-2.5 space-y-1.5 text-sm leading-6 text-neutral-600">
+                <li class="flex gap-2"><span class="mt-2 h-1.5 w-1.5 shrink-0 rounded-full bg-neutral-300"></span><span><code>use-cases/</code> 用例：一个完整业务动作的流程（如 <code>RegisterUserUseCase</code>）。</span></li>
+                <li class="flex gap-2"><span class="mt-2 h-1.5 w-1.5 shrink-0 rounded-full bg-neutral-300"></span><span><code>dto/</code> 入参 / 出落数据结构，把外部数据和领域对象隔开。</span></li>
+              </ul>
+            </div>
+            <div class="rounded-xl border border-neutral-200 bg-white p-4 shadow-sm">
+              <div class="flex flex-wrap items-baseline gap-x-3 gap-y-1">
+                <p class="font-mono text-sm font-bold text-neutral-900">modules/users/infrastructure/</p>
+                <p class="text-xs font-semibold uppercase tracking-wider text-neutral-400">基础设施层 · 技术实现</p>
+              </div>
+              <ul class="mt-2.5 space-y-1.5 text-sm leading-6 text-neutral-600">
+                <li class="flex gap-2"><span class="mt-2 h-1.5 w-1.5 shrink-0 rounded-full bg-neutral-300"></span><span><code>repositories/</code> 仓储<strong class="font-semibold text-neutral-900">实现</strong>：用 Prisma / SQL 真正读写数据库。</span></li>
+                <li class="flex gap-2"><span class="mt-2 h-1.5 w-1.5 shrink-0 rounded-full bg-neutral-300"></span><span>其它技术细节也放这里：外部 API、缓存、消息队列……</span></li>
+              </ul>
+            </div>
+            <div class="rounded-xl border border-neutral-200 bg-white p-4 shadow-sm">
+              <div class="flex flex-wrap items-baseline gap-x-3 gap-y-1">
+                <p class="font-mono text-sm font-bold text-neutral-900">modules/users/presentation/</p>
+                <p class="text-xs font-semibold uppercase tracking-wider text-neutral-400">表现层 · 对外接口</p>
+              </div>
+              <ul class="mt-2.5 space-y-1.5 text-sm leading-6 text-neutral-600">
+                <li class="flex gap-2"><span class="mt-2 h-1.5 w-1.5 shrink-0 rounded-full bg-neutral-300"></span><span><code>controllers/</code> 控制器：解析 HTTP 请求、调用用例、返回响应，不写业务逻辑。</span></li>
+              </ul>
+            </div>
+            <div class="rounded-xl border border-neutral-200 bg-white p-4 shadow-sm">
+              <div class="flex flex-wrap items-baseline gap-x-3 gap-y-1">
+                <p class="font-mono text-sm font-bold text-neutral-900">shared/</p>
+                <p class="text-xs font-semibold uppercase tracking-wider text-neutral-400">跨模块共享</p>
+              </div>
+              <ul class="mt-2.5 space-y-1.5 text-sm leading-6 text-neutral-600">
+                <li class="flex gap-2"><span class="mt-2 h-1.5 w-1.5 shrink-0 rounded-full bg-neutral-300"></span><span><code>errors/</code> 统一错误类型；<code>utils/</code> 通用工具；<code>types/</code> 公共类型。只放真正通用的东西。</span></li>
+              </ul>
+            </div>
+            <div class="rounded-xl border border-neutral-200 bg-white p-4 shadow-sm">
+              <div class="flex flex-wrap items-baseline gap-x-3 gap-y-1">
+                <p class="font-mono text-sm font-bold text-neutral-900">config/</p>
+                <p class="text-xs font-semibold uppercase tracking-wider text-neutral-400">配置</p>
+              </div>
+              <ul class="mt-2.5 space-y-1.5 text-sm leading-6 text-neutral-600">
+                <li class="flex gap-2"><span class="mt-2 h-1.5 w-1.5 shrink-0 rounded-full bg-neutral-300"></span><span>读取并校验环境变量：数据库连接、密钥、端口……只在这里出现一次。</span></li>
+              </ul>
+            </div>
+            <div class="rounded-xl border border-neutral-200 bg-white p-4 shadow-sm">
+              <div class="flex flex-wrap items-baseline gap-x-3 gap-y-1">
+                <p class="font-mono text-sm font-bold text-neutral-900">main.ts</p>
+                <p class="text-xs font-semibold uppercase tracking-wider text-neutral-400">组合根 · 启动入口</p>
+              </div>
+              <ul class="mt-2.5 space-y-1.5 text-sm leading-6 text-neutral-600">
+                <li class="flex gap-2"><span class="mt-2 h-1.5 w-1.5 shrink-0 rounded-full bg-neutral-300"></span><span>把实现注入接口、注册路由、启动服务——整个应用在这里被“组装”起来。</span></li>
+              </ul>
+            </div>
+          </div>
+          <div class="callout callout-key">
+            <span class="callout-icon"><i data-lucide="arrow-down"></i></span>
+            <div><strong class="font-semibold text-neutral-900">依赖只指向内层：</strong>presentation → application → domain；infrastructure 实现 domain 定义的接口。</div>
+          </div>
           <p class="doc-p">这是 Clean Architecture / DDD 等思想可以演进到的方向之一。但是：</p>
           <div class="callout callout-warn">
             <span class="callout-icon">!</span>

@@ -1,0 +1,249 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>33 请求拦截器与响应拦截器 · TS 后端架构</title>
+  <meta name="description" content="从最基础的 HTTP 接口开始，逐步理解 TypeScript 后端的分层、模块化、依赖注入、依赖倒置，以及高内聚、低耦合的工程化架构。">
+  <meta name="theme-color" content="#ffffff">
+
+  <!-- 字体 -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+
+  <!-- Tailwind CSS (CDN) -->
+  <script src="https://cdn.tailwindcss.com"></script>
+
+  <!-- Lucide 图标库 (CDN) -->
+  <script src="https://unpkg.com/lucide@0.469.0/dist/umd/lucide.min.js"></script>
+
+  <!-- 公共样式由父页面 index.html 通过 postMessage 注入；直接打开时由 assets/section.js 从 index.html 抓取 -->
+</head>
+
+<body data-section="interceptors" class="doc-body bg-white font-sans text-neutral-800 antialiased px-3 pb-4 pt-1">
+
+        <!-- 33 请求拦截器与响应拦截器 -->
+        <section id="interceptors" class="doc-section">
+          <header class="mb-5 flex items-start gap-3">
+            <span class="sec-num">33</span>
+            <div>
+              <p class="eyebrow">请求与响应</p>
+              <h2 class="sec-title">请求拦截器与响应拦截器</h2>
+            </div>
+          </header>
+          <div class="callout callout-key">
+            <span class="callout-icon"><i data-lucide="filter"></i></span>
+            <div>拦截器回答的问题是：<strong class="font-semibold text-neutral-900">所有接口都要走的那段公共逻辑，放在哪？</strong>答案是在管道上——请求进来、响应出去的必经之路，统一拦截一次。</div>
+          </div>
+          <p class="doc-p">一个请求从进来到响应出去，中间是一条完整的管道。除了 Controller 里的业务逻辑，还有一类"每个接口都需要"的公共逻辑：校验 Token、记日志、限流、把返回值包成统一响应格式……这些逻辑写进每个接口就是灾难。拦截器（Interceptor）就是在管道上<strong class="font-semibold text-neutral-900">统一拦一次</strong>的机制：请求侧拦一次，响应侧拦一次。</p>
+
+          <h3 class="doc-h3">请求生命周期：公共逻辑挂在哪</h3>
+          <p class="doc-p">以 NestJS 为例（Express / Koa 里这些都统一用中间件链表达，后面会讲到），一个请求的完整生命周期：</p>
+          <div class="flow flow-sm">
+            <div class="flow-node">请求 Request</div>
+            <div class="flow-arrow"><i data-lucide="arrow-down"></i></div>
+            <div class="flow-node">中间件 Middleware<span class="flow-sub">CORS、body 解析、请求日志</span></div>
+            <div class="flow-arrow"><i data-lucide="arrow-down"></i></div>
+            <div class="flow-node">守卫 Guard<span class="flow-sub">认证授权：能不能进</span></div>
+            <div class="flow-arrow"><i data-lucide="arrow-down"></i></div>
+            <div class="flow-node">拦截器 · 请求侧<span class="flow-sub">计时开始、预处理请求</span></div>
+            <div class="flow-arrow"><i data-lucide="arrow-down"></i></div>
+            <div class="flow-node">管道 Pipe<span class="flow-sub">参数校验与转换（第 12 节）</span></div>
+            <div class="flow-arrow"><i data-lucide="arrow-down"></i></div>
+            <div class="flow-node flow-node-accent">Controller / Service<span class="flow-sub">业务逻辑，只写业务</span></div>
+            <div class="flow-arrow"><i data-lucide="arrow-down"></i></div>
+            <div class="flow-node">拦截器 · 响应侧<span class="flow-sub">统一包装、耗时日志</span></div>
+            <div class="flow-arrow"><i data-lucide="arrow-down"></i></div>
+            <div class="flow-node">异常过滤器<span class="flow-sub">任何一步抛错都落到这里（第 13 节）</span></div>
+            <div class="flow-arrow"><i data-lucide="arrow-down"></i></div>
+            <div class="flow-node">响应 Response</div>
+          </div>
+
+          <h3 class="doc-h3">请求拦截器：进门检查</h3>
+          <p class="doc-p">在请求到达 Controller <strong class="font-semibold text-neutral-900">之前</strong>执行，干的是"进门检查"的活——所有请求都要做、但跟具体业务无关的事：</p>
+          <ul class="my-3 space-y-2">
+            <li class="check-item"><span class="check-dot"><i data-lucide="check"></i></span><span><strong class="font-semibold text-neutral-900">身份认证</strong>：校验 Token，解析出 <code>userId</code>、<code>tenantId</code> 挂到 request 上，后面的代码直接取用。</span></li>
+            <li class="check-item"><span class="check-dot"><i data-lucide="check"></i></span><span><strong class="font-semibold text-neutral-900">日志与链路追踪</strong>：生成 <code>requestId</code>、记录请求入参，一次请求从头到尾可追踪。</span></li>
+            <li class="check-item"><span class="check-dot"><i data-lucide="check"></i></span><span><strong class="font-semibold text-neutral-900">限流与防刷</strong>：同一 IP / 用户短时间内请求过多，直接拒绝。</span></li>
+            <li class="check-item"><span class="check-dot"><i data-lucide="check"></i></span><span><strong class="font-semibold text-neutral-900">数据预处理</strong>：请求体解密、Header 规范化、白名单路由放行。</span></li>
+          </ul>
+          <p class="doc-p">关键行为是<strong class="font-semibold text-neutral-900">短路</strong>：检查不通过就直接返回错误响应，Controller 根本不会执行——这就是"拦截"两个字的本意。</p>
+
+          <h3 class="doc-h3">响应拦截器：出门包装</h3>
+          <p class="doc-p">在响应离开 Controller <strong class="font-semibold text-neutral-900">之后</strong>执行，干的是"出门统一包装"的活：</p>
+          <ul class="my-3 space-y-2">
+            <li class="check-item"><span class="check-dot"><i data-lucide="check"></i></span><span><strong class="font-semibold text-neutral-900">统一响应格式</strong>：把 Controller 返回的裸数据包成 <code>{ code, msg, data }</code>（第 14 节的 ResultData，下一节代码见）。</span></li>
+            <li class="check-item"><span class="check-dot"><i data-lucide="check"></i></span><span><strong class="font-semibold text-neutral-900">响应日志</strong>：记录路径、状态码、耗时，接口慢了一目了然。</span></li>
+            <li class="check-item"><span class="check-dot"><i data-lucide="check"></i></span><span><strong class="font-semibold text-neutral-900">缓存处理</strong>：命中缓存直接返回，或给响应加上缓存标记。</span></li>
+            <li class="check-item"><span class="check-dot"><i data-lucide="check"></i></span><span><strong class="font-semibold text-neutral-900">敏感信息过滤</strong>：统一剔除或脱敏不该出现在响应里的字段。</span></li>
+          </ul>
+
+          <h3 class="doc-h3">真实项目示例：全局响应拦截器</h3>
+          <p class="doc-p">第 14 节的 <code>ResultData</code> 是"约定"——靠每个 Service 方法自觉调用 <code>ResultData.ok()</code>。用拦截器可以把它升级成"机制"。NestJS 的拦截器在请求侧和响应侧各拦一次，写在同一个类里：</p>
+          <figure class="code-card">
+            <figcaption class="code-head">
+              <span class="code-dots" aria-hidden="true"><i></i><i></i><i></i></span>
+              <span class="flex items-center gap-2">
+                <span class="code-flag good">真实项目</span>
+                <span class="code-lang">TypeScript</span>
+              </span>
+              <button class="code-copy" type="button">复制</button>
+            </figcaption>
+            <pre class="code-body"><code class="language-ts">@Injectable()
+export class TransformInterceptor implements NestInterceptor {
+  constructor(private readonly logger: AppLoggerService) {}
+
+  intercept(context: ExecutionContext, next: CallHandler): Observable&lt;any&gt; {
+    const req = context.switchToHttp().getRequest();
+    const start = Date.now();
+
+    // next.handle()：放行——继续往下执行 Controller
+    return next.handle().pipe(
+      // 响应侧：裸数据 → 统一响应结构（已是 ResultData 的不重复包装）
+      map((data) =&gt; (data instanceof ResultData ? data : ResultData.ok(data))),
+      // 响应日志：方法 + 路径 + 耗时
+      tap(() =&gt; this.logger.log(`${req.method} ${req.url} +${Date.now() - start}ms`)),
+    );
+  }
+}</code></pre>
+          </figure>
+          <p class="doc-p">两个操作符：<code>map</code> 改写返回值（包装），<code>tap</code> 旁观但不改（记日志、计时）。全局注册一次，所有接口生效：</p>
+          <figure class="code-card">
+            <figcaption class="code-head">
+              <span class="code-dots" aria-hidden="true"><i></i><i></i><i></i></span>
+              <span class="code-lang">TypeScript</span>
+              <button class="code-copy" type="button">复制</button>
+            </figcaption>
+            <pre class="code-body"><code class="language-ts">// main.ts：全局注册
+app.useGlobalInterceptors(new TransformInterceptor());
+
+// 或走依赖注入（第 20 节）：拦截器内部才能注入 Logger 等其他服务
+{ provide: APP_INTERCEPTOR, useClass: TransformInterceptor }</code></pre>
+          </figure>
+          <p class="doc-p">于是第 14 节里"每个 Service 记得包装"的写法可以退役了：</p>
+          <div class="my-4 grid gap-4 sm:grid-cols-2">
+            <figure class="code-card my-0">
+              <figcaption class="code-head">
+                <span class="code-dots" aria-hidden="true"><i></i><i></i><i></i></span>
+                <span class="flex items-center gap-2">
+                  <span class="code-flag bad">之前：包装靠约定</span>
+                  <span class="code-lang">TypeScript</span>
+                </span>
+                <button class="code-copy" type="button">复制</button>
+              </figcaption>
+              <pre class="code-body"><code class="language-ts">// 每个 Service 方法都要记得包装
+return ResultData.ok({ list, total });</code></pre>
+            </figure>
+            <figure class="code-card my-0">
+              <figcaption class="code-head">
+                <span class="code-dots" aria-hidden="true"><i></i><i></i><i></i></span>
+                <span class="flex items-center gap-2">
+                  <span class="code-flag good">现在：包装是机制</span>
+                  <span class="code-lang">TypeScript</span>
+                </span>
+                <button class="code-copy" type="button">复制</button>
+              </figcaption>
+              <pre class="code-body"><code class="language-ts">// Service 返回裸数据，包装交给拦截器
+return { list, total };</code></pre>
+            </figure>
+          </div>
+
+          <h3 class="doc-h3">失败路径去哪了？</h3>
+          <p class="doc-p">拦截器的 <code>map</code> 只接得住"正常返回"。Service 抛出的异常不会经过它，而是直接落到全局异常过滤器（第 13 节）。所以统一响应有两只手，各管一半：</p>
+          <div class="my-4 grid gap-4 sm:grid-cols-2">
+            <figure class="diagram-card my-0">
+              <figcaption class="diagram-head">成功 —— 响应拦截器负责</figcaption>
+              <pre>Service return 裸数据
+        ↓
+响应拦截器 map() 包装
+        ↓
+{ code: 200, msg: '操作成功',
+  data: { list, total } }</pre>
+            </figure>
+            <figure class="diagram-card my-0">
+              <figcaption class="diagram-head">失败 —— 异常过滤器负责</figcaption>
+              <pre>Service throw 异常
+        ↓
+全局异常过滤器接住（第 13 节）
+        ↓
+{ code: 401, msg: '请重新登录',
+  data: null }</pre>
+            </figure>
+          </div>
+          <div class="callout callout-key">
+            <span class="callout-icon"><i data-lucide="shield-check"></i></span>
+            <div>呼应第 13、14 节：<strong class="font-semibold text-neutral-900">成功由拦截器包，失败由过滤器包，业务代码既不写包装、也不写 try/catch</strong>。三件事拼在一起，才是完整的请求管道。</div>
+          </div>
+
+          <h3 class="doc-h3">五种机制怎么分工？</h3>
+          <p class="doc-p">NestJS 把管道拆成了几种角色，初学最容易混。按"管什么"来记：</p>
+          <div class="my-4 overflow-hidden rounded-xl border border-neutral-200 bg-white shadow-sm">
+            <table class="w-full text-sm">
+              <thead class="bg-neutral-50 text-left text-xs uppercase tracking-wider text-neutral-400">
+                <tr>
+                  <th class="px-4 py-2.5 font-semibold">机制</th>
+                  <th class="px-4 py-2.5 font-semibold">管什么</th>
+                  <th class="px-4 py-2.5 font-semibold">典型例子</th>
+                </tr>
+              </thead>
+              <tbody class="divide-y divide-neutral-100">
+                <tr><td class="px-4 py-2.5 font-mono text-neutral-800">中间件 Middleware</td><td class="px-4 py-2.5 text-neutral-600">请求的进出，框架级，不知道有 Controller</td><td class="px-4 py-2.5 text-neutral-600">CORS、body 解析、请求日志</td></tr>
+                <tr><td class="px-4 py-2.5 font-mono text-neutral-800">守卫 Guard</td><td class="px-4 py-2.5 text-neutral-600">能不能进（认证与授权）</td><td class="px-4 py-2.5 text-neutral-600">JWT 校验、角色权限</td></tr>
+                <tr><td class="px-4 py-2.5 font-mono text-neutral-800">拦截器 Interceptor</td><td class="px-4 py-2.5 text-neutral-600">进出各加一层，能改请求也能改响应</td><td class="px-4 py-2.5 text-neutral-600">统一响应包装、耗时日志、缓存</td></tr>
+                <tr><td class="px-4 py-2.5 font-mono text-neutral-800">管道 Pipe</td><td class="px-4 py-2.5 text-neutral-600">参数对不对</td><td class="px-4 py-2.5 text-neutral-600">校验 DTO、类型转换（第 12 节）</td></tr>
+                <tr><td class="px-4 py-2.5 font-mono text-neutral-800">过滤器 Filter</td><td class="px-4 py-2.5 text-neutral-600">出错了怎么办</td><td class="px-4 py-2.5 text-neutral-600">全局异常 → 统一失败响应（第 13 节）</td></tr>
+              </tbody>
+            </table>
+          </div>
+          <p class="doc-p">Express / Koa 没有这些细分角色，全部用中间件表达：一个中间件里 <code>next()</code> 之前是请求侧，之后是响应侧——本质相同：</p>
+          <figure class="code-card">
+            <figcaption class="code-head">
+              <span class="code-dots" aria-hidden="true"><i></i><i></i><i></i></span>
+              <span class="flex items-center gap-2">
+                <span class="code-flag good">等价写法</span>
+                <span class="code-lang">Express</span>
+              </span>
+              <button class="code-copy" type="button">复制</button>
+            </figcaption>
+            <pre class="code-body"><code class="language-ts">app.use((req, res, next) =&gt; {
+  const start = Date.now();
+
+  // next() 之前：请求侧（对应"请求拦截器"）
+  req.requestId = crypto.randomUUID();
+
+  res.on('finish', () =&gt; {
+    // 响应完成时触发：响应侧（对应"响应拦截器"）
+    console.log(`${req.method} ${req.url} ${res.statusCode} +${Date.now() - start}ms`);
+  });
+
+  next();
+});</code></pre>
+          </figure>
+          <p class="doc-p">写过前端的话，这个词你大概率在 axios 里见过：<code>interceptors.request.use</code> 给每个请求统一带上 Token，<code>interceptors.response.use</code> 把统一响应"拆"开、401 自动跳登录。后端的拦截器是同一件事换了一边：<strong class="font-semibold text-neutral-900">前端在浏览器里"加 Token、拆响应"，后端在服务器里"验 Token、装响应"</strong>——同一个统一响应契约，两端各有一个拦截器在维护。</p>
+
+          <h3 class="doc-h3">什么该放进拦截器</h3>
+          <ul class="my-3 space-y-2">
+            <li class="check-item"><span class="check-dot"><i data-lucide="check"></i></span><span><strong class="font-semibold text-neutral-900">该放</strong>：所有请求都要走一遍、且与具体业务无关的逻辑——认证、日志、追踪、限流、统一包装。</span></li>
+            <li class="check-item"><span class="check-dot"><i data-lucide="check"></i></span><span><strong class="font-semibold text-neutral-900">该放</strong>：希望将来能全局统一调整的策略——日志格式升级、响应加追踪头，改一处即可。</span></li>
+            <li class="cross-item"><span class="cross-dot"><i data-lucide="minus"></i></span><span><strong class="font-semibold text-neutral-900">不该放</strong>：只跟某个业务有关的判断。"VIP 用户列表多返回一个字段"是 Service 的事，塞进拦截器就是污染。</span></li>
+            <li class="cross-item"><span class="cross-dot"><i data-lucide="minus"></i></span><span><strong class="font-semibold text-neutral-900">不该放</strong>：需要被大量接口单独绕过的逻辑。真有例外，用装饰器做开关（如 <code>@SkipTransform()</code>），别在拦截器里堆 if-else。</span></li>
+          </ul>
+          <div class="callout callout-warn">
+            <span class="callout-icon"><i data-lucide="compass"></i></span>
+            <div>拦截器是<strong class="font-semibold text-neutral-900">全局魔法</strong>：看不见，但处处生效。往里放的每一条逻辑，所有接口都要一起承担——放得越少、越通用越好；一旦开始写业务 if-else，就该搬回 Service 了。</div>
+          </div>
+
+          <div class="big-quote">
+            <p class="banner-tag">Rule of Thumb</p>
+            <p class="banner-text">每个接口都要做的事，不在接口里写——<br class="hidden sm:block">放进拦截器，管道上写一次。</p>
+          </div>
+        </section>
+
+  <!-- highlight.js (CDN) -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/http.min.js"></script>
+  <!-- 小节共用脚本：高亮、复制、图标、高度同步 -->
+  <script src="../assets/section.js"></script>
+</body>
+</html>

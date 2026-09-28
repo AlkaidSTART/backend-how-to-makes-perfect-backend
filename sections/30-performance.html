@@ -147,6 +147,90 @@ async update(updateConfigDto: UpdateConfigDto) {
 }</code></pre>
           </figure>
           <p class="doc-p">元数据进关系型库（要查询、要展示列表），向量进向量库（要语义检索）——<strong class="font-semibold text-neutral-900">各存各的长处，接口负责编排</strong>。</p>
+
+          <h3 class="doc-h3">市面上的企业级数据库：利与弊</h3>
+          <p class="doc-p">组合之前，先把市面上的主流选手认清。同样是「存数据」，不同库的设计取舍完全不同，<strong class="font-semibold text-neutral-900">利与弊是一体两面</strong>——它擅长的事，就是它不擅长的另一面：</p>
+          <div class="my-4 overflow-x-auto rounded-xl border border-neutral-200 bg-white shadow-sm">
+            <table class="w-full text-sm">
+              <thead class="bg-neutral-50 text-left text-xs uppercase tracking-wider text-neutral-400">
+                <tr>
+                  <th class="px-4 py-2.5 font-semibold">数据库</th>
+                  <th class="px-4 py-2.5 font-semibold">利（擅长）</th>
+                  <th class="px-4 py-2.5 font-semibold">弊（短板）</th>
+                  <th class="hidden px-4 py-2.5 font-semibold md:table-cell">典型场景</th>
+                </tr>
+              </thead>
+              <tbody class="divide-y divide-neutral-100">
+                <tr>
+                  <td class="px-4 py-2.5"><span class="font-mono text-sm font-bold text-neutral-900">MySQL</span><span class="mt-0.5 block text-[11px] uppercase tracking-wider text-neutral-400">关系型</span></td>
+                  <td class="px-4 py-2.5 text-neutral-600">生态最大、资料最多：主从复制、分库分表、云托管方案一应俱全，<strong class="font-semibold text-neutral-900">招人最容易</strong></td>
+                  <td class="px-4 py-2.5 text-neutral-600">复杂查询和高级类型偏弱：JSON / 数组 / GIS 不如 PostgreSQL，复杂 SQL 的优化器偏保守</td>
+                  <td class="hidden px-4 py-2.5 text-neutral-600 md:table-cell">电商、SaaS 等核心业务库；本教程示例的默认选择</td>
+                </tr>
+                <tr>
+                  <td class="px-4 py-2.5"><span class="font-mono text-sm font-bold text-neutral-900">PostgreSQL</span><span class="mt-0.5 block text-[11px] uppercase tracking-wider text-neutral-400">关系型</span></td>
+                  <td class="px-4 py-2.5 text-neutral-600"><strong class="font-semibold text-neutral-900">功能天花板</strong>：JSONB、数组、窗口函数、递归 CTE、内置全文检索；扩展生态强——PostGIS 管地理、pgvector 管向量，一个库顶三个</td>
+                  <td class="px-4 py-2.5 text-neutral-600">每个连接占一个进程，高并发必须配连接池（PgBouncer）；国内传统运维积累比 MySQL 少</td>
+                  <td class="hidden px-4 py-2.5 text-neutral-600 md:table-cell">复杂报表、GIS、AI 应用；新项目越来越首选它</td>
+                </tr>
+                <tr>
+                  <td class="px-4 py-2.5"><span class="font-mono text-sm font-bold text-neutral-900">SQLite</span><span class="mt-0.5 block text-[11px] uppercase tracking-wider text-neutral-400">嵌入式关系型</span></td>
+                  <td class="px-4 py-2.5 text-neutral-600">零部署零运维，<strong class="font-semibold text-neutral-900">单文件就是整个库</strong>；进程内访问没有网络开销，读性能极高；全球装机量第一——每台手机里都有</td>
+                  <td class="px-4 py-2.5 text-neutral-600">没有服务端进程，多台机器共享数据要自己想办法；写入是单写者串行，扛不住服务端高并发写</td>
+                  <td class="hidden px-4 py-2.5 text-neutral-600 md:table-cell">移动 / 桌面应用本地存储；小工具、原型、自动化测试</td>
+                </tr>
+                <tr>
+                  <td class="px-4 py-2.5"><span class="font-mono text-sm font-bold text-neutral-900">MongoDB</span><span class="mt-0.5 block text-[11px] uppercase tracking-wider text-neutral-400">文档型</span></td>
+                  <td class="px-4 py-2.5 text-neutral-600"><strong class="font-semibold text-neutral-900">Schema 灵活免迁移</strong>，嵌套文档一次读全；副本集 + 分片内建，水平扩展省心</td>
+                  <td class="px-4 py-2.5 text-neutral-600">跨文档关联弱（$lookup 慢且难维护）；多文档事务 4.0+ 才有且代价高；没有约束的 Schema 全靠应用层纪律</td>
+                  <td class="hidden px-4 py-2.5 text-neutral-600 md:table-cell">内容管理、商品详情、埋点日志；需求快变的原型</td>
+                </tr>
+                <tr>
+                  <td class="px-4 py-2.5"><span class="font-mono text-sm font-bold text-neutral-900">Redis</span><span class="mt-0.5 block text-[11px] uppercase tracking-wider text-neutral-400">内存 KV</span></td>
+                  <td class="px-4 py-2.5 text-neutral-600">微秒级读写；String / Hash / ZSet 等结构丰富；<strong class="font-semibold text-neutral-900">TTL 自动过期内建</strong></td>
+                  <td class="px-4 py-2.5 text-neutral-600">内存贵，放不下全量数据；持久化只是兜底，不能当主存；没有查询语言</td>
+                  <td class="hidden px-4 py-2.5 text-neutral-600 md:table-cell">缓存、会话、验证码、排行榜（上一节刚讲）</td>
+                </tr>
+                <tr>
+                  <td class="px-4 py-2.5"><span class="font-mono text-sm font-bold text-neutral-900">Elasticsearch</span><span class="mt-0.5 block text-[11px] uppercase tracking-wider text-neutral-400">搜索引擎</span></td>
+                  <td class="px-4 py-2.5 text-neutral-600">倒排索引支撑<strong class="font-semibold text-neutral-900">全文检索与相关性排序</strong>，聚合分析能力强</td>
+                  <td class="px-4 py-2.5 text-neutral-600">吃内存吃 CPU；近实时、非强一致；六个里运维复杂度最高的一个</td>
+                  <td class="hidden px-4 py-2.5 text-neutral-600 md:table-cell">商品搜索、站内搜索、日志分析（ELK）</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+          <div class="callout callout-warn">
+            <span class="callout-icon"><i data-lucide="alert-triangle"></i></span>
+            <div>同类型二选一时（最典型是 MySQL vs PostgreSQL），<strong class="font-semibold text-neutral-900">团队熟不熟、云厂商托管支不支持、招人好不好招</strong>，往往比功能清单更有决定权——功能差距再大，也大不过「出了事没人会修」。</div>
+          </div>
+          <p class="doc-p">拿不准时，按数据的形状对号入座：</p>
+          <div class="my-4 overflow-x-auto rounded-xl border border-neutral-200 bg-white shadow-sm">
+            <table class="w-full text-sm">
+              <thead class="bg-neutral-50 text-left text-xs uppercase tracking-wider text-neutral-400">
+                <tr>
+                  <th class="px-4 py-2.5 font-semibold">你的数据长这样</th>
+                  <th class="px-4 py-2.5 font-semibold">就选</th>
+                </tr>
+              </thead>
+              <tbody class="divide-y divide-neutral-100">
+                <tr><td class="px-4 py-2.5 text-neutral-600">要事务、多表关联、强一致</td><td class="px-4 py-2.5 font-mono text-neutral-800">MySQL / PostgreSQL</td></tr>
+                <tr><td class="px-4 py-2.5 text-neutral-600">字段多变、嵌套深、按整篇文档读写</td><td class="px-4 py-2.5 font-mono text-neutral-800">MongoDB（或 PostgreSQL 的 JSONB）</td></tr>
+                <tr><td class="px-4 py-2.5 text-neutral-600">跑在用户设备里、单机、不想装服务</td><td class="px-4 py-2.5 font-mono text-neutral-800">SQLite</td></tr>
+                <tr><td class="px-4 py-2.5 text-neutral-600">读要极快、可丢、会过期</td><td class="px-4 py-2.5 font-mono text-neutral-800">Redis</td></tr>
+                <tr><td class="px-4 py-2.5 text-neutral-600">关键词搜索、日志、按相关性排序</td><td class="px-4 py-2.5 font-mono text-neutral-800">Elasticsearch</td></tr>
+                <tr><td class="px-4 py-2.5 text-neutral-600">按语义找「相似」而不是「相等」</td><td class="px-4 py-2.5 font-mono text-neutral-800">向量库：ChromaDB / pgvector / Milvus</td></tr>
+              </tbody>
+            </table>
+          </div>
+          <p class="doc-p">再往后还有一批更专业的品类，认识名字即可，真遇到对应需求再学：</p>
+          <div class="my-4 flex flex-wrap gap-2">
+            <span class="chip">ClickHouse：列存分析</span>
+            <span class="chip">DuckDB：嵌入式分析</span>
+            <span class="chip">TiDB：分布式 NewSQL</span>
+            <span class="chip">InfluxDB：时序</span>
+            <span class="chip">Neo4j：图</span>
+          </div>
           <div class="callout callout-key">
             <span class="callout-icon"><i data-lucide="compass"></i></span>
             <div>组合的原则：<strong class="font-semibold text-neutral-900">按数据特点选存储，而不是按技术热度</strong>。绝大多数项目 MySQL + Redis 已经够用；等真的出现全文检索、向量检索的需求，再引入对应组件。</div>
