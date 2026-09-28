@@ -69,6 +69,63 @@
               </ul>
             </div>
           </div>
+          <h3 class="doc-h3">真实项目示例：Service 承载业务决策</h3>
+          <p class="doc-p">同一个真实项目（<code>~/Desktop/iidc-web/server</code>）里岗位管理的 Service，来自 <code>src/module/system/post/post.service.ts</code>。注意「条件怎么拼、怎么分页、删除是物理删还是软删」这些业务决策都在 Service 层：</p>
+          <figure class="code-card">
+            <figcaption class="code-head">
+              <span class="code-dots" aria-hidden="true"><i></i><i></i><i></i></span>
+              <span class="flex items-center gap-2">
+                <span class="code-flag good">真实项目</span>
+                <span class="code-lang">TypeScript</span>
+              </span>
+              <button class="code-copy" type="button">复制</button>
+            </figcaption>
+            <pre class="code-body"><code class="language-ts">@Injectable()
+export class PostService {
+  constructor(
+    @InjectRepository(SysPostEntity)
+    private readonly sysPostEntityRep: Repository&lt;SysPostEntity&gt;,
+  ) {}
+
+  // 列表：动态查询条件 + 分页
+  async findAll(query: ListPostDto) {
+    const entity = this.sysPostEntityRep.createQueryBuilder('entity');
+    entity.where('entity.delFlag = :delFlag', { delFlag: '0' });
+
+    if (query.postName) {
+      entity.andWhere('entity.postName LIKE :postName', { postName: `%${query.postName}%` });
+    }
+    if (query.status) {
+      entity.andWhere('entity.status = :status', { status: query.status });
+    }
+    if (query.pageSize &amp;&amp; query.pageNum) {
+      entity.skip(query.pageSize * (query.pageNum - 1)).take(query.pageSize);
+    }
+
+    const [list, total] = await entity.getManyAndCount();
+    return ResultData.ok({ list, total });
+  }
+
+  // 删除：软删除，只把 delFlag 标记为 1
+  async remove(postIds: string[]) {
+    const data = await this.sysPostEntityRep.update(
+      { postId: In(postIds) },
+      { delFlag: '1' },
+    );
+    return ResultData.ok(data);
+  }
+}</code></pre>
+          </figure>
+          <ul class="my-3 space-y-2">
+            <li class="check-item"><span class="check-dot"><i data-lucide="check"></i></span>Service 不知道 HTTP 的存在：入参是 DTO，不是 req</li>
+            <li class="check-item"><span class="check-dot"><i data-lucide="check"></i></span>「按名字模糊搜、按状态过滤」是业务规则，写在 Service</li>
+            <li class="check-item"><span class="check-dot"><i data-lucide="check"></i></span>「软删除而不是真删」也是业务决策，同样在 Service</li>
+            <li class="check-item"><span class="check-dot"><i data-lucide="check"></i></span>换掉 Controller（比如改成消息队列触发），这段代码一行不用动</li>
+          </ul>
+          <div class="callout callout-key">
+            <span class="callout-icon"><i data-lucide="target"></i></span>
+            <div>判断业务逻辑放没放对地方：<strong class="font-semibold text-neutral-900">把 Controller 删掉，业务规则是否原封不动？</strong></div>
+          </div>
         </section>
 
   <!-- highlight.js (CDN) -->

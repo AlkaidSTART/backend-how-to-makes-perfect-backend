@@ -67,6 +67,63 @@
   "password": "123456"
 }</code></pre>
           </figure>
+          <h3 class="doc-h3">真实项目示例：带校验规则的 DTO</h3>
+          <p class="doc-p">真实项目（<code>~/Desktop/iidc-web/server</code>）的 DTO 不只是字段声明，还是校验规则的挂载点。登录接口的 DTO，来自 <code>src/module/system/auth/dto/login.dto.ts</code>：</p>
+          <figure class="code-card">
+            <figcaption class="code-head">
+              <span class="code-dots" aria-hidden="true"><i></i><i></i><i></i></span>
+              <span class="flex items-center gap-2">
+                <span class="code-flag good">真实项目</span>
+                <span class="code-lang">TypeScript</span>
+              </span>
+              <button class="code-copy" type="button">复制</button>
+            </figcaption>
+            <pre class="code-body"><code class="language-ts">export class LoginDto {
+  @IsNotEmpty({ message: '用户名不能为空' })
+  @IsString({ message: '用户名必须为字符串' })
+  userName: string;
+
+  @IsNotEmpty({ message: '密码不能为空' })
+  @IsString({ message: '密码必须为字符串' })
+  password: string;
+
+  @ApiProperty({ description: '验证码', required: false })
+  code?: string;    // 可选字段加 ?，框架就知道它允许缺省
+
+  @ApiProperty({ description: '验证码UUID', required: false })
+  uuid?: string;
+}</code></pre>
+          </figure>
+          <p class="doc-p">DTO 之间还可以继承，避免重复声明。更新接口比创建接口多一个 id，来自 <code>src/module/system/post/dto/index.ts</code>：</p>
+          <figure class="code-card">
+            <figcaption class="code-head">
+              <span class="code-dots" aria-hidden="true"><i></i><i></i><i></i></span>
+              <span class="flex items-center gap-2">
+                <span class="code-flag good">真实项目</span>
+                <span class="code-lang">TypeScript</span>
+              </span>
+              <button class="code-copy" type="button">复制</button>
+            </figcaption>
+            <pre class="code-body"><code class="language-ts">export class CreatePostDto {
+  @IsString()
+  @Length(0, 50)
+  postName: string;
+
+  @IsString()
+  @Length(0, 64)
+  postCode: string;
+  // ...
+}
+
+export class UpdatePostDto extends CreatePostDto {
+  @IsNumber()
+  postId: number;   // 更新时才需要带上主键
+}</code></pre>
+          </figure>
+          <div class="callout callout-key">
+            <span class="callout-icon"><i data-lucide="package"></i></span>
+            <div>DTO 回答的问题：<strong class="font-semibold text-neutral-900">这个 API 允许客户端传什么、每个字段必须满足什么条件</strong>。真实代码里每个字段还挂了 <code>@ApiProperty</code> 装饰器，用于自动生成 Swagger 接口文档。</div>
+          </div>
         </section>
 
   <!-- highlight.js (CDN) -->

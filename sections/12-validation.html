@@ -58,9 +58,50 @@
   password: z.string().min(6),
 });</code></pre>
           </figure>
+          <h3 class="doc-h3">真实项目示例：NestJS 全局校验管道</h3>
+          <p class="doc-p">真实项目（<code>~/Desktop/iidc-web/server</code>）用的是 class-validator：规则写在 DTO 上，校验管道在入口处<strong class="font-semibold text-neutral-900">全局注册一次</strong>（<code>src/main.ts</code>）：</p>
+          <figure class="code-card">
+            <figcaption class="code-head">
+              <span class="code-dots" aria-hidden="true"><i></i><i></i><i></i></span>
+              <span class="flex items-center gap-2">
+                <span class="code-flag good">真实项目</span>
+                <span class="code-lang">TypeScript</span>
+              </span>
+              <button class="code-copy" type="button">复制</button>
+            </figcaption>
+            <pre class="code-body"><code class="language-ts">// main.ts —— 注册一次，所有接口生效
+app.useGlobalPipes(
+  new ValidationPipe({ transform: true, whitelist: true }),
+);</code></pre>
+          </figure>
+          <p class="doc-p">每个字段的条件则贴在 DTO 上，例如岗位管理的 <code>CreatePostDto</code>：</p>
+          <figure class="code-card">
+            <figcaption class="code-head">
+              <span class="code-dots" aria-hidden="true"><i></i><i></i><i></i></span>
+              <span class="flex items-center gap-2">
+                <span class="code-flag good">真实项目</span>
+                <span class="code-lang">TypeScript</span>
+              </span>
+              <button class="code-copy" type="button">复制</button>
+            </figcaption>
+            <pre class="code-body"><code class="language-ts">export class CreatePostDto {
+  @IsString()
+  @Length(0, 50)
+  postName: string;
+
+  @IsOptional()          // 允许不传
+  @IsEnum(StatusEnum)    // 传了就必须是合法枚举值
+  status?: string;
+}</code></pre>
+          </figure>
+          <ul class="my-3 space-y-2">
+            <li class="check-item"><span class="check-dot"><i data-lucide="check"></i></span>校验失败时请求直接被拦截，返回错误信息，进不到 Controller</li>
+            <li class="check-item"><span class="check-dot"><i data-lucide="check"></i></span><code>whitelist: true</code>：DTO 里没声明的字段自动剥掉——客户端多塞的 <code>role</code>、<code>postId</code> 不会透传到数据库</li>
+            <li class="check-item"><span class="check-dot"><i data-lucide="check"></i></span><code>transform: true</code>：自动把 query 里的字符串按声明类型转换</li>
+          </ul>
           <div class="callout callout-key">
             <span class="callout-icon"><i data-lucide="shield-check"></i></span>
-            <div>核心思想：<strong class="font-semibold text-neutral-900">API 边界必须进行输入验证。</strong></div>
+            <div>核心思想：<strong class="font-semibold text-neutral-900">API 边界必须进行输入验证。</strong>校验规则和 DTO 写在一起，校验动作由框架统一执行，业务代码里不再散落 if 检查。</div>
           </div>
         </section>
 

@@ -97,6 +97,69 @@
             <li class="cross-item"><span class="cross-dot"><i data-lucide="x"></i></span>难以测试</li>
             <li class="cross-item"><span class="cross-dot"><i data-lucide="x"></i></span>难以复用业务逻辑</li>
           </ul>
+          <h3 class="doc-h3">真实项目示例：NestJS 的 Controller</h3>
+          <p class="doc-p">下面是一段真实后台项目（<code>~/Desktop/iidc-web/server</code>，NestJS + TypeORM）中的 Controller，来自 <code>src/module/system/post/post.controller.ts</code>（岗位管理）：</p>
+          <figure class="code-card">
+            <figcaption class="code-head">
+              <span class="code-dots" aria-hidden="true"><i></i><i></i><i></i></span>
+              <span class="flex items-center gap-2">
+                <span class="code-flag good">真实项目</span>
+                <span class="code-lang">TypeScript</span>
+              </span>
+              <button class="code-copy" type="button">复制</button>
+            </figcaption>
+            <pre class="code-body"><code class="language-ts">@ApiTags('岗位管理')
+@Controller('system/post') // 这个类的路由前缀：/system/post
+export class PostController {
+  constructor(private readonly postService: PostService) {}
+
+  @ApiOperation({ summary: '岗位管理-创建' })
+  @RequirePermission('system:post:add') // 自定义装饰器：声明所需权限
+  @Post('/')
+  create(@Body() createPostDto: CreatePostDto) {
+    return this.postService.create(createPostDto);
+  }
+
+  @ApiOperation({ summary: '岗位管理-列表' })
+  @RequirePermission('system:post:list')
+  @Get('/list')
+  findAll(@Query() query: ListPostDto) {
+    return this.postService.findAll(query);
+  }
+
+  @ApiOperation({ summary: '岗位管理-删除' })
+  @RequirePermission('system:post:remove')
+  @Delete('/:ids')
+  remove(@Param('ids') ids: string) {
+    return this.postService.remove(ids.split(','));
+  }
+
+  // ...详情 / 更新 / 导出 接口同理
+}</code></pre>
+          </figure>
+          <p class="doc-p">对比上面的 Express 写法，NestJS 的 Controller 每个方法体基本只有一行：调用 Service。取参数这件事被装饰器接管了：</p>
+          <div class="my-4 grid gap-4 sm:grid-cols-2">
+            <div class="rounded-xl border border-neutral-200 bg-neutral-50 p-4 text-sm leading-6 text-neutral-600">
+              <p class="font-bold text-neutral-900">@Controller / @Post / @Get</p>
+              <p class="mt-1">声明路由，不用手写 app.post(...)</p>
+            </div>
+            <div class="rounded-xl border border-neutral-200 bg-neutral-50 p-4 text-sm leading-6 text-neutral-600">
+              <p class="font-bold text-neutral-900">@Body() / @Query() / @Param()</p>
+              <p class="mt-1">声明参数从哪来，框架自动解析 req</p>
+            </div>
+            <div class="rounded-xl border border-neutral-200 bg-neutral-50 p-4 text-sm leading-6 text-neutral-600">
+              <p class="font-bold text-neutral-900">@RequirePermission(...)</p>
+              <p class="mt-1">权限声明贴在方法上，由守卫统一拦截</p>
+            </div>
+            <div class="rounded-xl border border-neutral-200 bg-neutral-50 p-4 text-sm leading-6 text-neutral-600">
+              <p class="font-bold text-neutral-900">@ApiOperation / @ApiBody</p>
+              <p class="mt-1">顺带生成接口文档（Swagger）</p>
+            </div>
+          </div>
+          <div class="callout callout-key">
+            <span class="callout-icon"><i data-lucide="target"></i></span>
+            <div>真实项目的 Controller 依然很薄：<strong class="font-semibold text-neutral-900">贴装饰器 → 收参数 → 调 Service</strong>，HTTP 与业务依旧分离。</div>
+          </div>
         </section>
 
   <!-- highlight.js (CDN) -->

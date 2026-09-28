@@ -78,6 +78,80 @@
   return res.status(500).json(...)
 }</code></pre>
           </figure>
+          <h3 class="doc-h3">真实项目示例：语义化异常 + 全局异常过滤器</h3>
+          <p class="doc-p">真实项目（<code>~/Desktop/iidc-web/server</code>）里，业务代码只管抛出<strong class="font-semibold text-neutral-900">语义化异常</strong>。来自 <code>src/module/system/tenant/tenant.service.ts</code>（多租户成员管理）：</p>
+          <figure class="code-card">
+            <figcaption class="code-head">
+              <span class="code-dots" aria-hidden="true"><i></i><i></i><i></i></span>
+              <span class="flex items-center gap-2">
+                <span class="code-flag good">真实项目</span>
+                <span class="code-lang">TypeScript</span>
+              </span>
+              <button class="code-copy" type="button">复制</button>
+            </figcaption>
+            <pre class="code-body"><code class="language-ts">const member = await this.memberRepo.findOne({
+  where: { memberId: dto.memberId, tenantId, delFlag: '0' },
+});
+if (!member) throw new NotFoundException('租户成员不存在');
+
+const exists = await this.userRepo.findOne({ where: { userName: dto.userName } });
+if (exists) throw new ConflictException('用户账号已存在');
+
+// 业务不变量：租户至少保留一名组织管理员
+if (member.isOwner &amp;&amp; !(await this.hasAnotherOwner(tenantId, member.memberId))) {
+  throw new BadRequestException('租户至少需要保留一名组织管理员');
+}</code></pre>
+          </figure>
+          <p class="doc-p">抛出去的异常由全局异常过滤器统一接住（<code>src/common/filters/http-exceptions-filter.ts</code>），转成统一响应格式：</p>
+          <figure class="code-card">
+            <figcaption class="code-head">
+              <span class="code-dots" aria-hidden="true"><i></i><i></i><i></i></span>
+              <span class="flex items-center gap-2">
+                <span class="code-flag good">真实项目</span>
+                <span class="code-lang">TypeScript</span>
+              </span>
+              <button class="code-copy" type="button">复制</button>
+            </figcaption>
+            <pre class="code-body"><code class="language-ts">@Catch() // 不带参数 = 捕获所有异常
+export class HttpExceptionsFilter implements ExceptionFilter {
+  constructor(private readonly logger: AppLoggerService) {}
+
+  catch(exception: unknown, host: ArgumentsHost) {
+    const status = exception instanceof HttpException
+      ? exception.getStatus()
+      : HttpStatus.INTERNAL_SERVER_ERROR;
+    const exceptionResponse = exception instanceof HttpException
+      ? exception.getResponse() as any
+      : null;
+    let message = exceptionResponse?.message ?? (exception as Error)?.message;
+
+    if (Array.isArray(exceptionResponse?.message)) {
+      message = exceptionResponse.message[0]; // 校验失败有多条，取第一条
+    }
+
+    this.logger.warn({ event: 'http_exception', statusCode: status, message });
+
+    response.status(200).json({
+      code: status,
+      msg: message,
+      data: null,
+    });
+  }
+}</code></pre>
+          </figure>
+          <p class="doc-p">在 <code>main.ts</code> 里注册一次即可：</p>
+          <figure class="code-card">
+            <figcaption class="code-head">
+              <span class="code-dots" aria-hidden="true"><i></i><i></i><i></i></span>
+              <span class="code-lang">TypeScript</span>
+              <button class="code-copy" type="button">复制</button>
+            </figcaption>
+            <pre class="code-body"><code class="language-ts">app.useGlobalFilters(new HttpExceptionsFilter(logger));</code></pre>
+          </figure>
+          <div class="callout callout-key">
+            <span class="callout-icon"><i data-lucide="shield-alert"></i></span>
+            <div>分工：<strong class="font-semibold text-neutral-900">Service 抛语义化异常 → 过滤器统一接住 → 转成统一响应</strong>。业务代码里没有一层层的 try/catch，错误处理策略也只存在一份。</div>
+          </div>
         </section>
 
   <!-- highlight.js (CDN) -->

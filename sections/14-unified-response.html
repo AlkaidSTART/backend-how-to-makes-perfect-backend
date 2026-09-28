@@ -66,10 +66,88 @@
 }</code></pre>
             </figure>
           </div>
-          <p class="doc-p">但不要为了统一而统一。</p>
-          <div class="callout callout-key">
+          <h3 class="doc-h3">真实项目示例：ResultData 统一响应</h3>
+          <p class="doc-p">真实项目（<code>~/Desktop/iidc-web/server</code>）把响应结构做成了一个工具类 <code>ResultData</code>（<code>src/common/utils/result.ts</code>），全项目所有接口共用：</p>
+          <figure class="code-card">
+            <figcaption class="code-head">
+              <span class="code-dots" aria-hidden="true"><i></i><i></i><i></i></span>
+              <span class="flex items-center gap-2">
+                <span class="code-flag good">真实项目</span>
+                <span class="code-lang">TypeScript</span>
+              </span>
+              <button class="code-copy" type="button">复制</button>
+            </figcaption>
+            <pre class="code-body"><code class="language-ts">export const SUCCESS_CODE = 200;
+
+export class ResultData {
+  constructor(code = SUCCESS_CODE, msg?: string, data?: any) {
+    this.code = code;
+    this.msg = msg || '操作成功';
+    this.data = data || null;
+  }
+
+  code: number;
+  msg?: string;
+  data?: any;
+
+  static ok(data?: any, msg?: string): ResultData {
+    return new ResultData(SUCCESS_CODE, msg, data);
+  }
+
+  static fail(code: number, msg?: string, data?: any): ResultData {
+    return new ResultData(code || 500, msg || 'fail', data);
+  }
+}</code></pre>
+          </figure>
+          <p class="doc-p">于是 Service 返回数据永远是同一个形状：</p>
+          <div class="my-4 grid gap-4 sm:grid-cols-2">
+            <figure class="code-card my-0">
+              <figcaption class="code-head">
+                <span class="code-dots" aria-hidden="true"><i></i><i></i><i></i></span>
+                <span class="flex items-center gap-2">
+                  <span class="code-flag good">成功</span>
+                  <span class="code-lang">JSON</span>
+                </span>
+                <button class="code-copy" type="button">复制</button>
+              </figcaption>
+              <pre class="code-body"><code class="language-json">{
+  "code": 200,
+  "msg": "操作成功",
+  "data": { "list": [], "total": 0 }
+}</code></pre>
+            </figure>
+            <figure class="code-card my-0">
+              <figcaption class="code-head">
+                <span class="code-dots" aria-hidden="true"><i></i><i></i><i></i></span>
+                <span class="flex items-center gap-2">
+                  <span class="code-flag bad">失败</span>
+                  <span class="code-lang">JSON</span>
+                </span>
+                <button class="code-copy" type="button">复制</button>
+              </figcaption>
+              <pre class="code-body"><code class="language-json">{
+  "code": 403,
+  "msg": "请重新登录",
+  "data": null
+}</code></pre>
+            </figure>
+          </div>
+          <p class="doc-p">Service 层调用非常简洁：</p>
+          <figure class="code-card">
+            <figcaption class="code-head">
+              <span class="code-dots" aria-hidden="true"><i></i><i></i><i></i></span>
+              <span class="flex items-center gap-2">
+                <span class="code-flag good">真实项目</span>
+                <span class="code-lang">TypeScript</span>
+              </span>
+              <button class="code-copy" type="button">复制</button>
+            </figcaption>
+            <pre class="code-body"><code class="language-ts">return ResultData.ok({ list, total });        // 成功
+return ResultData.fail(500, '帐号或密码错误');  // 失败</code></pre>
+          </figure>
+          <div class="callout callout-warn">
             <span class="callout-icon"><i data-lucide="compass"></i></span>
-            <div>API 设计应该优先保证<strong class="font-semibold text-neutral-900">清晰、稳定、易用</strong>。</div>
+            <div>不要为了统一而统一。这个项目是后台管理系统，常见风格是<strong class="font-semibold text-neutral-900">HTTP 状态码恒为 200，业务状态放进 body 的 code 字段</strong>——和上面 success/error 风格都可以，关键是：API 设计清晰、稳定、易用，全项目只认一种结构。</div>
           </div>
         </section>
 

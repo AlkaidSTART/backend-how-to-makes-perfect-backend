@@ -60,6 +60,32 @@ auth/
             <span class="callout-icon"><i data-lucide="folder-tree"></i></span>
             <div>这是一种<strong class="font-semibold text-neutral-900">按业务领域组织代码（Feature / Domain-oriented Organization）</strong>的方式。</div>
           </div>
+          <h3 class="doc-h3">真实项目示例：按业务领域划分模块</h3>
+          <p class="doc-p">真实项目（<code>~/Desktop/iidc-web/server</code>）有近 300 个源文件，全部按这个思路组织。顶层只有三块：<code>common/</code> 横切基础设施、<code>config/</code> 配置、<code>module/</code> 业务模块：</p>
+          <div class="diagram-card">
+            <p class="diagram-head">iidc-web/server · 目录结构（节选）</p>
+            <pre class="tree-pre">src/
+├── common/            # 横切基础设施：守卫、过滤器、装饰器、统一响应
+├── config/            # 多环境配置（YAML）
+└── module/            # 按业务领域划分
+    ├── main/          # C 端业务：课程 / 训练营 / 考试
+    ├── system/        # 管理后台：auth、user、role、menu、tenant…（15 个子模块）
+    │   └── post/      # 拆开一个子模块看内部：
+    │       ├── post.controller.ts
+    │       ├── post.service.ts
+    │       ├── post.module.ts
+    │       ├── dto/index.ts
+    │       └── entities/post.entity.ts
+    ├── monitor/       # 监控：登录日志 / 操作日志 / 在线用户 / 定时任务
+    ├── upload/        # 文件上传
+    ├── rag/           # AI 知识库（RAG：文档入库 / 向量检索）
+    ├── ai-config/     # AI 供应商与提示词配置
+    └── health/        # 健康检查</pre>
+          </div>
+          <div class="callout callout-key">
+            <span class="callout-icon"><i data-lucide="folder"></i></span>
+            <div>「岗位」的路由、业务、表结构、DTO 全部收在 <code>system/post/</code> 一个目录里。<strong class="font-semibold text-neutral-900">改岗位功能只需打开一个目录</strong>，不需要在全局的 controllers/、services/ 之间来回跳——这就是模块化在真实项目里的收益。</div>
+          </div>
         </section>
 
   <!-- highlight.js (CDN) -->
