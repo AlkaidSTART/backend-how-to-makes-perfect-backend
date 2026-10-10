@@ -1,34 +1,9 @@
-<!DOCTYPE html>
-<html lang="zh-CN">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>32 后端框架对比 · TS 后端架构</title>
-  <meta name="description" content="从最基础的 HTTP 接口开始，逐步理解 TypeScript 后端的分层、模块化、依赖注入、依赖倒置，以及高内聚、低耦合的工程化架构。">
-  <meta name="theme-color" content="#ffffff">
-
-  <!-- 字体 -->
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
-
-  <!-- Tailwind CSS (CDN) -->
-  <script src="https://cdn.tailwindcss.com"></script>
-
-  <!-- Lucide 图标库 (CDN) -->
-  <script src="https://unpkg.com/lucide@0.469.0/dist/umd/lucide.min.js"></script>
-
-  <!-- 公共样式由父页面 index.html 通过 postMessage 注入；直接打开时由 assets/section.js 从 index.html 抓取 -->
-</head>
-
-<body data-section="frameworks" class="doc-body bg-white font-sans text-neutral-800 antialiased px-3 pb-4 pt-1">
-
         <!-- 32 后端框架对比 -->
         <section id="frameworks" class="doc-section">
           <header class="mb-5 flex items-start gap-3">
             <span class="sec-num">32</span>
             <div>
-              <p class="eyebrow">框架选型</p>
+              <p class="eyebrow">附录：进阶专题</p>
               <h2 class="sec-title">后端框架对比</h2>
             </div>
           </header>
@@ -61,9 +36,9 @@
               </div>
             </div>
           </div>
-          <div class="my-4 overflow-hidden rounded-xl border border-neutral-200 bg-white shadow-sm">
+          <div class="my-4 overflow-x-auto rounded-xl border border-neutral-200 bg-white shadow-sm">
             <table class="w-full text-sm">
-              <thead class="bg-neutral-50 text-left text-xs uppercase tracking-wider text-neutral-400">
+              <thead class="bg-neutral-50 text-left text-xs uppercase tracking-wider text-neutral-500">
                 <tr>
                   <th class="px-4 py-2.5 font-semibold">框架</th>
                   <th class="px-4 py-2.5 font-semibold">一句话定位</th>
@@ -82,7 +57,7 @@
             </table>
           </div>
           <div class="callout callout-warn">
-            <span class="callout-icon"><i data-lucide="alert-triangle"></i></span>
+            <span class="callout-icon"><i data-lucide="triangle-alert"></i></span>
             <div>怎么选：个人学习 / 小工具，Express 或 Hono 随手写；性能敏感，上 Fastify；想上 Bun 运行时，ElysiaJS（Bun 原生）或 Hono（同一份代码跨 Node / Bun / 边缘）都行；<strong class="font-semibold text-neutral-900">中大型业务系统，选 NestJS 这类自带架构的框架</strong>——它把本文档讲的分层、DI、模块化变成了开箱即用的默认。</div>
           </div>
 
@@ -173,9 +148,9 @@ export class UserController {
 
           <h3 class="doc-h3">全栈框架：Next.js / Nuxt / Remix</h3>
           <p class="doc-p">另一条路线是<strong class="font-semibold text-neutral-900">前后端一体</strong>：一个仓库、一个进程，前端框架直接提供「服务端接口」的能力，为的是 BFF（Backend For Frontend）和全栈一体化：</p>
-          <div class="my-4 overflow-hidden rounded-xl border border-neutral-200 bg-white shadow-sm">
+          <div class="my-4 overflow-x-auto rounded-xl border border-neutral-200 bg-white shadow-sm">
             <table class="w-full text-sm">
-              <thead class="bg-neutral-50 text-left text-xs uppercase tracking-wider text-neutral-400">
+              <thead class="bg-neutral-50 text-left text-xs uppercase tracking-wider text-neutral-500">
                 <tr>
                   <th class="px-4 py-2.5 font-semibold">框架</th>
                   <th class="px-4 py-2.5 font-semibold">前端</th>
@@ -208,15 +183,15 @@ export async function POST(request: Request) {
 }</code></pre>
           </figure>
           <div class="callout callout-warn">
-            <span class="callout-icon"><i data-lucide="alert-triangle"></i></span>
+            <span class="callout-icon"><i data-lucide="triangle-alert"></i></span>
             <div>全栈框架的边界：适合<strong class="font-semibold text-neutral-900">页面 + 轻量接口</strong>（BFF、CRUD 原型、内容站）。它们不提供分层约束——没有 DI 容器、没有模块系统，Service / Repository 要自己组织。业务一旦变重，常见做法是<strong class="font-semibold text-neutral-900">全栈框架管前端 + NestJS 管后端</strong>各司其职，或者在前端仓库里按本文学的方式手搭分层。</div>
           </div>
 
           <h3 class="doc-h3">跨语言对照：FastAPI 与 Gin</h3>
           <p class="doc-p">跳出 JS 世界看一眼，最能验证一件事：<strong class="font-semibold text-neutral-900">好用的后端设计是跨语言通用的</strong>。FastAPI（Python）被称作「Python 界的 NestJS 体验」，因为它把 TS 后端的核心三件套——类型注解、校验、DI——做成了默认：</p>
-          <div class="my-4 overflow-hidden rounded-xl border border-neutral-200 bg-white shadow-sm">
+          <div class="my-4 overflow-x-auto rounded-xl border border-neutral-200 bg-white shadow-sm">
             <table class="w-full text-sm">
-              <thead class="bg-neutral-50 text-left text-xs uppercase tracking-wider text-neutral-400">
+              <thead class="bg-neutral-50 text-left text-xs uppercase tracking-wider text-neutral-500">
                 <tr>
                   <th class="px-4 py-2.5 font-semibold">FastAPI 的做法</th>
                   <th class="px-4 py-2.5 font-semibold">TS 世界里对应</th>
@@ -270,9 +245,9 @@ r.POST("/users", func(c *gin.Context) {
 })</code></pre>
           </figure>
           <p class="doc-p">三个生态放在一起对比：</p>
-          <div class="my-4 overflow-hidden rounded-xl border border-neutral-200 bg-white shadow-sm">
+          <div class="my-4 overflow-x-auto rounded-xl border border-neutral-200 bg-white shadow-sm">
             <table class="w-full text-sm">
-              <thead class="bg-neutral-50 text-left text-xs uppercase tracking-wider text-neutral-400">
+              <thead class="bg-neutral-50 text-left text-xs uppercase tracking-wider text-neutral-500">
                 <tr>
                   <th class="px-4 py-2.5 font-semibold">代表框架</th>
                   <th class="px-4 py-2.5 font-semibold">语言</th>
@@ -297,11 +272,3 @@ r.POST("/users", func(c *gin.Context) {
             <p class="banner-text">框架决定「代码长什么样」，架构决定「代码放在哪里」。<br>换框架只是换表达方式，分层、DTO、DI 这些思想哪个框架都能带走。</p>
           </div>
         </section>
-
-  <!-- highlight.js (CDN) -->
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/http.min.js"></script>
-  <!-- 小节共用脚本：高亮、复制、图标、高度同步 -->
-  <script src="../assets/section.js"></script>
-</body>
-</html>

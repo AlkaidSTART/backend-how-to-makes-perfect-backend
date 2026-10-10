@@ -1,0 +1,53 @@
+# push 到 main 后构建（拼装小节 + 编译 Tailwind）并发布到 GitHub Pages
+name: Deploy to GitHub Pages
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: true
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      # 重新拼装小节并编译样式，即使提交时忘了 npm run build，线上也与 sections/ 一致
+      - name: Build
+        run: |
+          npm ci
+          npm run build
+
+      # 只发布站点需要的文件；sections/ 已拼入 index.html，docs/、构建脚本等不上线
+      - name: Assemble site
+        run: |
+          mkdir -p _site/assets
+          cp index.html _site/
+          cp assets/site.css assets/site.js _site/assets/
+          touch _site/.nojekyll
+
+      - uses: actions/configure-pages@v5
+
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: _site
+
+      - id: deployment
+        uses: actions/deploy-pages@v4

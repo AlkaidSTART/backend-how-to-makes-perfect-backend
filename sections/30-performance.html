@@ -1,34 +1,9 @@
-<!DOCTYPE html>
-<html lang="zh-CN">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>30 Redis 缓存与多库组合 · TS 后端架构</title>
-  <meta name="description" content="从最基础的 HTTP 接口开始，逐步理解 TypeScript 后端的分层、模块化、依赖注入、依赖倒置，以及高内聚、低耦合的工程化架构。">
-  <meta name="theme-color" content="#ffffff">
-
-  <!-- 字体 -->
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
-
-  <!-- Tailwind CSS (CDN) -->
-  <script src="https://cdn.tailwindcss.com"></script>
-
-  <!-- Lucide 图标库 (CDN) -->
-  <script src="https://unpkg.com/lucide@0.469.0/dist/umd/lucide.min.js"></script>
-
-  <!-- 公共样式由父页面 index.html 通过 postMessage 注入；直接打开时由 assets/section.js 从 index.html 抓取 -->
-</head>
-
-<body data-section="performance" class="doc-body bg-white font-sans text-neutral-800 antialiased px-3 pb-4 pt-1">
-
         <!-- 30 Redis 缓存与多库组合 -->
         <section id="performance" class="doc-section">
           <header class="mb-5 flex items-start gap-3">
             <span class="sec-num">30</span>
             <div>
-              <p class="eyebrow">接口提效</p>
+              <p class="eyebrow">附录：进阶专题</p>
               <h2 class="sec-title">Redis 缓存与多库组合</h2>
             </div>
           </header>
@@ -72,7 +47,7 @@ async update(updateConfigDto: UpdateConfigDto) {
             <li class="check-item"><span class="check-dot"><i data-lucide="check"></i></span>每个写操作都配套一个 <code>@CacheEvict</code>，否则用户会读到旧数据</li>
           </ul>
           <p class="doc-p">一次带缓存的请求流程：</p>
-          <div class="flow flow-sm">
+          <div class="flow flow-sm flow-h">
             <div class="flow-node">请求进来</div>
             <div class="flow-arrow"><i data-lucide="arrow-down"></i></div>
             <div class="flow-node">先查 Redis 缓存</div>
@@ -101,7 +76,7 @@ async update(updateConfigDto: UpdateConfigDto) {
             </div>
           </div>
           <div class="callout callout-warn">
-            <span class="callout-icon"><i data-lucide="alert-triangle"></i></span>
+            <span class="callout-icon"><i data-lucide="triangle-alert"></i></span>
             <div>缓存不是免费的：引入它就引入了<strong class="font-semibold text-neutral-900">数据不一致的可能</strong>。「更新数据库 + 同步失效缓存」必须成对出现，这正是 @CacheEvict 存在的意义。</div>
           </div>
 
@@ -110,17 +85,17 @@ async update(updateConfigDto: UpdateConfigDto) {
           <div class="my-4 grid gap-4 sm:grid-cols-3">
             <div class="rounded-xl border border-neutral-900 bg-white p-4">
               <p class="font-mono text-sm font-bold text-neutral-900">MySQL</p>
-              <p class="mt-0.5 text-xs font-semibold uppercase tracking-wider text-neutral-400">关系型</p>
+              <p class="mt-0.5 text-xs font-semibold uppercase tracking-wider text-neutral-500">关系型</p>
               <p class="mt-2 text-sm leading-6 text-neutral-600">用户、角色、菜单、课程、订单——<strong class="font-semibold text-neutral-900">要事务、要关联查询</strong>的结构化数据</p>
             </div>
             <div class="rounded-xl border border-neutral-900 bg-white p-4">
               <p class="font-mono text-sm font-bold text-neutral-900">Redis</p>
-              <p class="mt-0.5 text-xs font-semibold uppercase tracking-wider text-neutral-400">内存 KV</p>
+              <p class="mt-0.5 text-xs font-semibold uppercase tracking-wider text-neutral-500">内存 KV</p>
               <p class="mt-2 text-sm leading-6 text-neutral-600">会话、缓存、验证码——<strong class="font-semibold text-neutral-900">读写极快、可过期、丢了能重建</strong></p>
             </div>
             <div class="rounded-xl border border-neutral-900 bg-white p-4">
               <p class="font-mono text-sm font-bold text-neutral-900">ChromaDB</p>
-              <p class="mt-0.5 text-xs font-semibold uppercase tracking-wider text-neutral-400">向量库</p>
+              <p class="mt-0.5 text-xs font-semibold uppercase tracking-wider text-neutral-500">向量库</p>
               <p class="mt-2 text-sm leading-6 text-neutral-600">文档切片的 Embedding——<strong class="font-semibold text-neutral-900">按语义找「相似」，而不是「相等」</strong></p>
             </div>
           </div>
@@ -152,7 +127,7 @@ async update(updateConfigDto: UpdateConfigDto) {
           <p class="doc-p">组合之前，先把市面上的主流选手认清。同样是「存数据」，不同库的设计取舍完全不同，<strong class="font-semibold text-neutral-900">利与弊是一体两面</strong>——它擅长的事，就是它不擅长的另一面：</p>
           <div class="my-4 overflow-x-auto rounded-xl border border-neutral-200 bg-white shadow-sm">
             <table class="w-full text-sm">
-              <thead class="bg-neutral-50 text-left text-xs uppercase tracking-wider text-neutral-400">
+              <thead class="bg-neutral-50 text-left text-xs uppercase tracking-wider text-neutral-500">
                 <tr>
                   <th class="px-4 py-2.5 font-semibold">数据库</th>
                   <th class="px-4 py-2.5 font-semibold">利（擅长）</th>
@@ -162,37 +137,37 @@ async update(updateConfigDto: UpdateConfigDto) {
               </thead>
               <tbody class="divide-y divide-neutral-100">
                 <tr>
-                  <td class="px-4 py-2.5"><span class="font-mono text-sm font-bold text-neutral-900">MySQL</span><span class="mt-0.5 block text-[11px] uppercase tracking-wider text-neutral-400">关系型</span></td>
+                  <td class="px-4 py-2.5"><span class="font-mono text-sm font-bold text-neutral-900">MySQL</span><span class="mt-0.5 block text-[11px] uppercase tracking-wider text-neutral-500">关系型</span></td>
                   <td class="px-4 py-2.5 text-neutral-600">生态最大、资料最多：主从复制、分库分表、云托管方案一应俱全，<strong class="font-semibold text-neutral-900">招人最容易</strong></td>
                   <td class="px-4 py-2.5 text-neutral-600">复杂查询和高级类型偏弱：JSON / 数组 / GIS 不如 PostgreSQL，复杂 SQL 的优化器偏保守</td>
                   <td class="hidden px-4 py-2.5 text-neutral-600 md:table-cell">电商、SaaS 等核心业务库；本教程示例的默认选择</td>
                 </tr>
                 <tr>
-                  <td class="px-4 py-2.5"><span class="font-mono text-sm font-bold text-neutral-900">PostgreSQL</span><span class="mt-0.5 block text-[11px] uppercase tracking-wider text-neutral-400">关系型</span></td>
+                  <td class="px-4 py-2.5"><span class="font-mono text-sm font-bold text-neutral-900">PostgreSQL</span><span class="mt-0.5 block text-[11px] uppercase tracking-wider text-neutral-500">关系型</span></td>
                   <td class="px-4 py-2.5 text-neutral-600"><strong class="font-semibold text-neutral-900">功能天花板</strong>：JSONB、数组、窗口函数、递归 CTE、内置全文检索；扩展生态强——PostGIS 管地理、pgvector 管向量，一个库顶三个</td>
                   <td class="px-4 py-2.5 text-neutral-600">每个连接占一个进程，高并发必须配连接池（PgBouncer）；国内传统运维积累比 MySQL 少</td>
                   <td class="hidden px-4 py-2.5 text-neutral-600 md:table-cell">复杂报表、GIS、AI 应用；新项目越来越首选它</td>
                 </tr>
                 <tr>
-                  <td class="px-4 py-2.5"><span class="font-mono text-sm font-bold text-neutral-900">SQLite</span><span class="mt-0.5 block text-[11px] uppercase tracking-wider text-neutral-400">嵌入式关系型</span></td>
+                  <td class="px-4 py-2.5"><span class="font-mono text-sm font-bold text-neutral-900">SQLite</span><span class="mt-0.5 block text-[11px] uppercase tracking-wider text-neutral-500">嵌入式关系型</span></td>
                   <td class="px-4 py-2.5 text-neutral-600">零部署零运维，<strong class="font-semibold text-neutral-900">单文件就是整个库</strong>；进程内访问没有网络开销，读性能极高；全球装机量第一——每台手机里都有</td>
                   <td class="px-4 py-2.5 text-neutral-600">没有服务端进程，多台机器共享数据要自己想办法；写入是单写者串行，扛不住服务端高并发写</td>
                   <td class="hidden px-4 py-2.5 text-neutral-600 md:table-cell">移动 / 桌面应用本地存储；小工具、原型、自动化测试</td>
                 </tr>
                 <tr>
-                  <td class="px-4 py-2.5"><span class="font-mono text-sm font-bold text-neutral-900">MongoDB</span><span class="mt-0.5 block text-[11px] uppercase tracking-wider text-neutral-400">文档型</span></td>
+                  <td class="px-4 py-2.5"><span class="font-mono text-sm font-bold text-neutral-900">MongoDB</span><span class="mt-0.5 block text-[11px] uppercase tracking-wider text-neutral-500">文档型</span></td>
                   <td class="px-4 py-2.5 text-neutral-600"><strong class="font-semibold text-neutral-900">Schema 灵活免迁移</strong>，嵌套文档一次读全；副本集 + 分片内建，水平扩展省心</td>
                   <td class="px-4 py-2.5 text-neutral-600">跨文档关联弱（$lookup 慢且难维护）；多文档事务 4.0+ 才有且代价高；没有约束的 Schema 全靠应用层纪律</td>
                   <td class="hidden px-4 py-2.5 text-neutral-600 md:table-cell">内容管理、商品详情、埋点日志；需求快变的原型</td>
                 </tr>
                 <tr>
-                  <td class="px-4 py-2.5"><span class="font-mono text-sm font-bold text-neutral-900">Redis</span><span class="mt-0.5 block text-[11px] uppercase tracking-wider text-neutral-400">内存 KV</span></td>
+                  <td class="px-4 py-2.5"><span class="font-mono text-sm font-bold text-neutral-900">Redis</span><span class="mt-0.5 block text-[11px] uppercase tracking-wider text-neutral-500">内存 KV</span></td>
                   <td class="px-4 py-2.5 text-neutral-600">微秒级读写；String / Hash / ZSet 等结构丰富；<strong class="font-semibold text-neutral-900">TTL 自动过期内建</strong></td>
                   <td class="px-4 py-2.5 text-neutral-600">内存贵，放不下全量数据；持久化只是兜底，不能当主存；没有查询语言</td>
                   <td class="hidden px-4 py-2.5 text-neutral-600 md:table-cell">缓存、会话、验证码、排行榜（上一节刚讲）</td>
                 </tr>
                 <tr>
-                  <td class="px-4 py-2.5"><span class="font-mono text-sm font-bold text-neutral-900">Elasticsearch</span><span class="mt-0.5 block text-[11px] uppercase tracking-wider text-neutral-400">搜索引擎</span></td>
+                  <td class="px-4 py-2.5"><span class="font-mono text-sm font-bold text-neutral-900">Elasticsearch</span><span class="mt-0.5 block text-[11px] uppercase tracking-wider text-neutral-500">搜索引擎</span></td>
                   <td class="px-4 py-2.5 text-neutral-600">倒排索引支撑<strong class="font-semibold text-neutral-900">全文检索与相关性排序</strong>，聚合分析能力强</td>
                   <td class="px-4 py-2.5 text-neutral-600">吃内存吃 CPU；近实时、非强一致；六个里运维复杂度最高的一个</td>
                   <td class="hidden px-4 py-2.5 text-neutral-600 md:table-cell">商品搜索、站内搜索、日志分析（ELK）</td>
@@ -201,13 +176,13 @@ async update(updateConfigDto: UpdateConfigDto) {
             </table>
           </div>
           <div class="callout callout-warn">
-            <span class="callout-icon"><i data-lucide="alert-triangle"></i></span>
+            <span class="callout-icon"><i data-lucide="triangle-alert"></i></span>
             <div>同类型二选一时（最典型是 MySQL vs PostgreSQL），<strong class="font-semibold text-neutral-900">团队熟不熟、云厂商托管支不支持、招人好不好招</strong>，往往比功能清单更有决定权——功能差距再大，也大不过「出了事没人会修」。</div>
           </div>
           <p class="doc-p">拿不准时，按数据的形状对号入座：</p>
           <div class="my-4 overflow-x-auto rounded-xl border border-neutral-200 bg-white shadow-sm">
             <table class="w-full text-sm">
-              <thead class="bg-neutral-50 text-left text-xs uppercase tracking-wider text-neutral-400">
+              <thead class="bg-neutral-50 text-left text-xs uppercase tracking-wider text-neutral-500">
                 <tr>
                   <th class="px-4 py-2.5 font-semibold">你的数据长这样</th>
                   <th class="px-4 py-2.5 font-semibold">就选</th>
@@ -243,11 +218,3 @@ async update(updateConfigDto: UpdateConfigDto) {
             <span class="chip">对象存储（文件）</span>
           </div>
         </section>
-
-  <!-- highlight.js (CDN) -->
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/http.min.js"></script>
-  <!-- 小节共用脚本：高亮、复制、图标、高度同步 -->
-  <script src="../assets/section.js"></script>
-</body>
-</html>

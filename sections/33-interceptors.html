@@ -1,34 +1,9 @@
-<!DOCTYPE html>
-<html lang="zh-CN">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>33 请求拦截器与响应拦截器 · TS 后端架构</title>
-  <meta name="description" content="从最基础的 HTTP 接口开始，逐步理解 TypeScript 后端的分层、模块化、依赖注入、依赖倒置，以及高内聚、低耦合的工程化架构。">
-  <meta name="theme-color" content="#ffffff">
-
-  <!-- 字体 -->
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
-
-  <!-- Tailwind CSS (CDN) -->
-  <script src="https://cdn.tailwindcss.com"></script>
-
-  <!-- Lucide 图标库 (CDN) -->
-  <script src="https://unpkg.com/lucide@0.469.0/dist/umd/lucide.min.js"></script>
-
-  <!-- 公共样式由父页面 index.html 通过 postMessage 注入；直接打开时由 assets/section.js 从 index.html 抓取 -->
-</head>
-
-<body data-section="interceptors" class="doc-body bg-white font-sans text-neutral-800 antialiased px-3 pb-4 pt-1">
-
         <!-- 33 请求拦截器与响应拦截器 -->
         <section id="interceptors" class="doc-section">
           <header class="mb-5 flex items-start gap-3">
             <span class="sec-num">33</span>
             <div>
-              <p class="eyebrow">请求与响应</p>
+              <p class="eyebrow">附录：进阶专题</p>
               <h2 class="sec-title">请求拦截器与响应拦截器</h2>
             </div>
           </header>
@@ -40,7 +15,7 @@
 
           <h3 class="doc-h3">请求生命周期：公共逻辑挂在哪</h3>
           <p class="doc-p">以 NestJS 为例（Express / Koa 里这些都统一用中间件链表达，后面会讲到），一个请求的完整生命周期：</p>
-          <div class="flow flow-sm">
+          <div class="flow flow-sm flow-steps">
             <div class="flow-node">请求 Request</div>
             <div class="flow-arrow"><i data-lucide="arrow-down"></i></div>
             <div class="flow-node">中间件 Middleware<span class="flow-sub">CORS、body 解析、请求日志</span></div>
@@ -178,9 +153,9 @@ return { list, total };</code></pre>
 
           <h3 class="doc-h3">五种机制怎么分工？</h3>
           <p class="doc-p">NestJS 把管道拆成了几种角色，初学最容易混。按"管什么"来记：</p>
-          <div class="my-4 overflow-hidden rounded-xl border border-neutral-200 bg-white shadow-sm">
+          <div class="my-4 overflow-x-auto rounded-xl border border-neutral-200 bg-white shadow-sm">
             <table class="w-full text-sm">
-              <thead class="bg-neutral-50 text-left text-xs uppercase tracking-wider text-neutral-400">
+              <thead class="bg-neutral-50 text-left text-xs uppercase tracking-wider text-neutral-500">
                 <tr>
                   <th class="px-4 py-2.5 font-semibold">机制</th>
                   <th class="px-4 py-2.5 font-semibold">管什么</th>
@@ -239,11 +214,3 @@ return { list, total };</code></pre>
             <p class="banner-text">每个接口都要做的事，不在接口里写——<br class="hidden sm:block">放进拦截器，管道上写一次。</p>
           </div>
         </section>
-
-  <!-- highlight.js (CDN) -->
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/http.min.js"></script>
-  <!-- 小节共用脚本：高亮、复制、图标、高度同步 -->
-  <script src="../assets/section.js"></script>
-</body>
-</html>

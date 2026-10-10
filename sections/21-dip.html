@@ -1,28 +1,3 @@
-<!DOCTYPE html>
-<html lang="zh-CN">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>21 依赖倒置 · TS 后端架构</title>
-  <meta name="description" content="从最基础的 HTTP 接口开始，逐步理解 TypeScript 后端的分层、模块化、依赖注入、依赖倒置，以及高内聚、低耦合的工程化架构。">
-  <meta name="theme-color" content="#ffffff">
-
-  <!-- 字体 -->
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
-
-  <!-- Tailwind CSS (CDN) -->
-  <script src="https://cdn.tailwindcss.com"></script>
-
-  <!-- Lucide 图标库 (CDN) -->
-  <script src="https://unpkg.com/lucide@0.469.0/dist/umd/lucide.min.js"></script>
-
-  <!-- 公共样式由父页面 index.html 通过 postMessage 注入；直接打开时由 assets/section.js 从 index.html 抓取 -->
-</head>
-
-<body data-section="dip" class="doc-body bg-white font-sans text-neutral-800 antialiased px-3 pb-4 pt-1">
-
         <!-- 21 依赖倒置 -->
         <section id="dip" class="doc-section">
           <header class="mb-5 flex items-start gap-3">
@@ -34,15 +9,15 @@
           </header>
           <div class="my-4 grid gap-4 sm:grid-cols-2">
             <div class="cmp-bad">
-              <p class="cmp-title text-neutral-400">传统依赖</p>
+              <p class="cmp-title text-neutral-500"><i data-lucide="circle-x" class="h-4 w-4"></i>传统依赖</p>
               <div class="flex flex-col items-center">
                 <div class="fr-node w-40 text-center">Business</div>
                 <div class="flow-arrow"><i data-lucide="arrow-down"></i></div>
-                <div class="fr-node w-40 border-neutral-300 bg-white text-center text-neutral-400">Prisma</div>
+                <div class="fr-node w-40 border-neutral-300 bg-white text-center text-neutral-500">Prisma</div>
               </div>
             </div>
             <div class="cmp-good">
-              <p class="cmp-title text-neutral-900">更合理</p>
+              <p class="cmp-title text-neutral-900"><i data-lucide="circle-check" class="h-4 w-4"></i>更合理</p>
               <div class="flex flex-col items-center">
                 <div class="fr-node w-40 text-center">Business</div>
                 <div class="flow-arrow"><i data-lucide="arrow-down"></i></div>
@@ -88,7 +63,7 @@
 }</code></pre>
           </figure>
           <p class="doc-p">这样：</p>
-          <div class="flow flow-sm">
+          <div class="flow flow-sm flow-h">
             <div class="flow-node">业务层</div>
             <div class="flow-arrow"><i data-lucide="arrow-down"></i></div>
             <div class="flow-node flow-node-accent">抽象</div>
@@ -100,11 +75,3 @@
             <div>这就是 <strong class="font-semibold text-neutral-900">Dependency Inversion Principle</strong>。</div>
           </div>
         </section>
-
-  <!-- highlight.js (CDN) -->
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/http.min.js"></script>
-  <!-- 小节共用脚本：高亮、复制、图标、高度同步 -->
-  <script src="../assets/section.js"></script>
-</body>
-</html>

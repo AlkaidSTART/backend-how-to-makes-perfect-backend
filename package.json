@@ -1,0 +1,14 @@
+{
+  "name": "backend-how-to-makes-perfect-backend",
+  "private": true,
+  "description": "TS 后端架构：从 0 基础到高内聚低耦合（静态学习站）",
+  "scripts": {
+    "build": "node scripts/build.mjs",
+    "check": "node scripts/build.mjs --check"
+  },
+  "devDependencies": {
+    "highlight.js": "11.9.0",
+    "lucide-static": "0.469.0",
+    "tailwindcss": "3.4.17"
+  }
+}

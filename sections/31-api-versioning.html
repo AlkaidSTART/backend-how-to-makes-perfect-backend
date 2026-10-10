@@ -1,34 +1,9 @@
-<!DOCTYPE html>
-<html lang="zh-CN">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>31 API 版本化 · TS 后端架构</title>
-  <meta name="description" content="从最基础的 HTTP 接口开始，逐步理解 TypeScript 后端的分层、模块化、依赖注入、依赖倒置，以及高内聚、低耦合的工程化架构。">
-  <meta name="theme-color" content="#ffffff">
-
-  <!-- 字体 -->
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
-
-  <!-- Tailwind CSS (CDN) -->
-  <script src="https://cdn.tailwindcss.com"></script>
-
-  <!-- Lucide 图标库 (CDN) -->
-  <script src="https://unpkg.com/lucide@0.469.0/dist/umd/lucide.min.js"></script>
-
-  <!-- 公共样式由父页面 index.html 通过 postMessage 注入；直接打开时由 assets/section.js 从 index.html 抓取 -->
-</head>
-
-<body data-section="api-versioning" class="doc-body bg-white font-sans text-neutral-800 antialiased px-3 pb-4 pt-1">
-
         <!-- 31 API 版本化 -->
         <section id="api-versioning" class="doc-section">
           <header class="mb-5 flex items-start gap-3">
             <span class="sec-num">31</span>
             <div>
-              <p class="eyebrow">接口提效</p>
+              <p class="eyebrow">附录：进阶专题</p>
               <h2 class="sec-title">API 版本化：什么时候要 /v1？</h2>
             </div>
           </header>
@@ -90,32 +65,32 @@ app.use('/v2/users', v2UsersRouter);
           <div class="my-4 grid gap-4 sm:grid-cols-2">
             <div class="rounded-xl border border-neutral-200 bg-neutral-50 p-4">
               <p class="font-mono text-sm font-bold text-neutral-900">微信支付</p>
-              <p class="mt-0.5 text-xs font-semibold uppercase tracking-wider text-neutral-400">URL 大版本 · 新旧长期并行</p>
+              <p class="mt-0.5 text-xs font-semibold uppercase tracking-wider text-neutral-500">URL 大版本 · 新旧长期并行</p>
               <p class="mt-2 text-sm leading-6 text-neutral-600">V2 时代 URL 里没有版本（<code>pay/unifiedorder</code>）；V3 重设计把 <code>/v3</code> 写进 URL（<code>api.mch.weixin.qq.com/v3/pay/...</code>），签名、证书、加密整套换掉。V2/V3 并行至今，V2 只维护不加功能——<strong class="font-semibold text-neutral-900">破坏性变更开新版本，绝不悄悄改旧的</strong>。</p>
             </div>
             <div class="rounded-xl border border-neutral-200 bg-neutral-50 p-4">
               <p class="font-mono text-sm font-bold text-neutral-900">钉钉</p>
-              <p class="mt-0.5 text-xs font-semibold uppercase tracking-wider text-neutral-400">新旧域名并存</p>
+              <p class="mt-0.5 text-xs font-semibold uppercase tracking-wider text-neutral-500">新旧域名并存</p>
               <p class="mt-2 text-sm leading-6 text-neutral-600">旧服务端接口在 <code>oapi.dingtalk.com</code>（URL 无版本）；新版统一为 <code>api.dingtalk.com/v1.0/...</code>，主版本直接进 URL。大厂自己"补票"的方式：契约无法平滑兼容时，<strong class="font-semibold text-neutral-900">新域名 + 新版本一起翻篇</strong>，旧接口只维护。</p>
             </div>
             <div class="rounded-xl border border-neutral-200 bg-neutral-50 p-4">
               <p class="font-mono text-sm font-bold text-neutral-900">飞书</p>
-              <p class="mt-0.5 text-xs font-semibold uppercase tracking-wider text-neutral-400">资源级版本（粒度最细）</p>
+              <p class="mt-0.5 text-xs font-semibold uppercase tracking-wider text-neutral-500">资源级版本（粒度最细）</p>
               <p class="mt-2 text-sm leading-6 text-neutral-600"><code>open.feishu.cn/open-apis/im/v1/messages</code>、<code>/contact/v3/users</code>：版本号跟到每个资源对象——消息接口还在 v1，通讯录已经到 v3，<strong class="font-semibold text-neutral-900">谁破坏兼容谁单独升版本</strong>，互不拖累。</p>
             </div>
             <div class="rounded-xl border border-neutral-200 bg-neutral-50 p-4">
               <p class="font-mono text-sm font-bold text-neutral-900">支付宝 / 淘宝开放平台</p>
-              <p class="mt-0.5 text-xs font-semibold uppercase tracking-wider text-neutral-400">网关固定 · 版本进参数</p>
+              <p class="mt-0.5 text-xs font-semibold uppercase tracking-wider text-neutral-500">网关固定 · 版本进参数</p>
               <p class="mt-2 text-sm leading-6 text-neutral-600">网关地址永远是 <code>openapi.alipay.com/gateway.do</code>，接口靠 <code>method</code> + <code>version</code> 参数区分（淘宝 TOP 同理，公共参数 <code>v=2.0</code>）——版本号的另一种藏法：<strong class="font-semibold text-neutral-900">不在 URL，在请求参数里</strong>，网关按参数路由到对应实现。</p>
             </div>
             <div class="rounded-xl border border-neutral-200 bg-neutral-50 p-4">
               <p class="font-mono text-sm font-bold text-neutral-900">高德地图</p>
-              <p class="mt-0.5 text-xs font-semibold uppercase tracking-wider text-neutral-400">v3 / v5 并行</p>
+              <p class="mt-0.5 text-xs font-semibold uppercase tracking-wider text-neutral-500">v3 / v5 并行</p>
               <p class="mt-2 text-sm leading-6 text-neutral-600"><code>restapi.amap.com/v3/geocode/geo</code> 仍在服务，搜索、路径规划已升级到 <code>/v5/...</code>，官方提供逐接口的迁移对照表。响应结构频繁增强的 API，靠大版本 URL <strong class="font-semibold text-neutral-900">把承诺划清楚</strong>。</p>
             </div>
             <div class="rounded-xl border border-neutral-200 bg-neutral-50 p-4">
               <p class="font-mono text-sm font-bold text-neutral-900">国产大模型 API</p>
-              <p class="mt-0.5 text-xs font-semibold uppercase tracking-wider text-neutral-400">兼容性 /v1</p>
+              <p class="mt-0.5 text-xs font-semibold uppercase tracking-wider text-neutral-500">兼容性 /v1</p>
               <p class="mt-2 text-sm leading-6 text-neutral-600">智谱 <code>open.bigmodel.cn/api/paas/v4/chat/completions</code>、Moonshot <code>api.moonshot.cn/v1/...</code>；DeepSeek 文档写得更直白：<code>/v1</code> 与模型版本无关，纯粹为了兼容 OpenAI SDK——<strong class="font-semibold text-neutral-900">为了接入生态，/v1 也可以只是仪式</strong>。</p>
             </div>
           </div>
@@ -154,11 +129,3 @@ app.use('/v2/users', v2UsersRouter);
             <p class="banner-text">有升不动的外部调用方，就加 /v1；<br class="hidden sm:block">调用方都跟你一起发版，就不加——靠兼容式演进和类型契约兜底。</p>
           </div>
         </section>
-
-  <!-- highlight.js (CDN) -->
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/http.min.js"></script>
-  <!-- 小节共用脚本：高亮、复制、图标、高度同步 -->
-  <script src="../assets/section.js"></script>
-</body>
-</html>
