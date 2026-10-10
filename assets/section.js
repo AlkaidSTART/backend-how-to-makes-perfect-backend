@@ -63,20 +63,38 @@
     });
   }
 
+  var CHECK_SVG = '<svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg>';
+
+  // 复制结果通过 aria-live 播报给读屏器；失败时给出可见提示，而不是静默吞掉
+  var live = document.createElement('span');
+  live.className = 'sr-only';
+  live.setAttribute('aria-live', 'polite');
+  document.body.appendChild(live);
+
   document.querySelectorAll('.code-card').forEach(function (card) {
     var btn = card.querySelector('.code-copy');
     if (!btn) return;
+    var timer = null;
+    function flash(cls, html, msg) {
+      clearTimeout(timer);
+      btn.classList.remove('copied', 'failed');
+      btn.classList.add(cls);
+      btn.innerHTML = html;
+      live.textContent = msg;
+      timer = setTimeout(function () {
+        btn.textContent = '复制';
+        btn.classList.remove(cls);
+        live.textContent = '';
+      }, cls === 'failed' ? 2400 : 1600);
+    }
     btn.addEventListener('click', function () {
       var code = card.querySelector('code');
       if (!code) return;
       copyText(code.innerText).then(function () {
-        btn.innerHTML = '已复制 <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg>';
-        btn.classList.add('copied');
-        setTimeout(function () {
-          btn.textContent = '复制';
-          btn.classList.remove('copied');
-        }, 1600);
-      }).catch(function () {});
+        flash('copied', '已复制 ' + CHECK_SVG, '代码已复制到剪贴板');
+      }).catch(function () {
+        flash('failed', '复制失败，请手动选择', '复制失败，请手动选择代码');
+      });
     });
   });
 
