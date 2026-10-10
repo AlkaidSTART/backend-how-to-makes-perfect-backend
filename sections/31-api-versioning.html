@@ -90,32 +90,32 @@ app.use('/v2/users', v2UsersRouter);
           <div class="my-4 grid gap-4 sm:grid-cols-2">
             <div class="rounded-xl border border-neutral-200 bg-neutral-50 p-4">
               <p class="font-mono text-sm font-bold text-neutral-900">微信支付</p>
-              <p class="mt-0.5 text-xs font-semibold uppercase tracking-wider text-neutral-400">URL 大版本 · 新旧长期并行</p>
+              <p class="mt-0.5 text-xs font-semibold uppercase tracking-wider text-neutral-500">URL 大版本 · 新旧长期并行</p>
               <p class="mt-2 text-sm leading-6 text-neutral-600">V2 时代 URL 里没有版本（<code>pay/unifiedorder</code>）；V3 重设计把 <code>/v3</code> 写进 URL（<code>api.mch.weixin.qq.com/v3/pay/...</code>），签名、证书、加密整套换掉。V2/V3 并行至今，V2 只维护不加功能——<strong class="font-semibold text-neutral-900">破坏性变更开新版本，绝不悄悄改旧的</strong>。</p>
             </div>
             <div class="rounded-xl border border-neutral-200 bg-neutral-50 p-4">
               <p class="font-mono text-sm font-bold text-neutral-900">钉钉</p>
-              <p class="mt-0.5 text-xs font-semibold uppercase tracking-wider text-neutral-400">新旧域名并存</p>
+              <p class="mt-0.5 text-xs font-semibold uppercase tracking-wider text-neutral-500">新旧域名并存</p>
               <p class="mt-2 text-sm leading-6 text-neutral-600">旧服务端接口在 <code>oapi.dingtalk.com</code>（URL 无版本）；新版统一为 <code>api.dingtalk.com/v1.0/...</code>，主版本直接进 URL。大厂自己"补票"的方式：契约无法平滑兼容时，<strong class="font-semibold text-neutral-900">新域名 + 新版本一起翻篇</strong>，旧接口只维护。</p>
             </div>
             <div class="rounded-xl border border-neutral-200 bg-neutral-50 p-4">
               <p class="font-mono text-sm font-bold text-neutral-900">飞书</p>
-              <p class="mt-0.5 text-xs font-semibold uppercase tracking-wider text-neutral-400">资源级版本（粒度最细）</p>
+              <p class="mt-0.5 text-xs font-semibold uppercase tracking-wider text-neutral-500">资源级版本（粒度最细）</p>
               <p class="mt-2 text-sm leading-6 text-neutral-600"><code>open.feishu.cn/open-apis/im/v1/messages</code>、<code>/contact/v3/users</code>：版本号跟到每个资源对象——消息接口还在 v1，通讯录已经到 v3，<strong class="font-semibold text-neutral-900">谁破坏兼容谁单独升版本</strong>，互不拖累。</p>
             </div>
             <div class="rounded-xl border border-neutral-200 bg-neutral-50 p-4">
               <p class="font-mono text-sm font-bold text-neutral-900">支付宝 / 淘宝开放平台</p>
-              <p class="mt-0.5 text-xs font-semibold uppercase tracking-wider text-neutral-400">网关固定 · 版本进参数</p>
+              <p class="mt-0.5 text-xs font-semibold uppercase tracking-wider text-neutral-500">网关固定 · 版本进参数</p>
               <p class="mt-2 text-sm leading-6 text-neutral-600">网关地址永远是 <code>openapi.alipay.com/gateway.do</code>，接口靠 <code>method</code> + <code>version</code> 参数区分（淘宝 TOP 同理，公共参数 <code>v=2.0</code>）——版本号的另一种藏法：<strong class="font-semibold text-neutral-900">不在 URL，在请求参数里</strong>，网关按参数路由到对应实现。</p>
             </div>
             <div class="rounded-xl border border-neutral-200 bg-neutral-50 p-4">
               <p class="font-mono text-sm font-bold text-neutral-900">高德地图</p>
-              <p class="mt-0.5 text-xs font-semibold uppercase tracking-wider text-neutral-400">v3 / v5 并行</p>
+              <p class="mt-0.5 text-xs font-semibold uppercase tracking-wider text-neutral-500">v3 / v5 并行</p>
               <p class="mt-2 text-sm leading-6 text-neutral-600"><code>restapi.amap.com/v3/geocode/geo</code> 仍在服务，搜索、路径规划已升级到 <code>/v5/...</code>，官方提供逐接口的迁移对照表。响应结构频繁增强的 API，靠大版本 URL <strong class="font-semibold text-neutral-900">把承诺划清楚</strong>。</p>
             </div>
             <div class="rounded-xl border border-neutral-200 bg-neutral-50 p-4">
               <p class="font-mono text-sm font-bold text-neutral-900">国产大模型 API</p>
-              <p class="mt-0.5 text-xs font-semibold uppercase tracking-wider text-neutral-400">兼容性 /v1</p>
+              <p class="mt-0.5 text-xs font-semibold uppercase tracking-wider text-neutral-500">兼容性 /v1</p>
               <p class="mt-2 text-sm leading-6 text-neutral-600">智谱 <code>open.bigmodel.cn/api/paas/v4/chat/completions</code>、Moonshot <code>api.moonshot.cn/v1/...</code>；DeepSeek 文档写得更直白：<code>/v1</code> 与模型版本无关，纯粹为了兼容 OpenAI SDK——<strong class="font-semibold text-neutral-900">为了接入生态，/v1 也可以只是仪式</strong>。</p>
             </div>
           </div>

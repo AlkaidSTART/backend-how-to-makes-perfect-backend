@@ -33,6 +33,10 @@
   <!-- 公共样式（唯一来源）：这段文本会通过 postMessage 注入到各小节 iframe，改动只需改这里 -->
   <style type="text/tailwindcss" data-common>
     html { scroll-behavior: smooth; }
+    @media (prefers-reduced-motion: reduce) {
+      html { scroll-behavior: auto; }
+      *, *::before, *::after { transition-duration: 0.01ms !important; animation-duration: 0.01ms !important; }
+    }
     ::selection { background: #171717; color: #ffffff; }
 
     /* highlight.js 柔和配色（低饱和 · 暗色） */
@@ -54,13 +58,15 @@
     @layer components {
       /* ---------- 版式 ---------- */
       .doc-p { @apply my-3 text-[15px] leading-7 text-neutral-600; }
-      .eyebrow { @apply text-[11px] font-semibold uppercase tracking-widest text-neutral-400; }
+      .eyebrow { @apply text-[11px] font-semibold uppercase tracking-widest text-neutral-500; }
       .sec-num { @apply mt-0.5 flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-neutral-900 font-mono text-sm font-bold text-white; }
       .sec-title { @apply text-xl font-bold tracking-tight text-neutral-900 sm:text-2xl; }
       .doc-section { @apply scroll-mt-8; }
       .doc-h3 { @apply mb-4 mt-10 flex items-center gap-2 text-lg font-bold text-neutral-900; }
       .doc-h3::before { content: ""; @apply inline-block h-4 w-1 rounded-full bg-neutral-900; }
       .doc-body :not(pre) > code { @apply rounded-md border border-neutral-200 bg-neutral-100 px-1.5 py-0.5 font-mono text-[0.85em] font-medium text-neutral-900; }
+      /* 长 URL / 路径型行内代码在窄屏允许任意处断行，避免撑破容器 */
+      .doc-body :not(pre) > code { overflow-wrap: anywhere; }
 
       /* ---------- 流程图 ---------- */
       .flow { @apply my-5 flex flex-col items-center; }
@@ -82,18 +88,19 @@
       .code-dots i:nth-child(1) { background: #ff5f57; box-shadow: inset 0 0 0 0.5px rgb(0 0 0 / 0.12); }
       .code-dots i:nth-child(2) { background: #febc2e; box-shadow: inset 0 0 0 0.5px rgb(0 0 0 / 0.12); }
       .code-dots i:nth-child(3) { background: #28c840; box-shadow: inset 0 0 0 0.5px rgb(0 0 0 / 0.12); }
-      .code-lang { @apply font-mono text-[11px] font-medium uppercase tracking-wider text-neutral-500; }
+      .code-lang { @apply font-mono text-[11px] font-medium uppercase tracking-wider text-neutral-400; }
       .code-flag { @apply rounded-md px-2 py-0.5 text-[11px] font-semibold; }
       .code-flag.bad { @apply border border-neutral-600 text-neutral-400; }
       .code-flag.good { @apply bg-white text-neutral-900; }
       .code-copy { @apply ml-auto shrink-0 rounded-md border border-neutral-700 px-2 py-0.5 text-[11px] text-neutral-400 transition hover:border-neutral-400 hover:text-neutral-100; }
       .code-copy.copied { @apply border-neutral-400 text-white; }
+      .code-copy.failed { @apply border-neutral-500 text-neutral-200; }
       .code-body { @apply overflow-x-auto p-4 text-[13px] leading-6; }
       .code-body code.hljs { background: transparent; padding: 0; }
 
       /* ---------- 示意图 / 目录树 ---------- */
       .diagram-card { @apply my-4 overflow-hidden rounded-xl border border-neutral-200 bg-neutral-50 shadow-sm; }
-      .diagram-head { @apply border-b border-neutral-200 bg-white/70 px-4 py-2 font-mono text-[11px] font-medium uppercase tracking-wider text-neutral-400; }
+      .diagram-head { @apply border-b border-neutral-200 bg-white/70 px-4 py-2 font-mono text-[11px] font-medium uppercase tracking-wider text-neutral-500; }
       .diagram-card pre { @apply overflow-x-auto p-5 font-mono text-[13px] leading-6 text-neutral-600; }
       .tree-pre { @apply overflow-x-auto font-mono text-[13px] leading-6 text-neutral-700; }
 
@@ -131,12 +138,16 @@
       /* ---------- 卡片 ---------- */
       .layer-card { @apply rounded-2xl border border-neutral-200 bg-white p-5 text-center shadow-sm; }
       .layer-name { @apply font-mono text-sm font-bold text-neutral-900; }
-      .layer-role { @apply mt-1.5 text-xs font-semibold uppercase tracking-wider text-neutral-400; }
+      .layer-role { @apply mt-1.5 text-xs font-semibold uppercase tracking-wider text-neutral-500; }
       .level-badge { @apply inline-block rounded-md bg-neutral-900 px-2 py-1 text-xs font-bold text-white; }
       .prio-badge { @apply inline-flex h-6 w-8 items-center justify-center rounded-md text-[11px] font-bold text-white; }
       .cmp-bad { @apply rounded-2xl border border-neutral-200 bg-neutral-50 p-5; }
       .cmp-good { @apply rounded-2xl border border-neutral-900 bg-white p-5 shadow-sm; }
       .cmp-title { @apply mb-3 flex items-center gap-2 text-sm font-bold; }
+
+      /* ---------- 网格 ---------- */
+      /* 网格子项默认 min-width:auto，会被长 URL / 行内代码撑破窄屏，统一允许收缩 */
+      .doc-body .grid > * { min-width: 0; }
 
       /* ---------- 金句横幅 ---------- */
       .big-quote { @apply my-6 rounded-2xl bg-neutral-950 p-6 text-center shadow-lg sm:p-8; }
@@ -148,16 +159,33 @@
   <!-- 仅首页使用：Hero / 目录 / 返回顶部 / 小节分隔线（不会注入 iframe） -->
   <style type="text/tailwindcss">
     .doc-section + .doc-section { @apply mt-16 border-t border-neutral-200 pt-12; }
+    /* 移动端顶部有当前小节条，锚点需多留出它的高度 */
+    .doc-section { @apply scroll-mt-14 lg:scroll-mt-8; }
     .hero-chip { @apply rounded-lg border border-neutral-200 bg-white px-2.5 py-1 font-mono text-xs text-neutral-600; }
 
     /* ---------- 目录 ---------- */
-    .toc-group { @apply mb-1 mt-5 px-3 text-[11px] font-semibold uppercase tracking-wider text-neutral-400 first:mt-0; }
-    .toc-link { @apply block border-l-2 border-transparent py-1 pl-3 text-[13px] leading-5 text-neutral-500 transition hover:border-neutral-300 hover:text-neutral-900; }
+    .toc-group { @apply mb-1 mt-5 px-3 text-[11px] font-semibold uppercase tracking-wider text-neutral-500 first:mt-0; }
+    .toc-link { @apply flex gap-2 border-l-2 border-transparent py-1 pl-3 text-[13px] leading-5 text-neutral-500 transition hover:border-neutral-300 hover:text-neutral-900; }
     .toc-active { @apply border-neutral-900 font-semibold text-neutral-900; }
+    .toc-num { @apply shrink-0 font-mono text-[11px] font-normal leading-5 text-neutral-500; }
+    .toc-active .toc-num { @apply text-neutral-900; }
+
+    /* ---------- 移动端目录（由 #toc 生成） ---------- */
+    .tocm-group { @apply mb-1 mt-4 text-[11px] font-semibold uppercase tracking-wider text-neutral-500 first:mt-0; }
+    .tocm-links { @apply grid gap-x-6 sm:grid-cols-2; }
+    .tocm-links .toc-link { @apply py-1.5 text-sm; }
+
+    /* ---------- 移动端当前小节条 ---------- */
+    #now-bar { @apply invisible fixed inset-x-0 top-0.5 z-40 -translate-y-full border-b border-neutral-200 bg-white/95 opacity-0 backdrop-blur lg:hidden; transition: transform .2s, opacity .2s, visibility .2s; }
+    #now-bar.show { @apply visible translate-y-0 opacity-100; }
+    #now-btn { @apply flex w-full items-center gap-2 px-4 py-2.5 text-left text-sm font-semibold text-neutral-900; }
+    #now-num { @apply font-mono text-xs font-normal text-neutral-500; }
+    #now-panel { @apply max-h-[70vh] overflow-y-auto border-t border-neutral-200 bg-white px-4 py-3 shadow-lg; }
 
     /* ---------- 返回顶部 ---------- */
-    #back-top { @apply pointer-events-none fixed bottom-6 right-6 z-40 flex h-10 w-10 items-center justify-center rounded-full bg-neutral-900 text-white opacity-0 shadow-lg transition; }
-    #back-top.show { @apply pointer-events-auto opacity-100; }
+    /* 用 visibility 隐藏：opacity-0 的按钮仍可被 Tab 聚焦，visibility:hidden 会移出焦点顺序 */
+    #back-top { @apply invisible fixed bottom-6 right-6 z-40 flex h-10 w-10 items-center justify-center rounded-full bg-neutral-900 text-white opacity-0 shadow-lg focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-neutral-900; transition: opacity .15s, visibility .15s, background-color .15s; }
+    #back-top.show { @apply visible opacity-100; }
     #back-top:hover { @apply bg-neutral-700; }
   </style>
 </head>
@@ -169,12 +197,23 @@
     <div id="progress" class="h-full w-0 bg-neutral-900"></div>
   </div>
 
+  <!-- 移动端：当前小节条（滚过 Hero 后出现，点击展开目录） -->
+  <div id="now-bar">
+    <button id="now-btn" type="button" aria-expanded="false" aria-controls="now-panel">
+      <span id="now-num"></span>
+      <span id="now-title" class="min-w-0 flex-1 truncate"></span>
+      <i data-lucide="chevron-down" class="h-4 w-4 shrink-0 text-neutral-500" aria-hidden="true"></i>
+      <span class="sr-only">展开目录</span>
+    </button>
+    <nav id="now-panel" aria-label="目录" hidden></nav>
+  </div>
+
   <!-- ======================= Hero ======================= -->
   <header class="border-b border-neutral-200 bg-white">
     <div class="mx-auto max-w-6xl px-4 pb-14 pt-16 sm:px-6 sm:pb-16 sm:pt-24 lg:px-8">
       <span class="inline-flex items-center gap-1.5 rounded-full bg-neutral-900 px-3 py-1 text-xs font-medium text-white"><i data-lucide="route" class="h-3.5 w-3.5"></i>后端学习路线图</span>
       <h1 class="mt-6 text-4xl font-black leading-tight tracking-tight text-neutral-900 sm:text-6xl">TS 后端架构</h1>
-      <p class="mt-3 text-xl font-bold tracking-tight text-neutral-400 sm:text-3xl">从 0 基础到高内聚低耦合</p>
+      <p class="mt-3 text-xl font-bold tracking-tight text-neutral-500 sm:text-3xl">从 0 基础到高内聚低耦合</p>
       <p class="mt-6 max-w-2xl text-sm leading-7 text-neutral-600 sm:text-base sm:leading-8">目标：从最基础的 HTTP 接口开始，逐步理解 TypeScript 后端的分层、模块化、依赖注入、依赖倒置，以及高内聚、低耦合的工程化架构。</p>
       <div class="mt-7 flex flex-wrap gap-2">
         <span class="hero-chip">TypeScript</span>
@@ -185,15 +224,15 @@
       </div>
       <dl class="mt-12 grid max-w-md grid-cols-3 gap-6 border-t border-neutral-200 pt-8">
         <div>
-          <dt class="text-xs uppercase tracking-wider text-neutral-400">学习阶段</dt>
+          <dt class="text-xs uppercase tracking-wider text-neutral-500">学习阶段</dt>
           <dd class="mt-1 text-3xl font-black text-neutral-900">10</dd>
         </div>
         <div>
-          <dt class="text-xs uppercase tracking-wider text-neutral-400">演进层级</dt>
+          <dt class="text-xs uppercase tracking-wider text-neutral-500">演进层级</dt>
           <dd class="mt-1 text-3xl font-black text-neutral-900">8</dd>
         </div>
         <div>
-          <dt class="text-xs uppercase tracking-wider text-neutral-400">实战项目</dt>
+          <dt class="text-xs uppercase tracking-wider text-neutral-500">实战项目</dt>
           <dd class="mt-1 text-3xl font-black text-neutral-900">5</dd>
         </div>
       </dl>
@@ -202,43 +241,10 @@
 
   <!-- 移动端目录 -->
   <div class="mx-auto max-w-6xl px-4 sm:px-6 lg:hidden">
-    <details class="my-6 rounded-2xl border border-neutral-200 bg-white p-4 shadow-sm">
+    <details id="toc-mobile-wrap" class="my-6 rounded-2xl border border-neutral-200 bg-white p-4 shadow-sm">
       <summary class="cursor-pointer select-none text-sm font-semibold text-neutral-700"><i data-lucide="list-tree" class="mr-1.5 inline-block h-4 w-4 align-[-3px]"></i>目录导航</summary>
-      <div class="mt-3 grid grid-cols-2 gap-x-6 text-sm">
-        <a class="py-1 text-neutral-600 hover:text-neutral-900" href="#goals">01 学习目标</a>
-        <a class="py-1 text-neutral-600 hover:text-neutral-900" href="#stage1">02 理解后端</a>
-        <a class="py-1 text-neutral-600 hover:text-neutral-900" href="#stage2">03 HTTP API 基础</a>
-        <a class="py-1 text-neutral-600 hover:text-neutral-900" href="#stage3">04 Node.js + TS</a>
-        <a class="py-1 text-neutral-600 hover:text-neutral-900" href="#stage4">05 最简单的 API</a>
-        <a class="py-1 text-neutral-600 hover:text-neutral-900" href="#controller">06 Controller</a>
-        <a class="py-1 text-neutral-600 hover:text-neutral-900" href="#service">07 Service</a>
-        <a class="py-1 text-neutral-600 hover:text-neutral-900" href="#repository">08 Repository</a>
-        <a class="py-1 text-neutral-600 hover:text-neutral-900" href="#why-layers">09 为什么要分层</a>
-        <a class="py-1 text-neutral-600 hover:text-neutral-900" href="#dto">10 DTO</a>
-        <a class="py-1 text-neutral-600 hover:text-neutral-900" href="#dto-vs-entity">11 DTO ≠ Entity ≠ Model</a>
-        <a class="py-1 text-neutral-600 hover:text-neutral-900" href="#validation">12 参数校验</a>
-        <a class="py-1 text-neutral-600 hover:text-neutral-900" href="#error-handling">13 错误处理</a>
-        <a class="py-1 text-neutral-600 hover:text-neutral-900" href="#unified-response">14 统一响应</a>
-        <a class="py-1 text-neutral-600 hover:text-neutral-900" href="#modular">15 模块化</a>
-        <a class="py-1 text-neutral-600 hover:text-neutral-900" href="#cohesion">16 什么叫高内聚</a>
-        <a class="py-1 text-neutral-600 hover:text-neutral-900" href="#coupling">17 什么叫低耦合</a>
-        <a class="py-1 text-neutral-600 hover:text-neutral-900" href="#abstraction">18 依赖抽象</a>
-        <a class="py-1 text-neutral-600 hover:text-neutral-900" href="#scenarios">19 场景与判断</a>
-        <a class="py-1 text-neutral-600 hover:text-neutral-900" href="#di">20 依赖注入 DI</a>
-        <a class="py-1 text-neutral-600 hover:text-neutral-900" href="#dip">21 依赖倒置</a>
-        <a class="py-1 text-neutral-600 hover:text-neutral-900" href="#use-case">22 Use Case</a>
-        <a class="py-1 text-neutral-600 hover:text-neutral-900" href="#evolution">23 架构演进</a>
-        <a class="py-1 text-neutral-600 hover:text-neutral-900" href="#evolution-path">24 演进路线</a>
-        <a class="py-1 text-neutral-600 hover:text-neutral-900" href="#practice">25 项目实战路线</a>
-        <a class="py-1 text-neutral-600 hover:text-neutral-900" href="#core-insight">26 核心认知</a>
-        <a class="py-1 text-neutral-600 hover:text-neutral-900" href="#learning-map">27 学习地图</a>
-        <a class="py-1 text-neutral-600 hover:text-neutral-900" href="#priority">28 学习优先级</a>
-        <a class="py-1 text-neutral-600 hover:text-neutral-900" href="#final-goal">29 最终目标</a>
-        <a class="py-1 text-neutral-600 hover:text-neutral-900" href="#performance">30 Redis 缓存与多库组合</a>
-        <a class="py-1 text-neutral-600 hover:text-neutral-900" href="#api-versioning">31 API 版本化</a>
-        <a class="py-1 text-neutral-600 hover:text-neutral-900" href="#frameworks">32 后端框架对比</a>
-        <a class="py-1 text-neutral-600 hover:text-neutral-900" href="#interceptors">33 请求/响应拦截器</a>
-      </div>
+      <!-- 由脚本根据桌面端 #toc 生成，目录只需维护一份 -->
+      <div id="toc-mobile" class="mt-3 text-sm"></div>
     </details>
   </div>
 
@@ -249,7 +255,7 @@
       <!-- 桌面端目录 -->
       <aside class="hidden lg:block">
         <nav id="toc" aria-label="目录" class="sticky top-8 max-h-[calc(100vh-4rem)] overflow-y-auto py-12 pr-2 text-sm">
-          <p class="mb-2 px-3 text-xs font-bold uppercase tracking-widest text-neutral-400">目录</p>
+          <p class="mb-2 px-3 text-xs font-bold uppercase tracking-widest text-neutral-500">目录</p>
 
           <p class="toc-group">开始</p>
           <a class="toc-link" href="#goals">学习目标</a>
@@ -260,7 +266,7 @@
           <a class="toc-link" href="#stage3">第三阶段：Node.js + TS</a>
 
           <p class="toc-group">分层篇</p>
-          <a class="toc-link" href="#stage4">最简单的 API</a>
+          <a class="toc-link" href="#stage4">第四阶段：Controller / Service / Repository</a>
           <a class="toc-link" href="#controller">Controller</a>
           <a class="toc-link" href="#service">Service</a>
           <a class="toc-link" href="#repository">Repository</a>
@@ -332,9 +338,9 @@
           <iframe src="sections/04-stage3.html" data-section="stage3" title="04 第三阶段：Node.js + TypeScript" class="block w-full border-0" style="height:160px"></iframe>
         </div>
 
-        <!-- 05 第四阶段：最简单的 API -->
+        <!-- 05 第四阶段：Controller / Service / Repository -->
         <div id="stage4" class="doc-section">
-          <iframe src="sections/05-stage4.html" data-section="stage4" title="05 第四阶段：最简单的 API" class="block w-full border-0" style="height:160px"></iframe>
+          <iframe src="sections/05-stage4.html" data-section="stage4" title="05 第四阶段：Controller / Service / Repository" class="block w-full border-0" style="height:160px"></iframe>
         </div>
 
         <!-- 06 Controller -->
@@ -483,7 +489,7 @@
 
   <!-- ======================= Footer ======================= -->
   <footer class="border-t border-neutral-200 bg-white">
-    <div class="mx-auto max-w-6xl px-4 py-8 text-center text-xs text-neutral-400 sm:px-6 lg:px-8">
+    <div class="mx-auto max-w-6xl px-4 py-8 text-center text-xs text-neutral-500 sm:px-6 lg:px-8">
       <p class="font-medium text-neutral-600">TS 后端架构：从 0 基础到高内聚低耦合</p>
       <p class="mt-1">先解决问题，再引入抽象 · 样式由 Tailwind CSS 构建 · 代码高亮由 highlight.js 提供</p>
     </div>
@@ -497,17 +503,81 @@
   </button>
 
   <script>
-    // 阅读进度 + 目录高亮 + 返回顶部
+    // 阅读进度 + 目录高亮 + 返回顶部 + 移动端当前小节条
     var progress = document.getElementById('progress');
     var backTop = document.getElementById('back-top');
+    var tocNav = document.getElementById('toc');
+    var heroEl = document.querySelector('body > header');
+    var nowBar = document.getElementById('now-bar');
+    var nowBtn = document.getElementById('now-btn');
+    var nowNum = document.getElementById('now-num');
+    var nowTitle = document.getElementById('now-title');
+    var nowPanel = document.getElementById('now-panel');
+    var mobileWrap = document.getElementById('toc-mobile-wrap');
+    var reduceMotion = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
     var tocLinks = Array.prototype.slice.call(document.querySelectorAll('#toc a[href^="#"]'));
+
+    // 目录编号按出现顺序自动生成，与小节页的 01–33 编号一致
+    tocLinks.forEach(function (a, i) {
+      var num = document.createElement('span');
+      num.className = 'toc-num';
+      num.textContent = (i < 9 ? '0' : '') + (i + 1);
+      a.insertBefore(num, a.firstChild);
+    });
+
+    // 移动端目录与当前小节条的目录面板都由桌面端 #toc 克隆生成，目录只维护一份
+    function buildMobileToc(container) {
+      var list = null;
+      Array.prototype.forEach.call(tocNav.children, function (node) {
+        if (node.classList.contains('toc-group')) {
+          var g = document.createElement('p');
+          g.className = 'tocm-group';
+          g.textContent = node.textContent;
+          container.appendChild(g);
+          list = document.createElement('div');
+          list.className = 'tocm-links';
+          container.appendChild(list);
+        } else if (node.tagName === 'A' && list) {
+          list.appendChild(node.cloneNode(true));
+        }
+      });
+    }
+    buildMobileToc(document.getElementById('toc-mobile'));
+    buildMobileToc(nowPanel);
+    var allLinks = Array.prototype.slice.call(document.querySelectorAll('.toc-link'));
+
+    function setPanel(open) {
+      nowPanel.hidden = !open;
+      nowBtn.setAttribute('aria-expanded', String(open));
+    }
+    nowBtn.addEventListener('click', function () { setPanel(nowPanel.hidden); });
+    document.addEventListener('keydown', function (e) {
+      if (e.key === 'Escape' && !nowPanel.hidden) { setPanel(false); nowBtn.focus(); }
+    });
+    // 点击移动端目录项后收起，避免跳转后仍留着一大块展开的列表
+    document.getElementById('toc-mobile').addEventListener('click', function (e) {
+      if (e.target.closest('a')) mobileWrap.open = false;
+    });
+    nowPanel.addEventListener('click', function (e) {
+      if (e.target.closest('a')) setPanel(false);
+    });
+
     var targets = tocLinks
-      .map(function (a) {
-        return { a: a, el: document.getElementById(a.getAttribute('href').slice(1)) };
+      .map(function (a, i) {
+        return { a: a, href: a.getAttribute('href'), num: a.querySelector('.toc-num').textContent,
+                 title: a.textContent.slice(a.querySelector('.toc-num').textContent.length),
+                 el: document.getElementById(a.getAttribute('href').slice(1)) };
       })
       .filter(function (t) { return t.el; });
 
-    var ticking = false;
+    // 当前项超出桌面目录可视区时，只滚动目录自身（不影响页面滚动）
+    function keepTocVisible(a) {
+      var top = a.offsetTop, bottom = top + a.offsetHeight, pad = 48;
+      if (top - pad < tocNav.scrollTop) tocNav.scrollTop = top - pad;
+      else if (bottom + pad > tocNav.scrollTop + tocNav.clientHeight) tocNav.scrollTop = bottom + pad - tocNav.clientHeight;
+    }
+
+    var ticking = false, lastHref = null;
     function onScroll() {
       if (ticking) return;
       ticking = true;
@@ -524,8 +594,24 @@
           // iframe 高度动态变化，offsetTop 需每次实时读取
           if (targets[i].el.offsetTop <= y) current = targets[i];
         }
-        tocLinks.forEach(function (a) { a.classList.remove('toc-active'); });
-        if (current) current.a.classList.add('toc-active');
+
+        var pastHero = heroEl.getBoundingClientRect().bottom < 0 && !!current;
+        nowBar.classList.toggle('show', pastHero);
+        if (!pastHero && !nowPanel.hidden) setPanel(false);
+
+        var href = current ? current.href : null;
+        if (href === lastHref) return;
+        lastHref = href;
+        allLinks.forEach(function (a) {
+          var on = a.getAttribute('href') === href;
+          a.classList.toggle('toc-active', on);
+          if (on) a.setAttribute('aria-current', 'location'); else a.removeAttribute('aria-current');
+        });
+        if (current) {
+          nowNum.textContent = current.num;
+          nowTitle.textContent = current.title;
+          if (tocNav.offsetParent) keepTocVisible(current.a);
+        }
       });
     }
     window.addEventListener('scroll', onScroll, { passive: true });
@@ -533,7 +619,7 @@
     onScroll();
 
     backTop.addEventListener('click', function () {
-      window.scrollTo({ top: 0, behavior: 'smooth' });
+      window.scrollTo({ top: 0, behavior: reduceMotion ? 'auto' : 'smooth' });
     });
 
     // 公共样式注入：iframe 是独立文档，父页面 CSS 作用不到其中，
