@@ -36,19 +36,21 @@
 
   <!-- ======================= Hero ======================= -->
   <header class="border-b border-neutral-200 bg-white">
-    <div class="mx-auto max-w-6xl px-4 pb-14 pt-16 sm:px-6 sm:pb-16 sm:pt-24 lg:px-8">
-      <span class="inline-flex items-center gap-1.5 rounded-full bg-neutral-900 px-3 py-1 text-xs font-medium text-white"><svg class="lucide lucide-route h-3.5 w-3.5" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"> <circle cx="6" cy="19" r="3" /> <path d="M9 19h8.5a3.5 3.5 0 0 0 0-7h-11a3.5 3.5 0 0 1 0-7H15" /> <circle cx="18" cy="5" r="3" /> </svg>后端学习路线图</span>
-      <h1 class="mt-6 text-4xl font-black leading-tight tracking-tight text-neutral-900 sm:text-6xl">TS 后端架构</h1>
-      <p class="mt-3 text-xl font-bold tracking-tight text-neutral-500 sm:text-3xl">从 0 基础到高内聚低耦合</p>
-      <p class="mt-6 max-w-2xl text-sm leading-7 text-neutral-600 sm:text-base sm:leading-8">目标：从最基础的 HTTP 接口开始，逐步理解 TypeScript 后端的分层、模块化、依赖注入、依赖倒置，以及高内聚、低耦合的工程化架构。</p>
-      <div class="mt-7 flex flex-wrap gap-2">
-        <span class="hero-chip">TypeScript</span>
-        <span class="hero-chip">Node.js</span>
-        <span class="hero-chip">NestJS</span>
-        <span class="hero-chip">依赖注入</span>
-        <span class="hero-chip">高内聚低耦合</span>
+    <div class="mx-auto max-w-6xl px-4 pb-10 pt-12 sm:px-6 sm:pb-12 sm:pt-16 lg:grid lg:grid-cols-[minmax(0,44rem)_auto] lg:items-end lg:justify-start lg:gap-16 lg:px-8 xl:max-w-[88rem]">
+      <div>
+        <span class="inline-flex items-center gap-1.5 rounded-full bg-neutral-900 px-3 py-1 text-xs font-medium text-white"><svg class="lucide lucide-route h-3.5 w-3.5" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"> <circle cx="6" cy="19" r="3" /> <path d="M9 19h8.5a3.5 3.5 0 0 0 0-7h-11a3.5 3.5 0 0 1 0-7H15" /> <circle cx="18" cy="5" r="3" /> </svg>后端学习路线图</span>
+        <h1 class="mt-5 text-4xl font-black leading-tight tracking-tight text-neutral-900 sm:text-6xl">TS 后端架构</h1>
+        <p class="mt-3 text-xl font-bold tracking-tight text-neutral-500 sm:text-3xl">从 0 基础到高内聚低耦合</p>
+        <p class="mt-5 max-w-2xl text-sm leading-7 text-neutral-600 sm:text-base sm:leading-8">目标：从最基础的 HTTP 接口开始，逐步理解 TypeScript 后端的分层、模块化、依赖注入、依赖倒置，以及高内聚、低耦合的工程化架构。</p>
+        <div class="mt-6 flex flex-wrap gap-2">
+          <span class="hero-chip">TypeScript</span>
+          <span class="hero-chip">Node.js</span>
+          <span class="hero-chip">NestJS</span>
+          <span class="hero-chip">依赖注入</span>
+          <span class="hero-chip">高内聚低耦合</span>
+        </div>
       </div>
-      <dl class="mt-12 grid max-w-md grid-cols-3 gap-6 border-t border-neutral-200 pt-8">
+      <dl class="mt-8 grid max-w-md grid-cols-3 gap-6 border-t border-neutral-200 pt-6 lg:mt-0 lg:grid-cols-1 lg:gap-5 lg:border-l lg:border-t-0 lg:pl-10 lg:pt-0">
         <div>
           <dt class="text-xs uppercase tracking-wider text-neutral-500">学习阶段</dt>
           <dd class="mt-1 text-3xl font-black text-neutral-900">10</dd>
@@ -75,8 +77,8 @@
   </div>
 
   <!-- ======================= 正文 ======================= -->
-  <div class="mx-auto max-w-6xl px-4 sm:px-6 lg:px-8">
-    <div class="lg:grid lg:grid-cols-[230px_minmax(0,1fr)] lg:gap-10">
+  <div class="mx-auto max-w-6xl px-4 sm:px-6 lg:px-8 xl:max-w-[88rem]">
+    <div class="lg:grid lg:grid-cols-[230px_minmax(0,1fr)] lg:gap-10 xl:grid-cols-[230px_minmax(0,1fr)_200px]">
 
       <!-- 桌面端目录 -->
       <aside class="hidden lg:block">
@@ -130,14 +132,10 @@
           <a class="toc-link" href="#priority">学习时的优先级</a>
           <a class="toc-link" href="#final-goal">最终目标</a>
 
-          <p class="toc-group">接口提效</p>
+          <p class="toc-group">附录：进阶专题</p>
           <a class="toc-link" href="#performance">Redis 缓存与多库组合</a>
           <a class="toc-link" href="#api-versioning">API 版本化：什么时候要 /v1？</a>
-
-          <p class="toc-group">框架选型</p>
           <a class="toc-link" href="#frameworks">后端框架对比</a>
-
-          <p class="toc-group">请求与响应</p>
           <a class="toc-link" href="#interceptors">请求拦截器与响应拦截器</a>
           <!-- /build:toc -->
         </nav>
@@ -155,7 +153,7 @@
             </div>
           </header>
           <p class="doc-p">学完以后，应该能够独立设计类似：</p>
-          <div class="flow">
+          <div class="flow flow-steps">
             <div class="flow-node">React / Vue<span class="flow-sub">负责客户端交互，渲染界面</span></div>
             <div class="flow-arrow"><svg class="lucide lucide-arrow-down" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"> <path d="M12 5v14" /> <path d="m19 12-7 7-7-7" /> </svg></div>
             <div class="flow-node">HTTP API<span class="flow-sub">前后端之间的通信约定（边界）</span></div>
@@ -194,7 +192,7 @@
             </div>
           </header>
           <p class="doc-p">不要一开始就学框架，先理解后端的基本工作方式。</p>
-          <div class="flow">
+          <div class="flow flow-steps">
             <div class="flow-node">客户端</div>
             <div class="flow-arrow"><svg class="lucide lucide-arrow-down" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"> <path d="M12 5v14" /> <path d="m19 12-7 7-7-7" /> </svg></div>
             <div class="flow-node">HTTP Request</div>
@@ -249,7 +247,7 @@
             </div>
           </header>
 
-          <h3 class="doc-h3">HTTP 方法</h3>
+          <h3 id="stage2-h1" class="doc-h3">HTTP 方法</h3>
           <div class="my-4 overflow-x-auto rounded-xl border border-neutral-200 bg-white shadow-sm">
             <table class="w-full text-sm">
               <thead class="bg-neutral-50 text-left text-xs uppercase tracking-wider text-neutral-500">
@@ -284,7 +282,7 @@ PATCH /users/123
 DELETE /users/123</code></pre>
           </figure>
 
-          <h3 class="doc-h3">Request</h3>
+          <h3 id="stage2-h2" class="doc-h3">Request</h3>
           <p class="doc-p">HTTP 请求主要可以理解为：</p>
           <div class="my-4 flex flex-wrap items-center gap-2 rounded-xl border border-neutral-200 bg-white p-4 shadow-sm">
             <span class="font-mono text-sm font-bold text-neutral-900">Request</span>
@@ -339,7 +337,7 @@ headers.<span class="hljs-property">authorization</span></code></pre>
 body.<span class="hljs-property">age</span></code></pre>
           </figure>
 
-          <h3 class="doc-h3">Response</h3>
+          <h3 id="stage2-h3" class="doc-h3">Response</h3>
           <p class="doc-p">常见状态码：</p>
           <div class="my-4 overflow-x-auto rounded-xl border border-neutral-200 bg-white shadow-sm">
             <table class="w-full text-sm">
@@ -391,7 +389,7 @@ body.<span class="hljs-property">age</span></code></pre>
             </div>
           </header>
           <p class="doc-p">开始使用 TypeScript 编写后端。推荐学习路线：</p>
-          <div class="flow">
+          <div class="flow flow-h">
             <div class="flow-node">Node.js</div>
             <div class="flow-arrow">＋</div>
             <div class="flow-node">TypeScript</div>
@@ -421,7 +419,7 @@ body.<span class="hljs-property">age</span></code></pre>
               <h2 class="sec-title">第四阶段：Controller / Service / Repository</h2>
             </div>
           </header>
-          <h3 class="doc-h3">最简单的 API</h3>
+          <h3 id="stage4-h1" class="doc-h3">最简单的 API</h3>
           <p class="doc-p">刚开始甚至可以直接：</p>
           <figure class="code-card">
             <figcaption class="code-head">
@@ -475,7 +473,7 @@ body.<span class="hljs-property">age</span></code></pre>
 }</code></pre>
           </figure>
           <p class="doc-p">Controller 主要负责：</p>
-          <div class="flow flow-sm">
+          <div class="flow flow-sm flow-h">
             <div class="flow-node">HTTP Request</div>
             <div class="flow-arrow"><svg class="lucide lucide-arrow-down" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"> <path d="M12 5v14" /> <path d="m19 12-7 7-7-7" /> </svg></div>
             <div class="flow-node">获取参数</div>
@@ -520,7 +518,7 @@ body.<span class="hljs-property">age</span></code></pre>
             <li class="cross-item"><span class="cross-dot"><svg class="lucide lucide-x" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"> <path d="M18 6 6 18" /> <path d="m6 6 12 12" /> </svg></span>难以测试</li>
             <li class="cross-item"><span class="cross-dot"><svg class="lucide lucide-x" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"> <path d="M18 6 6 18" /> <path d="m6 6 12 12" /> </svg></span>难以复用业务逻辑</li>
           </ul>
-          <h3 class="doc-h3">真实项目示例：NestJS 的 Controller</h3>
+          <h3 id="controller-h1" class="doc-h3">真实项目示例：NestJS 的 Controller</h3>
           <p class="doc-p">下面是一段真实后台项目（NestJS + TypeORM）中的岗位管理 Controller：</p>
           <figure class="code-card">
             <figcaption class="code-head">
@@ -631,7 +629,7 @@ body.<span class="hljs-property">age</span></code></pre>
               </ul>
             </div>
           </div>
-          <h3 class="doc-h3">真实项目示例：Service 承载业务决策</h3>
+          <h3 id="service-h1" class="doc-h3">真实项目示例：Service 承载业务决策</h3>
           <p class="doc-p">真实项目里岗位管理的 Service。注意「条件怎么拼、怎么分页、删除是物理删还是软删」这些业务决策都在 Service 层：</p>
           <figure class="code-card">
             <figcaption class="code-head">
@@ -728,7 +726,7 @@ body.<span class="hljs-property">age</span></code></pre>
             <span class="chip">数据库删除</span>
           </div>
           <p class="doc-p">于是形成：</p>
-          <div class="flow flow-sm">
+          <div class="flow flow-sm flow-h">
             <div class="flow-node">Controller</div>
             <div class="flow-arrow"><svg class="lucide lucide-arrow-down" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"> <path d="M12 5v14" /> <path d="m19 12-7 7-7-7" /> </svg></div>
             <div class="flow-node">Service</div>
@@ -737,7 +735,7 @@ body.<span class="hljs-property">age</span></code></pre>
             <div class="flow-arrow"><svg class="lucide lucide-arrow-down" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"> <path d="M12 5v14" /> <path d="m19 12-7 7-7-7" /> </svg></div>
             <div class="flow-node flow-node-accent">Database</div>
           </div>
-          <h3 class="doc-h3">真实项目示例：TypeORM 的 Repository</h3>
+          <h3 id="repository-h1" class="doc-h3">真实项目示例：TypeORM 的 Repository</h3>
           <p class="doc-p">真实项目里并没有手写一个 <code>PostRepository</code> 类，而是用 <strong class="font-semibold text-neutral-900">Entity 描述表结构</strong>，再把 ORM 提供的通用 Repository 注入进 Service。先看 Entity：</p>
           <figure class="code-card">
             <figcaption class="code-head">
@@ -887,7 +885,7 @@ body.<span class="hljs-property">age</span></code></pre>
   <span class="hljs-attr">&quot;password&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-string">&quot;123456&quot;</span>
 <span class="hljs-punctuation">}</span></code></pre>
           </figure>
-          <h3 class="doc-h3">真实项目示例：带校验规则的 DTO</h3>
+          <h3 id="dto-h1" class="doc-h3">真实项目示例：带校验规则的 DTO</h3>
           <p class="doc-p">真实项目的 DTO 不只是字段声明，还是校验规则的挂载点。例如登录接口的 DTO：</p>
           <figure class="code-card">
             <figcaption class="code-head">
@@ -1027,7 +1025,7 @@ body.<span class="hljs-property">age</span></code></pre>
   <span class="hljs-attr">password</span>: z.<span class="hljs-title function_">string</span>().<span class="hljs-title function_">min</span>(<span class="hljs-number">6</span>),
 });</code></pre>
           </figure>
-          <h3 class="doc-h3">真实项目示例：NestJS 全局校验管道</h3>
+          <h3 id="validation-h1" class="doc-h3">真实项目示例：NestJS 全局校验管道</h3>
           <p class="doc-p">真实项目用的是 class-validator：规则写在 DTO 上，校验管道在入口处<strong class="font-semibold text-neutral-900">全局注册一次</strong>：</p>
           <figure class="code-card">
             <figcaption class="code-head">
@@ -1104,7 +1102,7 @@ app.<span class="hljs-title function_">useGlobalPipes</span>(
 }</code></pre>
           </figure>
           <p class="doc-p">然后通过统一异常处理：</p>
-          <div class="flow flow-sm">
+          <div class="flow flow-sm flow-h">
             <div class="flow-node">Service</div>
             <div class="flow-arrow"><svg class="lucide lucide-arrow-down" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"> <path d="M12 5v14" /> <path d="m19 12-7 7-7-7" /> </svg></div>
             <div class="flow-node">throw Error</div>
@@ -1129,7 +1127,7 @@ app.<span class="hljs-title function_">useGlobalPipes</span>(
   <span class="hljs-keyword">return</span> res.<span class="hljs-title function_">status</span>(<span class="hljs-number">500</span>).<span class="hljs-title function_">json</span>(...)
 }</code></pre>
           </figure>
-          <h3 class="doc-h3">真实项目示例：语义化异常 + 全局异常过滤器</h3>
+          <h3 id="error-handling-h1" class="doc-h3">真实项目示例：语义化异常 + 全局异常过滤器</h3>
           <p class="doc-p">真实项目里，业务代码只管抛出<strong class="font-semibold text-neutral-900">语义化异常</strong>。例如多租户成员管理模块：</p>
           <figure class="code-card">
             <figcaption class="code-head">
@@ -1248,7 +1246,7 @@ app.<span class="hljs-title function_">useGlobalPipes</span>(
 <span class="hljs-punctuation">}</span></code></pre>
             </figure>
           </div>
-          <h3 class="doc-h3">真实项目示例：ResultData 统一响应</h3>
+          <h3 id="unified-response-h1" class="doc-h3">真实项目示例：ResultData 统一响应</h3>
           <p class="doc-p">真实项目把响应结构做成了一个工具类 <code>ResultData</code>，全项目所有接口共用：</p>
           <figure class="code-card">
             <figcaption class="code-head">
@@ -1370,7 +1368,7 @@ auth/
             <span class="callout-icon"><svg class="lucide lucide-folder-tree" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"> <path d="M20 10a1 1 0 0 0 1-1V6a1 1 0 0 0-1-1h-2.5a1 1 0 0 1-.8-.4l-.9-1.2A1 1 0 0 0 15 3h-2a1 1 0 0 0-1 1v5a1 1 0 0 0 1 1Z" /> <path d="M20 21a1 1 0 0 0 1-1v-3a1 1 0 0 0-1-1h-2.9a1 1 0 0 1-.88-.55l-.42-.85a1 1 0 0 0-.92-.6H13a1 1 0 0 0-1 1v5a1 1 0 0 0 1 1Z" /> <path d="M3 5a2 2 0 0 0 2 2h3" /> <path d="M3 3v13a2 2 0 0 0 2 2h3" /> </svg></span>
             <div>这是一种<strong class="font-semibold text-neutral-900">按业务领域组织代码（Feature / Domain-oriented Organization）</strong>的方式。</div>
           </div>
-          <h3 class="doc-h3">真实项目示例：按业务领域划分模块</h3>
+          <h3 id="modular-h1" class="doc-h3">真实项目示例：按业务领域划分模块</h3>
           <p class="doc-p">真实项目有近 300 个源文件，全部按这个思路组织。顶层只有三块：<code>common/</code> 横切基础设施、<code>config/</code> 配置、<code>module/</code> 业务模块：</p>
           <div class="diagram-card">
             <p class="diagram-head">真实项目 · 目录结构（节选）</p>
@@ -1450,13 +1448,13 @@ auth/
   </span>) {}
 }</code></pre>
           </figure>
-          <div class="flow flow-sm">
+          <div class="flow flow-sm flow-h">
             <div class="flow-node">UserService</div>
             <div class="flow-arrow"><svg class="lucide lucide-arrow-down" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"> <path d="M12 5v14" /> <path d="m19 12-7 7-7-7" /> </svg></div>
             <div class="flow-node">Prisma</div>
           </div>
           <p class="doc-p">Service 强依赖 Prisma。如果以后：</p>
-          <div class="flow flow-sm">
+          <div class="flow flow-sm flow-h">
             <div class="flow-node">Prisma</div>
             <div class="flow-arrow"><svg class="lucide lucide-arrow-down" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"> <path d="M12 5v14" /> <path d="m19 12-7 7-7-7" /> </svg></div>
             <div class="flow-node">Drizzle</div>
@@ -1474,7 +1472,7 @@ auth/
             </div>
           </header>
           <p class="doc-p">更好的方式：</p>
-          <div class="flow flow-sm">
+          <div class="flow flow-sm flow-h">
             <div class="flow-node">UserService</div>
             <div class="flow-arrow"><svg class="lucide lucide-arrow-down" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"> <path d="M12 5v14" /> <path d="m19 12-7 7-7-7" /> </svg></div>
             <div class="flow-node">UserRepository</div>
@@ -1546,7 +1544,7 @@ auth/
             <p class="banner-text">高内聚、低耦合不是一种架构，<br class="hidden sm:block">而是一种判断标准。</p>
           </div>
 
-          <h3 class="doc-h3">一句话判断法</h3>
+          <h3 id="scenarios-h1" class="doc-h3">一句话判断法</h3>
           <p class="doc-p">以后写 TS 后端时，可以先问自己两个问题：</p>
           <div class="my-4 grid gap-4 sm:grid-cols-2">
             <div class="rounded-2xl border border-neutral-900 bg-white p-5 shadow-sm">
@@ -1593,7 +1591,7 @@ auth/
           </div>
           <p class="doc-p">这个区别非常重要。</p>
 
-          <h3 class="doc-h3">场景 1：刚开始写 CRUD</h3>
+          <h3 id="scenarios-h2" class="doc-h3">场景 1：刚开始写 CRUD</h3>
           <p class="doc-p">比如现在只有一个 <code>User</code>，只有创建、查询、修改、删除用户，那么完全可以：</p>
           <figure class="diagram-card">
             <figcaption class="diagram-head">users/</figcaption>
@@ -1623,7 +1621,7 @@ auth/
           </figure>
           <p class="doc-p">这种属于<strong class="font-semibold text-neutral-800">架构过度设计</strong>。</p>
 
-          <h3 class="doc-h3">什么时候开始需要高内聚？</h3>
+          <h3 id="scenarios-h3" class="doc-h3">什么时候开始需要高内聚？</h3>
           <p class="doc-p">假设项目慢慢变成：</p>
           <div class="my-4 flex flex-wrap gap-2">
             <span class="chip">注册</span>
@@ -1674,7 +1672,7 @@ auth/
           </figure>
           <p class="doc-p">为什么？因为注册、修改密码、关注、VIP 虽然都和 User 有关，但它们的<strong class="font-semibold text-neutral-800">变化原因可能不同</strong>。这就是高内聚的实际应用。</p>
 
-          <h3 class="doc-h3">一个特别好用的判断方法：看“变化原因”</h3>
+          <h3 id="scenarios-h4" class="doc-h3">一个特别好用的判断方法：看“变化原因”</h3>
           <p class="doc-p">假设 <code>UserService</code> 里同时有 <code>register()</code>、<code>login()</code>、<code>sendEmail()</code>、<code>uploadAvatar()</code>、<code>createOrder()</code>，就依次问自己：</p>
           <div class="my-4 space-y-2.5">
             <div class="flex items-center justify-between gap-3 rounded-xl border border-neutral-200 bg-white px-4 py-3 shadow-sm">
@@ -1695,7 +1693,7 @@ auth/
             <div>那这个 Service 大概率已经<strong class="font-semibold">职责过多、内聚性下降</strong>。</div>
           </div>
 
-          <h3 class="doc-h3">低耦合什么时候开始重要？</h3>
+          <h3 id="scenarios-h5" class="doc-h3">低耦合什么时候开始重要？</h3>
           <p class="doc-p">最典型的场景是数据库。项目小的时候，直接注入 <code>PrismaClient</code> 完全可以，不要看到 Prisma 就开始抽象：</p>
           <figure class="code-card">
             <figcaption class="code-head">
@@ -1710,7 +1708,7 @@ auth/
 }</code></pre>
           </figure>
           <p class="doc-p">但如果 <code>UserService</code>、<code>OrderService</code>、<code>PaymentService</code>、<code>ProductService</code> 全部直接依赖 Prisma，业务代码到处都是 <code>prisma.user.find...</code>，这时候就要开始考虑：</p>
-          <div class="flow flow-sm">
+          <div class="flow flow-sm flow-h">
             <div class="flow-node">业务逻辑</div>
             <div class="flow-arrow"><svg class="lucide lucide-arrow-down" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"> <path d="M12 5v14" /> <path d="m19 12-7 7-7-7" /> </svg></div>
             <div class="flow-node">Repository Interface</div>
@@ -1718,7 +1716,7 @@ auth/
             <div class="flow-node flow-node-accent">Prisma Repository</div>
           </div>
 
-          <h3 class="doc-h3">什么时候“不需要”低耦合？</h3>
+          <h3 id="scenarios-h6" class="doc-h3">什么时候“不需要”低耦合？</h3>
           <p class="doc-p">这个非常重要。假设项目只有 3 个接口、1 个开发者、没有复杂业务、不会更换 ORM，那么下面这样已经足够：</p>
           <figure class="code-card">
             <figcaption class="code-head">
@@ -1754,7 +1752,7 @@ auth/
           </figure>
           <p class="doc-p">这纯属给自己增加工作量。</p>
 
-          <h3 class="doc-h3">真正的判断标准：变化概率 × 影响范围</h3>
+          <h3 id="scenarios-h7" class="doc-h3">真正的判断标准：变化概率 × 影响范围</h3>
           <p class="doc-p">推荐用这个思维：</p>
           <div class="my-4 flex flex-wrap items-center gap-2 rounded-xl border border-neutral-200 bg-white p-4 shadow-sm">
             <span class="font-mono text-sm font-bold text-neutral-900">是否需要抽象</span>
@@ -1785,7 +1783,7 @@ auth/
           </div>
           <p class="doc-p">这比“架构书说 Repository 很重要，所以我要 Repository”靠谱得多。</p>
 
-          <h3 class="doc-h3">低耦合最典型的场景：第三方服务</h3>
+          <h3 id="scenarios-h8" class="doc-h3">低耦合最典型的场景：第三方服务</h3>
           <p class="doc-p">比如做 AI 产品，一开始直接把模型调用写在业务代码里：</p>
           <figure class="code-card">
             <figcaption class="code-head">
@@ -1835,7 +1833,7 @@ auth/
           </figure>
           <p class="doc-p">业务只知道 <code>llmProvider.chat()</code>，不知道具体是哪家模型。这就是<strong class="font-semibold text-neutral-800">低耦合真正有价值的场景</strong>。</p>
 
-          <h3 class="doc-h3">另一个典型场景：支付</h3>
+          <h3 id="scenarios-h9" class="doc-h3">另一个典型场景：支付</h3>
           <p class="doc-p">如果订单业务直接写 <code>stripe.paymentIntents.create(...)</code>，以后接微信支付就会很痛苦。更合理的结构：</p>
           <div class="flow flow-sm">
             <div class="flow-node">OrderService</div>
@@ -1855,7 +1853,7 @@ auth/
             <div>支付供应商本身就是<strong class="font-semibold text-neutral-900">高度可变的东西</strong>，所以这里非常值得降低耦合。</div>
           </div>
 
-          <h3 class="doc-h3">再看一个高内聚案例</h3>
+          <h3 id="scenarios-h10" class="doc-h3">再看一个高内聚案例</h3>
           <p class="doc-p">假设 <code>order.service.ts</code> 同时处理：</p>
           <div class="my-4 flex flex-wrap gap-2">
             <span class="chip">创建订单</span>
@@ -1889,7 +1887,7 @@ Notification
  └── SendOrderNotification</pre>
           </figure>
 
-          <h3 class="doc-h3">但千万不要“为了拆而拆”</h3>
+          <h3 id="scenarios-h11" class="doc-h3">但千万不要“为了拆而拆”</h3>
           <p class="doc-p">比如把一个简单的邮箱校验拆成四个文件：</p>
           <figure class="code-card">
             <figcaption class="code-head">
@@ -1908,7 +1906,7 @@ Notification
           </figure>
           <p class="doc-p">如果它们天然属于一个简单概念，一个 <code>validateEmail()</code> 就够了。</p>
 
-          <h3 class="doc-h3">非常实用的经验法则：5 个信号</h3>
+          <h3 id="scenarios-h12" class="doc-h3">非常实用的经验法则：5 个信号</h3>
           <div class="my-4 space-y-4">
             <div class="rounded-2xl border border-neutral-200 bg-white p-5 shadow-sm">
               <div class="flex items-center gap-2.5">
@@ -1968,7 +1966,7 @@ Notification
 }</code></pre>
           </figure>
 
-          <h3 class="doc-h3">最终决策树</h3>
+          <h3 id="scenarios-h13" class="doc-h3">最终决策树</h3>
           <p class="doc-p">以后写代码的时候，脑子里可以过一遍：</p>
           <figure class="diagram-card">
             <figcaption class="diagram-head">Decision Tree</figcaption>
@@ -1996,7 +1994,7 @@ Notification
     Dependency Injection</pre>
           </figure>
 
-          <h3 class="doc-h3">最重要的一句话</h3>
+          <h3 id="scenarios-h14" class="doc-h3">最重要的一句话</h3>
           <div class="big-quote">
             <p class="banner-tag">记住这句话</p>
             <p class="banner-text">高内聚不是“拆得越细越好”，低耦合也不是“抽象越多越好”。<br class="hidden sm:block">真正的架构能力，是识别代码的变化边界，<br class="hidden sm:block">把经常一起变化的东西放在一起，把容易独立变化的东西隔离开。</p>
@@ -2082,7 +2080,7 @@ Notification
             <div>这就是 <strong class="font-semibold text-neutral-900">Dependency Injection</strong>。</div>
           </div>
           <p class="doc-p">NestJS 会大量使用这种思想。</p>
-          <h3 class="doc-h3">真实项目示例：NestJS 的依赖注入</h3>
+          <h3 id="di-h1" class="doc-h3">真实项目示例：NestJS 的依赖注入</h3>
           <p class="doc-p">真实项目里，Controller 依赖 Service、Service 依赖 Repository，全都是「声明需要什么」：</p>
           <figure class="code-card">
             <figcaption class="code-head">
@@ -2200,7 +2198,7 @@ Notification
 }</code></pre>
           </figure>
           <p class="doc-p">这样：</p>
-          <div class="flow flow-sm">
+          <div class="flow flow-sm flow-h">
             <div class="flow-node">业务层</div>
             <div class="flow-arrow"><svg class="lucide lucide-arrow-down" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"> <path d="M12 5v14" /> <path d="m19 12-7 7-7-7" /> </svg></div>
             <div class="flow-node flow-node-accent">抽象</div>
@@ -2799,7 +2797,7 @@ Notification
             </div>
           </div>
           <p class="doc-p mt-6 font-semibold text-neutral-800">最终能够做到：</p>
-          <div class="flow flow-sm">
+          <div class="flow flow-sm flow-steps">
             <div class="flow-node">能写 API</div>
             <div class="flow-arrow"><svg class="lucide lucide-arrow-down" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"> <path d="M12 5v14" /> <path d="m19 12-7 7-7-7" /> </svg></div>
             <div class="flow-node">能写 CRUD</div>
@@ -2831,7 +2829,7 @@ Notification
           <header class="mb-5 flex items-start gap-3">
             <span class="sec-num">30</span>
             <div>
-              <p class="eyebrow">接口提效</p>
+              <p class="eyebrow">附录：进阶专题</p>
               <h2 class="sec-title">Redis 缓存与多库组合</h2>
             </div>
           </header>
@@ -2845,7 +2843,7 @@ Notification
             <span class="chip">② 多库组合：让合适的数据库干合适的活</span>
           </div>
 
-          <h3 class="doc-h3">真实项目示例：方法级缓存装饰器</h3>
+          <h3 id="performance-h1" class="doc-h3">真实项目示例：方法级缓存装饰器</h3>
           <p class="doc-p">「读多写少」的数据（配置、字典、权限），每次请求都查 MySQL 太浪费。真实项目把缓存做成了<strong class="font-semibold text-neutral-900">方法级装饰器</strong>，业务方法体里一行缓存代码都没有：</p>
           <figure class="code-card">
             <figcaption class="code-head">
@@ -2875,7 +2873,7 @@ Notification
             <li class="check-item"><span class="check-dot"><svg class="lucide lucide-check" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"> <path d="M20 6 9 17l-5-5" /> </svg></span>每个写操作都配套一个 <code>@CacheEvict</code>，否则用户会读到旧数据</li>
           </ul>
           <p class="doc-p">一次带缓存的请求流程：</p>
-          <div class="flow flow-sm">
+          <div class="flow flow-sm flow-h">
             <div class="flow-node">请求进来</div>
             <div class="flow-arrow"><svg class="lucide lucide-arrow-down" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"> <path d="M12 5v14" /> <path d="m19 12-7 7-7-7" /> </svg></div>
             <div class="flow-node">先查 Redis 缓存</div>
@@ -2908,7 +2906,7 @@ Notification
             <div>缓存不是免费的：引入它就引入了<strong class="font-semibold text-neutral-900">数据不一致的可能</strong>。「更新数据库 + 同步失效缓存」必须成对出现，这正是 @CacheEvict 存在的意义。</div>
           </div>
 
-          <h3 class="doc-h3">多数据库组合：按数据特点分类</h3>
+          <h3 id="performance-h2" class="doc-h3">多数据库组合：按数据特点分类</h3>
           <p class="doc-p">没有一种数据库什么都能干好。真实项目按「数据的读写模式」给数据分类，再各自选存储：</p>
           <div class="my-4 grid gap-4 sm:grid-cols-3">
             <div class="rounded-xl border border-neutral-900 bg-white p-4">
@@ -2951,7 +2949,7 @@ Notification
           </figure>
           <p class="doc-p">元数据进关系型库（要查询、要展示列表），向量进向量库（要语义检索）——<strong class="font-semibold text-neutral-900">各存各的长处，接口负责编排</strong>。</p>
 
-          <h3 class="doc-h3">市面上的企业级数据库：利与弊</h3>
+          <h3 id="performance-h3" class="doc-h3">市面上的企业级数据库：利与弊</h3>
           <p class="doc-p">组合之前，先把市面上的主流选手认清。同样是「存数据」，不同库的设计取舍完全不同，<strong class="font-semibold text-neutral-900">利与弊是一体两面</strong>——它擅长的事，就是它不擅长的另一面：</p>
           <div class="my-4 overflow-x-auto rounded-xl border border-neutral-200 bg-white shadow-sm">
             <table class="w-full text-sm">
@@ -3052,7 +3050,7 @@ Notification
           <header class="mb-5 flex items-start gap-3">
             <span class="sec-num">31</span>
             <div>
-              <p class="eyebrow">接口提效</p>
+              <p class="eyebrow">附录：进阶专题</p>
               <h2 class="sec-title">API 版本化：什么时候要 /v1？</h2>
             </div>
           </header>
@@ -3062,7 +3060,7 @@ Notification
           </div>
           <p class="doc-p">接口第一次上线时，没有人会想版本号。这个问题真正出现，是在第一次"不得不破坏契约"的时刻：字段要改名、响应结构要调整，而调用方已经在用了。这时 URL 里有没有 <code>/v1</code>，决定了你有没有退路。</p>
 
-          <h3 class="doc-h3">判断标准：有没有"升不动"的调用方</h3>
+          <h3 id="api-versioning-h1" class="doc-h3">判断标准：有没有"升不动"的调用方</h3>
           <p class="doc-p">URL 版本号解决的问题只有一个——<strong class="font-semibold text-neutral-900">旧客户端还活着，接口契约却变了</strong>。所以先盘点你的调用方：</p>
           <ul class="my-3 space-y-2">
             <li class="check-item"><span class="check-dot"><svg class="lucide lucide-check" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"> <path d="M20 6 9 17l-5-5" /> </svg></span><span><strong class="font-semibold text-neutral-900">对外开放 API（第三方、合作伙伴）</strong>：微信支付、飞书开放平台的接口都带版本。调用方按自己的节奏升级，你无法协调发版，破坏性变更只能开 <code>/v2</code>。</span></li>
@@ -3070,7 +3068,7 @@ Notification
             <li class="check-item"><span class="check-dot"><svg class="lucide lucide-check" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"> <path d="M20 6 9 17l-5-5" /> </svg></span><span><strong class="font-semibold text-neutral-900">B2B 集成、Webhook 回调地址</strong>：对方系统里写死了 URL，事后改契约的成本极高。</span></li>
           </ul>
 
-          <h3 class="doc-h3">什么情况下不需要 /v1</h3>
+          <h3 id="api-versioning-h2" class="doc-h3">什么情况下不需要 /v1</h3>
           <p class="doc-p">反过来，如果所有调用方都和你一起发版，URL 上的 <code>/v1</code> 就只是仪式：</p>
           <ul class="my-3 space-y-2">
             <li class="cross-item"><span class="cross-dot"><svg class="lucide lucide-minus" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"> <path d="M5 12h14" /> </svg></span><span><strong class="font-semibold text-neutral-900">自家 Web 前端</strong>：前后端同仓库、同一条发布流水线，浏览器永远加载最新前端，不存在"旧客户端"。</span></li>
@@ -3079,7 +3077,7 @@ Notification
             <li class="cross-item"><span class="cross-dot"><svg class="lucide lucide-minus" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"> <path d="M5 12h14" /> </svg></span><span><strong class="font-semibold text-neutral-900">BFF 层</strong>：BFF 的版本就是前端发版版本，隐式绑定。</span></li>
           </ul>
 
-          <h3 class="doc-h3">真正的成本：不是三个字符，是 N 套契约</h3>
+          <h3 id="api-versioning-h3" class="doc-h3">真正的成本：不是三个字符，是 N 套契约</h3>
           <p class="doc-p">版本化的开销不是 URL 里多三个字符，而是<strong class="font-semibold text-neutral-900">同时维护多套契约</strong>：双份路由、双份文档、双份测试、双份客户端 SDK，并且要一直养到最后一方迁走为止：</p>
           <figure class="code-card">
             <figcaption class="code-head">
@@ -3104,7 +3102,7 @@ app.<span class="hljs-title function_">use</span>(<span class="hljs-string">&#x2
             <li class="check-item"><span class="check-dot"><svg class="lucide lucide-check" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"> <path d="M20 6 9 17l-5-5" /> </svg></span><span><strong class="font-semibold text-neutral-900">版本号是承诺</strong>：<code>/v1</code> 存在的每一天，你都要养着它。</span></li>
           </ul>
 
-          <h3 class="doc-h3">大厂怎么做：企业级案例</h3>
+          <h3 id="api-versioning-h4" class="doc-h3">大厂怎么做：企业级案例</h3>
           <p class="doc-p">把上面的判断放进真实世界，国内开放平台同样分两派——<strong class="font-semibold text-neutral-900">大版本进 URL</strong>，还是<strong class="font-semibold text-neutral-900">把版本藏进请求参数</strong>：</p>
           <div class="flow-row">
             <span class="fr-node">大版本进 URL · 微信支付 / 钉钉 / 飞书 / 高德 / 大模型 API</span>
@@ -3148,7 +3146,7 @@ app.<span class="hljs-title function_">use</span>(<span class="hljs-string">&#x2
             <div>国内开放平台的共同点：版本绑定的是<strong class="font-semibold text-neutral-900">契约</strong>而不是代码；弃用与迁移窗口白纸黑字（微信支付 V2 长期只维护、高德给逐接口迁移指南）；升级永远由调用方发起。选哪一派，只取决于一件事——<strong class="font-semibold text-neutral-900">调用方能不能跟你同步发版</strong>。</div>
           </div>
 
-          <h3 class="doc-h3">什么才算"破坏性变更"</h3>
+          <h3 id="api-versioning-h5" class="doc-h3">什么才算"破坏性变更"</h3>
           <p class="doc-p">内部接口想做到"永远不需要版本号"，靠的是只做非破坏变更。判断标准：</p>
           <div class="my-4 grid gap-4 sm:grid-cols-2">
             <figure class="diagram-card my-0">
@@ -3184,7 +3182,7 @@ app.<span class="hljs-title function_">use</span>(<span class="hljs-string">&#x2
           <header class="mb-5 flex items-start gap-3">
             <span class="sec-num">32</span>
             <div>
-              <p class="eyebrow">框架选型</p>
+              <p class="eyebrow">附录：进阶专题</p>
               <h2 class="sec-title">后端框架对比</h2>
             </div>
           </header>
@@ -3199,7 +3197,7 @@ app.<span class="hljs-title function_">use</span>(<span class="hljs-string">&#x2
             <span class="chip">③ 跨语言对照：FastAPI / Gin</span>
           </div>
 
-          <h3 class="doc-h3">TS/Node 后端框架：两大家族</h3>
+          <h3 id="frameworks-h1" class="doc-h3">TS/Node 后端框架：两大家族</h3>
           <p class="doc-p">按「框架替你做多少」，TS/Node 后端框架可以分成两大家族：</p>
           <div class="my-4 grid gap-4 sm:grid-cols-2">
             <div class="rounded-2xl border border-neutral-900 bg-white p-5 shadow-sm">
@@ -3242,7 +3240,7 @@ app.<span class="hljs-title function_">use</span>(<span class="hljs-string">&#x2
             <div>怎么选：个人学习 / 小工具，Express 或 Hono 随手写；性能敏感，上 Fastify；想上 Bun 运行时，ElysiaJS（Bun 原生）或 Hono（同一份代码跨 Node / Bun / 边缘）都行；<strong class="font-semibold text-neutral-900">中大型业务系统，选 NestJS 这类自带架构的框架</strong>——它把本文档讲的分层、DI、模块化变成了开箱即用的默认。</div>
           </div>
 
-          <h3 class="doc-h3">同一个接口，四种写法</h3>
+          <h3 id="frameworks-h2" class="doc-h3">同一个接口，四种写法</h3>
           <p class="doc-p">框架的差别，同一个「创建用户」接口最能看出来。先是 Express——一切都要自己动手：</p>
           <figure class="code-card">
             <figcaption class="code-head">
@@ -3327,7 +3325,7 @@ app.<span class="hljs-title function_">post</span>(<span class="hljs-string">&#x
             <li class="check-item"><span class="check-dot"><svg class="lucide lucide-check" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"> <path d="M20 6 9 17l-5-5" /> </svg></span>微内核框架（Express/Fastify/Hono）只是把第 6–14 章讲的校验、错误处理、统一响应退回给你自己组装</li>
           </ul>
 
-          <h3 class="doc-h3">全栈框架：Next.js / Nuxt / Remix</h3>
+          <h3 id="frameworks-h3" class="doc-h3">全栈框架：Next.js / Nuxt / Remix</h3>
           <p class="doc-p">另一条路线是<strong class="font-semibold text-neutral-900">前后端一体</strong>：一个仓库、一个进程，前端框架直接提供「服务端接口」的能力，为的是 BFF（Backend For Frontend）和全栈一体化：</p>
           <div class="my-4 overflow-x-auto rounded-xl border border-neutral-200 bg-white shadow-sm">
             <table class="w-full text-sm">
@@ -3368,7 +3366,7 @@ app.<span class="hljs-title function_">post</span>(<span class="hljs-string">&#x
             <div>全栈框架的边界：适合<strong class="font-semibold text-neutral-900">页面 + 轻量接口</strong>（BFF、CRUD 原型、内容站）。它们不提供分层约束——没有 DI 容器、没有模块系统，Service / Repository 要自己组织。业务一旦变重，常见做法是<strong class="font-semibold text-neutral-900">全栈框架管前端 + NestJS 管后端</strong>各司其职，或者在前端仓库里按本文学的方式手搭分层。</div>
           </div>
 
-          <h3 class="doc-h3">跨语言对照：FastAPI 与 Gin</h3>
+          <h3 id="frameworks-h4" class="doc-h3">跨语言对照：FastAPI 与 Gin</h3>
           <p class="doc-p">跳出 JS 世界看一眼，最能验证一件事：<strong class="font-semibold text-neutral-900">好用的后端设计是跨语言通用的</strong>。FastAPI（Python）被称作「Python 界的 NestJS 体验」，因为它把 TS 后端的核心三件套——类型注解、校验、DI——做成了默认：</p>
           <div class="my-4 overflow-x-auto rounded-xl border border-neutral-200 bg-white shadow-sm">
             <table class="w-full text-sm">
@@ -3459,7 +3457,7 @@ r.POST(<span class="hljs-string">&quot;/users&quot;</span>, <span class="hljs-fu
           <header class="mb-5 flex items-start gap-3">
             <span class="sec-num">33</span>
             <div>
-              <p class="eyebrow">请求与响应</p>
+              <p class="eyebrow">附录：进阶专题</p>
               <h2 class="sec-title">请求拦截器与响应拦截器</h2>
             </div>
           </header>
@@ -3469,9 +3467,9 @@ r.POST(<span class="hljs-string">&quot;/users&quot;</span>, <span class="hljs-fu
           </div>
           <p class="doc-p">一个请求从进来到响应出去，中间是一条完整的管道。除了 Controller 里的业务逻辑，还有一类"每个接口都需要"的公共逻辑：校验 Token、记日志、限流、把返回值包成统一响应格式……这些逻辑写进每个接口就是灾难。拦截器（Interceptor）就是在管道上<strong class="font-semibold text-neutral-900">统一拦一次</strong>的机制：请求侧拦一次，响应侧拦一次。</p>
 
-          <h3 class="doc-h3">请求生命周期：公共逻辑挂在哪</h3>
+          <h3 id="interceptors-h1" class="doc-h3">请求生命周期：公共逻辑挂在哪</h3>
           <p class="doc-p">以 NestJS 为例（Express / Koa 里这些都统一用中间件链表达，后面会讲到），一个请求的完整生命周期：</p>
-          <div class="flow flow-sm">
+          <div class="flow flow-sm flow-steps">
             <div class="flow-node">请求 Request</div>
             <div class="flow-arrow"><svg class="lucide lucide-arrow-down" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"> <path d="M12 5v14" /> <path d="m19 12-7 7-7-7" /> </svg></div>
             <div class="flow-node">中间件 Middleware<span class="flow-sub">CORS、body 解析、请求日志</span></div>
@@ -3491,7 +3489,7 @@ r.POST(<span class="hljs-string">&quot;/users&quot;</span>, <span class="hljs-fu
             <div class="flow-node">响应 Response</div>
           </div>
 
-          <h3 class="doc-h3">请求拦截器：进门检查</h3>
+          <h3 id="interceptors-h2" class="doc-h3">请求拦截器：进门检查</h3>
           <p class="doc-p">在请求到达 Controller <strong class="font-semibold text-neutral-900">之前</strong>执行，干的是"进门检查"的活——所有请求都要做、但跟具体业务无关的事：</p>
           <ul class="my-3 space-y-2">
             <li class="check-item"><span class="check-dot"><svg class="lucide lucide-check" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"> <path d="M20 6 9 17l-5-5" /> </svg></span><span><strong class="font-semibold text-neutral-900">身份认证</strong>：校验 Token，解析出 <code>userId</code>、<code>tenantId</code> 挂到 request 上，后面的代码直接取用。</span></li>
@@ -3501,7 +3499,7 @@ r.POST(<span class="hljs-string">&quot;/users&quot;</span>, <span class="hljs-fu
           </ul>
           <p class="doc-p">关键行为是<strong class="font-semibold text-neutral-900">短路</strong>：检查不通过就直接返回错误响应，Controller 根本不会执行——这就是"拦截"两个字的本意。</p>
 
-          <h3 class="doc-h3">响应拦截器：出门包装</h3>
+          <h3 id="interceptors-h3" class="doc-h3">响应拦截器：出门包装</h3>
           <p class="doc-p">在响应离开 Controller <strong class="font-semibold text-neutral-900">之后</strong>执行，干的是"出门统一包装"的活：</p>
           <ul class="my-3 space-y-2">
             <li class="check-item"><span class="check-dot"><svg class="lucide lucide-check" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"> <path d="M20 6 9 17l-5-5" /> </svg></span><span><strong class="font-semibold text-neutral-900">统一响应格式</strong>：把 Controller 返回的裸数据包成 <code>{ code, msg, data }</code>（第 14 节的 ResultData，下一节代码见）。</span></li>
@@ -3510,7 +3508,7 @@ r.POST(<span class="hljs-string">&quot;/users&quot;</span>, <span class="hljs-fu
             <li class="check-item"><span class="check-dot"><svg class="lucide lucide-check" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"> <path d="M20 6 9 17l-5-5" /> </svg></span><span><strong class="font-semibold text-neutral-900">敏感信息过滤</strong>：统一剔除或脱敏不该出现在响应里的字段。</span></li>
           </ul>
 
-          <h3 class="doc-h3">真实项目示例：全局响应拦截器</h3>
+          <h3 id="interceptors-h4" class="doc-h3">真实项目示例：全局响应拦截器</h3>
           <p class="doc-p">第 14 节的 <code>ResultData</code> 是"约定"——靠每个 Service 方法自觉调用 <code>ResultData.ok()</code>。用拦截器可以把它升级成"机制"。NestJS 的拦截器在请求侧和响应侧各拦一次，写在同一个类里：</p>
           <figure class="code-card">
             <figcaption class="code-head">
@@ -3580,7 +3578,7 @@ app.<span class="hljs-title function_">useGlobalInterceptors</span>(<span class=
             </figure>
           </div>
 
-          <h3 class="doc-h3">失败路径去哪了？</h3>
+          <h3 id="interceptors-h5" class="doc-h3">失败路径去哪了？</h3>
           <p class="doc-p">拦截器的 <code>map</code> 只接得住"正常返回"。Service 抛出的异常不会经过它，而是直接落到全局异常过滤器（第 13 节）。所以统一响应有两只手，各管一半：</p>
           <div class="my-4 grid gap-4 sm:grid-cols-2">
             <figure class="diagram-card my-0">
@@ -3607,7 +3605,7 @@ app.<span class="hljs-title function_">useGlobalInterceptors</span>(<span class=
             <div>呼应第 13、14 节：<strong class="font-semibold text-neutral-900">成功由拦截器包，失败由过滤器包，业务代码既不写包装、也不写 try/catch</strong>。三件事拼在一起，才是完整的请求管道。</div>
           </div>
 
-          <h3 class="doc-h3">五种机制怎么分工？</h3>
+          <h3 id="interceptors-h6" class="doc-h3">五种机制怎么分工？</h3>
           <p class="doc-p">NestJS 把管道拆成了几种角色，初学最容易混。按"管什么"来记：</p>
           <div class="my-4 overflow-x-auto rounded-xl border border-neutral-200 bg-white shadow-sm">
             <table class="w-full text-sm">
@@ -3653,7 +3651,7 @@ app.<span class="hljs-title function_">useGlobalInterceptors</span>(<span class=
           </figure>
           <p class="doc-p">写过前端的话，这个词你大概率在 axios 里见过：<code>interceptors.request.use</code> 给每个请求统一带上 Token，<code>interceptors.response.use</code> 把统一响应"拆"开、401 自动跳登录。后端的拦截器是同一件事换了一边：<strong class="font-semibold text-neutral-900">前端在浏览器里"加 Token、拆响应"，后端在服务器里"验 Token、装响应"</strong>——同一个统一响应契约，两端各有一个拦截器在维护。</p>
 
-          <h3 class="doc-h3">什么该放进拦截器</h3>
+          <h3 id="interceptors-h7" class="doc-h3">什么该放进拦截器</h3>
           <ul class="my-3 space-y-2">
             <li class="check-item"><span class="check-dot"><svg class="lucide lucide-check" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"> <path d="M20 6 9 17l-5-5" /> </svg></span><span><strong class="font-semibold text-neutral-900">该放</strong>：所有请求都要走一遍、且与具体业务无关的逻辑——认证、日志、追踪、限流、统一包装。</span></li>
             <li class="check-item"><span class="check-dot"><svg class="lucide lucide-check" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"> <path d="M20 6 9 17l-5-5" /> </svg></span><span><strong class="font-semibold text-neutral-900">该放</strong>：希望将来能全局统一调整的策略——日志格式升级、响应加追踪头，改一处即可。</span></li>
@@ -3672,12 +3670,20 @@ app.<span class="hljs-title function_">useGlobalInterceptors</span>(<span class=
         </section>
         <!-- /build:sections -->
       </main>
+
+      <!-- 宽屏右侧：本节内容（由脚本按当前小节的 h3 生成，小标题少于 2 个时隐藏） -->
+      <aside class="hidden xl:block">
+        <nav id="outline" aria-label="本节内容" class="sticky top-8 max-h-[calc(100vh-4rem)] overflow-y-auto py-12 text-sm" hidden>
+          <p class="outline-title">本节内容</p>
+          <div id="outline-list"></div>
+        </nav>
+      </aside>
     </div>
   </div>
 
   <!-- ======================= Footer ======================= -->
   <footer class="border-t border-neutral-200 bg-white">
-    <div class="mx-auto max-w-6xl px-4 py-8 text-center text-xs text-neutral-500 sm:px-6 lg:px-8">
+    <div class="mx-auto max-w-6xl px-4 py-8 text-center text-xs text-neutral-500 sm:px-6 lg:px-8 xl:max-w-[88rem]">
       <p class="font-medium text-neutral-600">TS 后端架构：从 0 基础到高内聚低耦合</p>
       <p class="mt-1">先解决问题，再引入抽象 · 样式由 Tailwind CSS 构建 · 代码高亮由 highlight.js 提供 · 图标来自 Lucide</p>
     </div>

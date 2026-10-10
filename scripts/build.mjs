@@ -90,7 +90,12 @@ function fill(src, name, body, indent) {
 const indexPath = join(root, 'index.html');
 const before = readFileSync(indexPath, 'utf8').replace(/\r\n/g, '\n');
 let out = fill(before, 'toc', toc.join('\n'), '          ');
-out = fill(out, 'sections', highlightCode(sections.map((s) => s.html).join('\n\n')), '        ');
+// 小标题自动编锚点（<小节 id>-h<序号>），供「本节内容」导航与深链使用；源片段保持干净
+const withHeadingIds = (s) => {
+  let n = 0;
+  return s.html.replace(/<h3 class="doc-h3">/g, () => `<h3 id="${s.id}-h${++n}" class="doc-h3">`);
+};
+out = fill(out, 'sections', highlightCode(sections.map(withHeadingIds).join('\n\n')), '        ');
 // 模板中的图标转换后会留在 index.html 里，再次构建时已无 <i data-lucide>，结果不变
 out = inlineIcons(out);
 
