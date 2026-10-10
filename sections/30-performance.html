@@ -3,7 +3,7 @@
           <header class="mb-5 flex items-start gap-3">
             <span class="sec-num">30</span>
             <div>
-              <p class="eyebrow">接口提效</p>
+              <p class="eyebrow">附录：进阶专题</p>
               <h2 class="sec-title">Redis 缓存与多库组合</h2>
             </div>
           </header>
@@ -47,7 +47,7 @@ async update(updateConfigDto: UpdateConfigDto) {
             <li class="check-item"><span class="check-dot"><i data-lucide="check"></i></span>每个写操作都配套一个 <code>@CacheEvict</code>，否则用户会读到旧数据</li>
           </ul>
           <p class="doc-p">一次带缓存的请求流程：</p>
-          <div class="flow flow-sm">
+          <div class="flow flow-sm flow-h">
             <div class="flow-node">请求进来</div>
             <div class="flow-arrow"><i data-lucide="arrow-down"></i></div>
             <div class="flow-node">先查 Redis 缓存</div>

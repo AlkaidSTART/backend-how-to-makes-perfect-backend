@@ -1,4 +1,4 @@
-// 页面脚本：复制按钮、阅读进度、目录高亮与移动端导航（代码高亮与图标已在构建期完成）
+// 页面脚本：复制按钮、阅读进度、目录高亮、本节内容与移动端导航（代码高亮与图标已在构建期完成）
 (function () {
   'use strict';
 
@@ -101,6 +101,40 @@
   buildMobileToc(nowPanel);
   var allLinks = Array.prototype.slice.call(document.querySelectorAll('.toc-link'));
 
+  // 本节内容：按当前小节的 h3 生成，宽屏放右侧栏，移动端放在当前小节条面板顶部
+  var outlineNav = document.getElementById('outline');
+  var outlineList = document.getElementById('outline-list');
+  var nowOutline = document.createElement('div');
+  nowOutline.id = 'now-outline';
+  nowOutline.hidden = true;
+  nowPanel.insertBefore(nowOutline, nowPanel.firstChild);
+  var outlineHeads = [], outlineLinks = [], lastHead = null;
+
+  function renderOutline(section) {
+    var heads = section ? Array.prototype.slice.call(section.querySelectorAll('h3.doc-h3[id]')) : [];
+    outlineHeads = heads.length >= 2 ? heads : [];
+    outlineLinks = [];
+    lastHead = null;
+    outlineList.textContent = '';
+    nowOutline.textContent = '';
+    outlineNav.hidden = nowOutline.hidden = !outlineHeads.length;
+    if (!outlineHeads.length) return;
+    var label = document.createElement('p');
+    label.className = 'tocm-group';
+    label.textContent = '本节内容';
+    nowOutline.appendChild(label);
+    outlineHeads.forEach(function (h) {
+      [outlineList, nowOutline].forEach(function (box) {
+        var a = document.createElement('a');
+        a.className = 'outline-link';
+        a.href = '#' + h.id;
+        a.textContent = h.textContent.trim();
+        box.appendChild(a);
+        outlineLinks.push(a);
+      });
+    });
+  }
+
   function setPanel(open) {
     nowPanel.hidden = !open;
     nowBtn.setAttribute('aria-expanded', String(open));
@@ -155,17 +189,30 @@
       if (!pastHero && !nowPanel.hidden) setPanel(false);
 
       var href = current ? current.href : null;
-      if (href === lastHref) return;
-      lastHref = href;
-      allLinks.forEach(function (a) {
-        var on = a.getAttribute('href') === href;
-        a.classList.toggle('toc-active', on);
-        if (on) a.setAttribute('aria-current', 'location'); else a.removeAttribute('aria-current');
-      });
-      if (current) {
-        nowNum.textContent = current.num;
-        nowTitle.textContent = current.title;
-        if (tocNav.offsetParent) keepTocVisible(current.a);
+      if (href !== lastHref) {
+        lastHref = href;
+        allLinks.forEach(function (a) {
+          var on = a.getAttribute('href') === href;
+          a.classList.toggle('toc-active', on);
+          if (on) a.setAttribute('aria-current', 'location'); else a.removeAttribute('aria-current');
+        });
+        if (current) {
+          nowNum.textContent = current.num;
+          nowTitle.textContent = current.title;
+          if (tocNav.offsetParent) keepTocVisible(current.a);
+        }
+        renderOutline(current && current.el);
+      }
+
+      // 本节内容高亮：最后一个越过阅读线的小标题
+      var head = null;
+      for (var j = 0; j < outlineHeads.length; j++) {
+        if (outlineHeads[j].getBoundingClientRect().top <= 150) head = outlineHeads[j];
+      }
+      if (head !== lastHead) {
+        lastHead = head;
+        var target = head ? '#' + head.id : null;
+        outlineLinks.forEach(function (a) { a.classList.toggle('outline-active', a.getAttribute('href') === target); });
       }
     });
   }

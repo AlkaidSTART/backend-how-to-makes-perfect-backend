@@ -181,7 +181,7 @@
 }</code></pre>
           </figure>
           <p class="doc-p">但如果 <code>UserService</code>、<code>OrderService</code>、<code>PaymentService</code>、<code>ProductService</code> 全部直接依赖 Prisma，业务代码到处都是 <code>prisma.user.find...</code>，这时候就要开始考虑：</p>
-          <div class="flow flow-sm">
+          <div class="flow flow-sm flow-h">
             <div class="flow-node">业务逻辑</div>
             <div class="flow-arrow"><i data-lucide="arrow-down"></i></div>
             <div class="flow-node">Repository Interface</div>

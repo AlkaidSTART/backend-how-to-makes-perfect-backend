@@ -28,11 +28,13 @@ html { scroll-behavior: smooth; }
 
 @layer components {
   /* ---------- 版式 ---------- */
-  .doc-p { @apply my-3 text-[15px] leading-7 text-neutral-600; }
+  /* 正文行宽控制在约 44 个汉字；代码、表格、图示等视觉块仍用满栏宽 */
+  .doc-p { @apply my-3 max-w-[42rem] text-[15px] leading-7 text-neutral-600; }
+  .doc-section > ul:not(.grid), .doc-section > ol:not(.grid) { @apply max-w-[42rem]; }
   .eyebrow { @apply text-[11px] font-semibold uppercase tracking-widest text-neutral-500; }
   .sec-num { @apply mt-0.5 flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-neutral-900 font-mono text-sm font-bold text-white; }
   .sec-title { @apply text-xl font-bold tracking-tight text-neutral-900 sm:text-2xl; }
-  .doc-h3 { @apply mb-4 mt-10 flex items-center gap-2 text-lg font-bold text-neutral-900; }
+  .doc-h3 { @apply mb-4 mt-10 flex scroll-mt-14 items-center gap-2 text-lg font-bold text-neutral-900 lg:scroll-mt-8; }
   .doc-h3::before { content: ""; @apply inline-block h-4 w-1 rounded-full bg-neutral-900; }
   .doc-body :not(pre) > code { @apply rounded-md border border-neutral-200 bg-neutral-100 px-1.5 py-0.5 font-mono text-[0.85em] font-medium text-neutral-900; }
   /* 长 URL / 路径型行内代码在窄屏允许任意处断行，避免撑破容器 */
@@ -46,6 +48,17 @@ html { scroll-behavior: smooth; }
   .flow-node-accent { @apply border-neutral-900 bg-neutral-900 text-white; }
   .flow-arrow { @apply select-none py-1 text-lg leading-none text-neutral-300; }
   .flow-sm .flow-node { @apply px-3 py-1.5 text-[13px]; }
+  /* flow-h：md 以上节点横排、箭头转向右（适合 ≤5 个节点） */
+  .flow-h { @apply md:flex-row md:items-stretch md:justify-center; }
+  .flow-h .flow-node { @apply md:flex md:w-auto md:min-w-0 md:max-w-[12rem] md:flex-1 md:flex-col md:justify-center; }
+  .flow-h .flow-arrow { @apply md:flex md:items-center md:px-1 md:py-0; }
+  .flow-h .flow-arrow svg { @apply md:-rotate-90; }
+  /* flow-steps：md 以上改为带序号的网格（适合 ≥6 个节点的长流程），顺序由序号表达 */
+  .flow-steps { counter-reset: flow-step; @apply md:grid md:grid-cols-2 md:items-stretch md:gap-3 lg:grid-cols-3; }
+  .flow-steps .flow-node { counter-increment: flow-step; @apply relative md:max-w-none md:pl-11 md:text-left; }
+  .flow-steps .flow-node::before { content: counter(flow-step, decimal-leading-zero); padding-top: inherit; line-height: inherit; @apply absolute left-4 top-0 hidden font-mono text-[11px] font-normal text-neutral-500 md:block; }
+  .flow-steps .flow-node-accent::before { @apply text-neutral-400; }
+  .flow-steps .flow-arrow { @apply md:hidden; }
   .flow-row { @apply my-4 flex flex-wrap items-center justify-center gap-x-2 gap-y-2; }
   .fr-node { @apply rounded-lg border border-neutral-200 bg-white px-3 py-1.5 font-mono text-xs font-semibold text-neutral-700 shadow-sm; }
   .fr-arrow { @apply text-neutral-300; }
@@ -137,6 +150,12 @@ html { scroll-behavior: smooth; }
 .toc-active { @apply border-neutral-900 font-semibold text-neutral-900; }
 .toc-num { @apply shrink-0 font-mono text-[11px] font-normal leading-5 text-neutral-500; }
 .toc-active .toc-num { @apply text-neutral-900; }
+
+/* ---------- 本节内容：宽屏右侧栏 / 移动端面板 ---------- */
+.outline-title { @apply mb-2 px-3 text-xs font-bold uppercase tracking-widest text-neutral-500; }
+.outline-link { @apply block border-l-2 border-transparent py-1 pl-3 text-[13px] leading-5 text-neutral-500 transition hover:border-neutral-300 hover:text-neutral-900; }
+.outline-active { @apply border-neutral-900 font-semibold text-neutral-900; }
+#now-outline { @apply mb-4 border-b border-neutral-200 pb-3; }
 
 /* ---------- 移动端目录（由 #toc 生成） ---------- */
 .tocm-group { @apply mb-1 mt-4 text-[11px] font-semibold uppercase tracking-wider text-neutral-500 first:mt-0; }
