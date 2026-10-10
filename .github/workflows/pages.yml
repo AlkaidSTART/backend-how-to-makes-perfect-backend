@@ -1,4 +1,4 @@
-# 纯静态站点：push 到 main 后把页面文件发布到 GitHub Pages
+# push 到 main 后构建（拼装小节 + 编译 Tailwind）并发布到 GitHub Pages
 name: Deploy to GitHub Pages
 
 on:
@@ -24,11 +24,23 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      # 只发布站点需要的文件，不把 docs/、编辑器配置等带上线
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      # 重新拼装小节并编译样式，即使提交时忘了 npm run build，线上也与 sections/ 一致
+      - name: Build
+        run: |
+          npm ci
+          npm run build
+
+      # 只发布站点需要的文件；sections/ 已拼入 index.html，docs/、构建脚本等不上线
       - name: Assemble site
         run: |
-          mkdir -p _site
-          cp -r index.html assets sections _site/
+          mkdir -p _site/assets
+          cp index.html _site/
+          cp assets/site.css assets/site.js _site/assets/
           touch _site/.nojekyll
 
       - uses: actions/configure-pages@v5
